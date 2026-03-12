@@ -198,7 +198,7 @@ export const topics = [
       { id: "builder", purpose: "생성", nameKo: "빌더", nameEn: "Builder", aliases: ["빌더", "builder"], examDescription: "생성 단계를 캡슐화하여 구축 공정을 동일하게 하는 패턴" },
       { id: "prototype", purpose: "생성", nameKo: "프로토타입", nameEn: "Prototype", aliases: ["프로토타입", "prototype"], examDescription: "기존 객체를 복제해서 새 객체를 생성 가능한 패턴" },
       { id: "factory-method", purpose: "생성", nameKo: "팩토리 메서드", nameEn: "Factory Method", aliases: ["팩토리 메서드", "팩토리메서드", "factory method", "factorymethod"], examDescription: "상위 클래스에서 객체 생성 인터페이스를 정의하고, 하위 클래스에서 생성할 객체를 결정하는 패턴" },
-      { id: "abstract-factory", purpose: "생성", nameKo: "추상 팩토리", nameEn: "Abstract Factory", aliases: ["추상 팩토리", "추상팩토리", "abstract factory", "abstractfactory"], examDescription: "서로 관련된 객체들을 하나의 그룹으로 묶어 생성할 수 있는 인터페이스를 제공하는 패턴" },
+      { id: "abstract-factory", purpose: "생성", nameKo: "추상 팩토리", nameEn: "Abstract Factory", aliases: ["추상 팩토리", "추상팩토리", "abstract factory", "abstractfactory"], examDescription: "구체적인 클래스에 의존하지 않고, 인터페이스를 통해 서로 연관·의존하는 객체들의 그룹으로 생성하여 추상적으로 표현하는 패턴. 연관된 서브 클래스를 묶어 한 번에 교체하는 것이 가능하다." },
       { id: "singleton", purpose: "생성", nameKo: "싱글턴", nameEn: "Singleton", aliases: ["싱글턴", "singleton"], examDescription: "유일한 하나의 인스턴스를 보장하는 패턴" },
       { id: "bridge", purpose: "구조", nameKo: "브릿지", nameEn: "Bridge", aliases: ["브릿지", "bridge"], examDescription: "추상과 구현을 분리하여 결합도를 낮춘 패턴" },
       { id: "decorator", purpose: "구조", nameKo: "데코레이터", nameEn: "Decorator", aliases: ["데코레이터", "decorator"], examDescription: "소스를 변경하지 않고 기능을 확장하는 패턴" },
