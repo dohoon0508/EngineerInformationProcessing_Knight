@@ -200,7 +200,7 @@ export const topics = [
       { id: "factory-method", purpose: "생성", nameKo: "팩토리 메서드", nameEn: "Factory Method", aliases: ["팩토리 메서드", "팩토리메서드", "factory method", "factorymethod"], examDescription: "상위 클래스에서 객체 생성 인터페이스를 정의하고, 하위 클래스에서 생성할 객체를 결정하는 패턴" },
       { id: "abstract-factory", purpose: "생성", nameKo: "추상 팩토리", nameEn: "Abstract Factory", aliases: ["추상 팩토리", "추상팩토리", "abstract factory", "abstractfactory"], examDescription: "서로 관련된 객체들을 하나의 그룹으로 묶어 생성할 수 있는 인터페이스를 제공하는 패턴" },
       { id: "singleton", purpose: "생성", nameKo: "싱글턴", nameEn: "Singleton", aliases: ["싱글턴", "singleton"], examDescription: "유일한 하나의 인스턴스를 보장하는 패턴" },
-      { id: "bridge", purpose: "구조", nameKo: "브리지", nameEn: "Bridge", aliases: ["브리지", "bridge"], examDescription: "추상과 구현을 분리하여 결합도를 낮춘 패턴" },
+      { id: "bridge", purpose: "구조", nameKo: "브릿지", nameEn: "Bridge", aliases: ["브릿지", "bridge"], examDescription: "추상과 구현을 분리하여 결합도를 낮춘 패턴" },
       { id: "decorator", purpose: "구조", nameKo: "데코레이터", nameEn: "Decorator", aliases: ["데코레이터", "decorator"], examDescription: "소스를 변경하지 않고 기능을 확장하는 패턴" },
       { id: "facade", purpose: "구조", nameKo: "퍼사드", nameEn: "Facade", aliases: ["퍼사드", "facade"], examDescription: "하나의 인터페이스를 통해 느슨한 결합을 제공하는 패턴" },
       { id: "flyweight", purpose: "구조", nameKo: "플라이웨이트", nameEn: "Flyweight", aliases: ["플라이웨이트", "flyweight"], examDescription: "대량의 작은 객체들을 공유하는 패턴" },
