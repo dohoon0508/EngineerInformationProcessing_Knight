@@ -7,11 +7,6 @@ export const QUIZ_TYPES = {
   MULTIPLE_CHOICE: "multiple-choice",
 };
 
-export const QUESTION_MODES = {
-  NAME_FROM_DESC: "name-from-desc", // 설명 → 이름 맞히기
-  DESC_FROM_NAME: "desc-from-name", // 이름 → 설명 맞히기
-};
-
 /**
  * 가중치 기반 랜덤 선택
  */
@@ -38,9 +33,9 @@ function shuffle(array) {
 }
 
 /**
- * 다음 문제 생성
+ * 다음 문제 생성 (설명 → 이름 맞히기만 지원)
  */
-export function getNextQuestion(topic, quizType, questionMode, lastItemId = null) {
+export function getNextQuestion(topic, quizType, lastItemId = null) {
   const items = topic.items;
   if (!items?.length) return null;
 
@@ -55,36 +50,27 @@ export function getNextQuestion(topic, quizType, questionMode, lastItemId = null
   }
 
   const item = items[idx];
-  const mode = questionMode ?? (Math.random() < 0.5 ? QUESTION_MODES.NAME_FROM_DESC : QUESTION_MODES.DESC_FROM_NAME);
-
   const displayName = formatDisplayName(item);
   const description = item.examDescription || item.description;
 
   return {
     item,
-    mode,
     quizType,
-    question: mode === QUESTION_MODES.NAME_FROM_DESC ? description : displayName,
-    answer: mode === QUESTION_MODES.NAME_FROM_DESC ? displayName : description,
+    question: description,
+    answer: displayName,
     answerDisplay: displayName,
     options:
       quizType === QUIZ_TYPES.MULTIPLE_CHOICE
-        ? getMultipleChoiceOptions(items, item, mode)
+        ? getMultipleChoiceOptions(items, item)
         : quizType === QUIZ_TYPES.FULL_LIST
-          ? shuffle(items.map((i) => (mode === QUESTION_MODES.NAME_FROM_DESC ? formatDisplayName(i) : (i.examDescription || i.description))))
+          ? shuffle(items.map((i) => formatDisplayName(i)))
           : null,
   };
 }
 
-function getDescription(item) {
-  return item.examDescription || item.description;
-}
-
-function getMultipleChoiceOptions(items, correctItem, mode) {
-  const correct = mode === QUESTION_MODES.NAME_FROM_DESC ? formatDisplayName(correctItem) : getDescription(correctItem);
+function getMultipleChoiceOptions(items, correctItem) {
+  const correct = formatDisplayName(correctItem);
   const others = items.filter((i) => i.id !== correctItem.id);
-  const wrongs = shuffle(others)
-    .slice(0, 3)
-    .map((i) => (mode === QUESTION_MODES.NAME_FROM_DESC ? formatDisplayName(i) : getDescription(i)));
+  const wrongs = shuffle(others).slice(0, 3).map((i) => formatDisplayName(i));
   return shuffle([correct, ...wrongs]);
 }

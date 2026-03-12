@@ -64,32 +64,6 @@
   background: #f1f5f9;
 }
 
-.question-mode-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.question-mode-toggle span {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
-
-.question-mode-toggle button {
-  padding: 0.4rem 0.75rem;
-  border: 1px solid #e2e8f0;
-  background: var(--color-card);
-  border-radius: 6px;
-  font-size: 0.8rem;
-}
-
-.question-mode-toggle button.active {
-  background: #dbeafe;
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
 .reset-btn {
   margin-left: auto;
   padding: 0.4rem 0.75rem;

@@ -11,10 +11,7 @@ export default function SubjectiveQuestion({ question, onSubmit }) {
     }
   };
 
-  const hint =
-    question.mode === "name-from-desc"
-      ? "공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)"
-      : "설명을 입력하세요 (핵심 키워드 포함)";
+  const hint = "공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)";
 
   return (
     <div className="question-card">

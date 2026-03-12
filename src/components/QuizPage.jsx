@@ -1,13 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { topics } from "../data/topics";
-import {
-  getNextQuestion,
-  QUIZ_TYPES,
-  QUESTION_MODES,
-} from "../utils/quizEngine";
+import { getNextQuestion, QUIZ_TYPES } from "../utils/quizEngine";
 import { updateItemStats, loadStats, resetStats } from "../utils/storage";
-import { checkNameAnswer, checkDescriptionAnswer } from "../utils/normalize";
+import { checkNameAnswer } from "../utils/normalize";
 import QuizStats from "./QuizStats";
 import SubjectiveQuestion from "./SubjectiveQuestion";
 import MultipleChoiceQuestion from "./MultipleChoiceQuestion";
@@ -18,7 +14,6 @@ export default function QuizPage() {
   const { topicId } = useParams();
   const topic = topics.find((t) => t.id === topicId);
   const [quizType, setQuizType] = useState(QUIZ_TYPES.SUBJECTIVE);
-  const [questionMode, setQuestionMode] = useState(QUESTION_MODES.NAME_FROM_DESC);
   const [question, setQuestion] = useState(null);
   const [lastItemId, setLastItemId] = useState(null);
   const [stats, setStats] = useState(() => loadStats());
@@ -27,34 +22,29 @@ export default function QuizPage() {
 
   const loadNextQuestion = useCallback(() => {
     if (!topic) return;
-    const q = getNextQuestion(topic, quizType, questionMode, lastItemId);
+    const q = getNextQuestion(topic, quizType, lastItemId);
     setQuestion(q);
     setResult(null);
     if (q) setLastItemId(q.item.id);
-  }, [topic, quizType, questionMode, lastItemId]);
+  }, [topic, quizType, lastItemId]);
 
   useEffect(() => {
     if (topic) loadNextQuestion();
-  }, [topic, quizType, questionMode]);
+  }, [topic, quizType]);
 
   const handleSubmit = (userAnswer) => {
     if (!question || result) return;
-    let isCorrect;
-    if (quizType === QUIZ_TYPES.SUBJECTIVE) {
-      isCorrect =
-        question.mode === "name-from-desc"
-          ? checkNameAnswer(userAnswer, question.item)
-          : checkDescriptionAnswer(userAnswer, question.item.examDescription || question.item.description);
-    } else {
-      isCorrect = userAnswer === question.answer;
-    }
+    const isCorrect =
+      quizType === QUIZ_TYPES.SUBJECTIVE
+        ? checkNameAnswer(userAnswer, question.item)
+        : userAnswer === question.answer;
 
     updateItemStats(topicId, question.item.id, isCorrect);
     setStats(loadStats());
     setResult({
       isCorrect,
       userAnswer,
-      correctAnswer: question.mode === "name-from-desc" ? question.answerDisplay : question.answer,
+      correctAnswer: question.answerDisplay,
       questionText: question.question,
     });
     setSolveCount((c) => c + 1);
@@ -113,21 +103,6 @@ export default function QuizPage() {
               {label}
             </button>
           ))}
-        </div>
-        <div className="question-mode-toggle">
-          <span>출제 모드:</span>
-          <button
-            className={questionMode === QUESTION_MODES.NAME_FROM_DESC ? "active" : ""}
-            onClick={() => setQuestionMode(QUESTION_MODES.NAME_FROM_DESC)}
-          >
-            설명 → 이름
-          </button>
-          <button
-            className={questionMode === QUESTION_MODES.DESC_FROM_NAME ? "active" : ""}
-            onClick={() => setQuestionMode(QUESTION_MODES.DESC_FROM_NAME)}
-          >
-            이름 → 설명
-          </button>
         </div>
         <button className="reset-btn" onClick={handleResetStats}>
           기록 초기화

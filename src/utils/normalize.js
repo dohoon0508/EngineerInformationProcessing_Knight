@@ -44,14 +44,3 @@ export function checkNameAnswer(userInput, item) {
   return false;
 }
 
-/**
- * 설명 매칭 (이름 보고 설명 맞히기 - 핵심 키워드 포함 여부)
- */
-export function checkDescriptionAnswer(userInput, correctDescription) {
-  const normalized = normalizeAnswer(userInput);
-  const correctNorm = normalizeAnswer(correctDescription);
-  if (!normalized || normalized.length < 5) return false;
-  if (normalized === correctNorm) return true;
-  if (correctNorm.includes(normalized) && normalized.length >= 10) return true;
-  return false;
-}
