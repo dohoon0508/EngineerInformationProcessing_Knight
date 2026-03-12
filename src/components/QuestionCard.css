@@ -1,0 +1,109 @@
+.question-card {
+  padding: 0.5rem 0;
+}
+
+.question-prompt {
+  margin-bottom: 1.5rem;
+}
+
+.question-text {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin: 0 0 0.5rem;
+}
+
+.question-hint {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.answer-form {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.answer-form input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.answer-form input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.answer-form button {
+  padding: 0.75rem 1.25rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.answer-form button:hover {
+  background: var(--color-primary-hover);
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.option-btn {
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  background: var(--color-card);
+  border-radius: 8px;
+  text-align: left;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.option-btn:hover {
+  border-color: var(--color-primary);
+  background: #f8fafc;
+}
+
+/* 전체 보기 */
+.question-card.full-list .question-prompt {
+  margin-bottom: 1rem;
+}
+
+.full-list-controls {
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.full-list-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.full-list-item {
+  padding: 0.75rem 1rem;
+  white-space: normal;
+  text-align: left;
+}
+
+@media (max-width: 640px) {
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+}
