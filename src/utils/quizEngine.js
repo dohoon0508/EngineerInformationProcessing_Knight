@@ -58,7 +58,7 @@ export function getNextQuestion(topic, quizType, questionMode, lastItemId = null
   const mode = questionMode ?? (Math.random() < 0.5 ? QUESTION_MODES.NAME_FROM_DESC : QUESTION_MODES.DESC_FROM_NAME);
 
   const displayName = formatDisplayName(item);
-  const description = item.shortDescription || item.examDescription || item.description;
+  const description = item.examDescription || item.description;
 
   return {
     item,
@@ -71,13 +71,13 @@ export function getNextQuestion(topic, quizType, questionMode, lastItemId = null
       quizType === QUIZ_TYPES.MULTIPLE_CHOICE
         ? getMultipleChoiceOptions(items, item, mode)
         : quizType === QUIZ_TYPES.FULL_LIST
-          ? shuffle(items.map((i) => (mode === QUESTION_MODES.NAME_FROM_DESC ? formatDisplayName(i) : (i.shortDescription || i.examDescription || i.description))))
+          ? shuffle(items.map((i) => (mode === QUESTION_MODES.NAME_FROM_DESC ? formatDisplayName(i) : (i.examDescription || i.description))))
           : null,
   };
 }
 
 function getDescription(item) {
-  return item.shortDescription || item.examDescription || item.description;
+  return item.examDescription || item.description;
 }
 
 function getMultipleChoiceOptions(items, correctItem, mode) {

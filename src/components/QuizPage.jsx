@@ -44,7 +44,7 @@ export default function QuizPage() {
       isCorrect =
         question.mode === "name-from-desc"
           ? checkNameAnswer(userAnswer, question.item)
-          : checkDescriptionAnswer(userAnswer, question.item.shortDescription || question.item.examDescription || question.item.description);
+          : checkDescriptionAnswer(userAnswer, question.item.examDescription || question.item.description);
     } else {
       isCorrect = userAnswer === question.answer;
     }

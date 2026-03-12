@@ -5,7 +5,7 @@ import "./QuestionCard.css";
 export default function FullListQuestion({ question, items, onSubmit }) {
   const [search, setSearch] = useState("");
   const mode = question.mode;
-  const getDesc = (i) => i.shortDescription || i.examDescription || i.description;
+  const getDesc = (i) => i.examDescription || i.description;
   const listItems =
     mode === "name-from-desc"
       ? items.map((i) => formatDisplayName(i))
