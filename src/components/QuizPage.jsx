@@ -1,13 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { topics } from "../data/topics";
-import { getNextQuestion, QUIZ_TYPES } from "../utils/quizEngine";
+import { getNextQuestion, QUIZ_TYPES, isDesignPatternTopic } from "../utils/quizEngine";
 import { updateItemStats, loadStats, resetStats } from "../utils/storage";
-import { checkNameAnswer } from "../utils/normalize";
+import { checkNameAnswer, checkPurposeAnswer, formatDisplayName } from "../utils/normalize";
 import QuizStats from "./QuizStats";
 import SubjectiveQuestion from "./SubjectiveQuestion";
 import MultipleChoiceQuestion from "./MultipleChoiceQuestion";
 import FullListQuestion from "./FullListQuestion";
+import PurposeOnlyQuestion from "./PurposeOnlyQuestion";
+import PurposeAndPatternQuestion from "./PurposeAndPatternQuestion";
+import PurposeAndSubjectiveQuestion from "./PurposeAndSubjectiveQuestion";
 import "./QuizPage.css";
 
 export default function QuizPage() {
@@ -32,19 +35,45 @@ export default function QuizPage() {
     if (topic) loadNextQuestion();
   }, [topic, quizType]);
 
+  useEffect(() => {
+    if (topic && isDesignPatternTopic(topic)) {
+      const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.PURPOSE_AND_PATTERN];
+      if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
+    }
+  }, [topic]);
+
   const handleSubmit = (userAnswer) => {
     if (!question || result) return;
-    const isCorrect =
-      quizType === QUIZ_TYPES.SUBJECTIVE
-        ? checkNameAnswer(userAnswer, question.item)
-        : userAnswer === question.answer;
+    let isCorrect;
+    if (quizType === QUIZ_TYPES.PURPOSE_ONLY) {
+      isCorrect = checkPurposeAnswer(userAnswer, question.answer);
+    } else if (quizType === QUIZ_TYPES.PURPOSE_AND_PATTERN) {
+      const { purpose, pattern } = userAnswer;
+      isCorrect =
+        checkPurposeAnswer(purpose, question.answer.purpose) &&
+        pattern === question.answer.pattern;
+    } else if (quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(topic)) {
+      const { purpose, pattern } = userAnswer;
+      isCorrect =
+        checkPurposeAnswer(purpose, question.item.purpose) &&
+        checkNameAnswer(pattern, question.item);
+    } else if (quizType === QUIZ_TYPES.SUBJECTIVE) {
+      isCorrect = checkNameAnswer(userAnswer, question.item);
+    } else {
+      isCorrect = userAnswer === question.answer;
+    }
 
     updateItemStats(topicId, question.item.id, isCorrect);
     setStats(loadStats());
+    const correctAnswer =
+      quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(topic)
+        ? `${question.item.purpose} - ${formatDisplayName(question.item)}`
+        : question.answerDisplay;
+
     setResult({
       isCorrect,
-      userAnswer,
-      correctAnswer: question.answerDisplay,
+      userAnswer: typeof userAnswer === "object" ? `${userAnswer.purpose} - ${userAnswer.pattern}` : userAnswer,
+      correctAnswer,
       questionText: question.question,
     });
     setSolveCount((c) => c + 1);
@@ -90,11 +119,17 @@ export default function QuizPage() {
 
       <div className="quiz-controls">
         <div className="quiz-type-tabs">
-          {[
-            { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
-            { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
-            { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "4지 선다" },
-          ].map(({ key, label }) => (
+          {(isDesignPatternTopic(topic)
+            ? [
+                { key: QUIZ_TYPES.SUBJECTIVE, label: "목적+패턴(주관식)" },
+                { key: QUIZ_TYPES.PURPOSE_AND_PATTERN, label: "목적+패턴(객관식)" },
+              ]
+            : [
+                { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "4지 선다" },
+              ]
+          ).map(({ key, label }) => (
             <button
               key={key}
               className={`tab ${quizType === key ? "active" : ""}`}
@@ -121,13 +156,20 @@ export default function QuizPage() {
       <div className="question-area">
         {question && (
           <>
-            <div className="solve-count">누적 풀이: {solveCount}문제</div>
+            <div className="solve-count">누적 풀이: {solveCount}문제 · {topic.title}</div>
             {!result ? (
               <>
-                {quizType === QUIZ_TYPES.SUBJECTIVE && (
+                {quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(topic) && (
+                  <PurposeAndSubjectiveQuestion
+                    question={question}
+                    onSubmit={handleSubmit}
+                  />
+                )}
+                {quizType === QUIZ_TYPES.SUBJECTIVE && !isDesignPatternTopic(topic) && (
                   <SubjectiveQuestion
                     question={question}
                     onSubmit={handleSubmit}
+                    hint="공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)"
                   />
                 )}
                 {quizType === QUIZ_TYPES.MULTIPLE_CHOICE && (
@@ -140,6 +182,18 @@ export default function QuizPage() {
                   <FullListQuestion
                     question={question}
                     items={topic.items}
+                    onSubmit={handleSubmit}
+                  />
+                )}
+                {quizType === QUIZ_TYPES.PURPOSE_ONLY && (
+                  <PurposeOnlyQuestion
+                    question={question}
+                    onSubmit={handleSubmit}
+                  />
+                )}
+                {quizType === QUIZ_TYPES.PURPOSE_AND_PATTERN && (
+                  <PurposeAndPatternQuestion
+                    question={question}
                     onSubmit={handleSubmit}
                   />
                 )}

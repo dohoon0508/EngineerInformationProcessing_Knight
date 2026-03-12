@@ -5,7 +5,15 @@ export const QUIZ_TYPES = {
   SUBJECTIVE: "subjective",
   FULL_LIST: "full-list",
   MULTIPLE_CHOICE: "multiple-choice",
+  PURPOSE_ONLY: "purpose-only",
+  PURPOSE_AND_PATTERN: "purpose-and-pattern",
 };
+
+export const PURPOSES = ["생성", "구조", "행위"];
+
+export function isDesignPatternTopic(topic) {
+  return topic?.items?.[0]?.purpose != null;
+}
 
 /**
  * 가중치 기반 랜덤 선택
@@ -33,12 +41,15 @@ function shuffle(array) {
 }
 
 /**
- * 다음 문제 생성 (설명 → 이름 맞히기만 지원)
+ * 다음 문제 생성
+ * - 일반 주제: 설명 → 이름
+ * - 디자인 패턴: 패턴명 / 목적 / 목적+패턴
  */
 export function getNextQuestion(topic, quizType, lastItemId = null) {
   const items = topic.items;
   if (!items?.length) return null;
 
+  const isDesignPattern = isDesignPatternTopic(topic);
   const weights = getItemWeights(topic.id, items);
   let idx = weightedRandomIndex(weights);
 
@@ -52,6 +63,32 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
   const item = items[idx];
   const displayName = formatDisplayName(item);
   const description = item.examDescription || item.description;
+
+  if (isDesignPattern && quizType === QUIZ_TYPES.PURPOSE_ONLY) {
+    return {
+      item,
+      quizType,
+      question: description,
+      answer: item.purpose,
+      answerDisplay: `${item.purpose} - ${displayName}`,
+      options: shuffle([...PURPOSES]),
+    };
+  }
+
+  if (isDesignPattern && quizType === QUIZ_TYPES.PURPOSE_AND_PATTERN) {
+    const others = items.filter((i) => i.id !== item.id);
+    const wrongPatterns = shuffle(others).slice(0, 3).map((i) => formatDisplayName(i));
+    const patternOptions = shuffle([displayName, ...wrongPatterns]);
+    return {
+      item,
+      quizType,
+      question: description,
+      answer: { purpose: item.purpose, pattern: displayName },
+      answerDisplay: `${item.purpose} - ${displayName}`,
+      purposeOptions: shuffle([...PURPOSES]),
+      patternOptions,
+    };
+  }
 
   return {
     item,

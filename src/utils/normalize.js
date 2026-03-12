@@ -44,3 +44,11 @@ export function checkNameAnswer(userInput, item) {
   return false;
 }
 
+/**
+ * 목적(생성/구조/행위) 정답 확인
+ */
+export function checkPurposeAnswer(userInput, correctPurpose) {
+  const normalized = normalizeAnswer(userInput);
+  const correctNorm = normalizeAnswer(correctPurpose);
+  return normalized === correctNorm;
+}

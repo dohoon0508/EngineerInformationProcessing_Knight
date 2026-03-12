@@ -50,6 +50,11 @@
   background: var(--color-primary-hover);
 }
 
+.answer-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .options-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -69,6 +74,43 @@
 .option-btn:hover {
   border-color: var(--color-primary);
   background: #f8fafc;
+}
+
+.option-btn.active {
+  border-color: var(--color-primary);
+  background: #dbeafe;
+}
+
+.options-grid.purpose-options {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.purpose-pattern-form .purpose-section,
+.purpose-pattern-form .pattern-section {
+  margin-bottom: 1.5rem;
+}
+
+.purpose-pattern-form strong {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.submit-combined-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.submit-combined-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submit-combined-btn:not(:disabled):hover {
+  background: var(--color-primary-hover);
 }
 
 /* 전체 보기 */
@@ -104,6 +146,9 @@
 
 @media (max-width: 640px) {
   .options-grid {
+    grid-template-columns: 1fr;
+  }
+  .options-grid.purpose-options {
     grid-template-columns: 1fr;
   }
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./QuestionCard.css";
 
-export default function SubjectiveQuestion({ question, onSubmit }) {
+export default function SubjectiveQuestion({ question, onSubmit, hint }) {
   const [input, setInput] = useState("");
 
   const handleSubmit = (e) => {
@@ -11,13 +11,13 @@ export default function SubjectiveQuestion({ question, onSubmit }) {
     }
   };
 
-  const hint = "공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)";
+  const defaultHint = "이름을 입력하세요 (한국어 또는 영어 모두 가능)";
 
   return (
     <div className="question-card">
       <div className="question-prompt">
         <p className="question-text">{question.question}</p>
-        <p className="question-hint">{hint}</p>
+        <p className="question-hint">{hint ?? defaultHint}</p>
       </div>
       <form onSubmit={handleSubmit} className="answer-form">
         <input
