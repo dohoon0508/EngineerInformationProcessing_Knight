@@ -14,6 +14,12 @@ npm run dev
 
 브라우저에서 `http://localhost:5173` 으로 접속하세요.
 
+## Vercel 배포
+
+1. [Vercel](https://vercel.com)에 GitHub 저장소 연결
+2. 프로젝트 import 시 자동으로 Vite 설정 감지
+3. 배포 후 `main` 브랜치 push 시 자동 재배포
+
 ## 프로젝트 구조
 
 ```

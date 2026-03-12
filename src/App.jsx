@@ -5,7 +5,7 @@ import "./App.css";
 
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+    <BrowserRouter>
       <div className="app">
         <Routes>
           <Route path="/" element={<HomePage />} />
