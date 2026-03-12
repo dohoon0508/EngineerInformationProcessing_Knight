@@ -2,7 +2,10 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
-export default defineConfig({
+// GitHub Pages: https://dohoon0508.github.io/EngineerInformationProcessing_Knight/
+const BASE = '/EngineerInformationProcessing_Knight/'
+
+export default defineConfig(({ command }) => ({
   plugins: [react()],
-  base: '/EngineerInformationProcessing_Knight/',
-})
+  base: command === 'build' ? BASE : '/',
+}))
