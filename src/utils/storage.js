@@ -1,8 +1,15 @@
 const STORAGE_KEY = "info-processing-quiz-stats";
 
+/** 문제별 score 범위 (정오답 기반, -3 ~ 3) */
+export const SCORE_MIN = -3;
+export const SCORE_MAX = 3;
+
+/** 출제 이력으로 유지할 최근 문제 개수 (최근 9+ 판단용) */
+export const HISTORY_SIZE = 12;
+
 /**
  * 퀴즈 통계 저장 구조
- * { topicId: { itemId: { correct, wrong }, totalCorrect, totalWrong } }
+ * { topicId: { items: { itemId: { correct, wrong, score } }, totalCorrect, totalWrong, history: [{ itemId, isCorrect }] } }
  */
 export function loadStats() {
   try {
@@ -22,7 +29,8 @@ export function saveStats(stats) {
 }
 
 /**
- * 특정 항목의 정오답 기록 업데이트
+ * 특정 항목의 정오답 기록 및 score 업데이트
+ * 맞으면 score +1 (최대 3), 틀리면 score -1 (최소 -3)
  */
 export function updateItemStats(topicId, itemId, isCorrect) {
   const stats = loadStats();
@@ -31,16 +39,21 @@ export function updateItemStats(topicId, itemId, isCorrect) {
   }
   const topic = stats[topicId];
   if (!topic.items[itemId]) {
-    topic.items[itemId] = { correct: 0, wrong: 0 };
+    topic.items[itemId] = { correct: 0, wrong: 0, score: 0 };
   }
+  const itemStats = topic.items[itemId];
+
   if (isCorrect) {
-    topic.items[itemId].correct++;
+    itemStats.correct++;
     topic.totalCorrect++;
+    itemStats.score = Math.min(SCORE_MAX, (itemStats.score ?? 0) + 1);
   } else {
-    topic.items[itemId].wrong++;
+    itemStats.wrong++;
     topic.totalWrong++;
+    itemStats.score = Math.max(SCORE_MIN, (itemStats.score ?? 0) - 1);
   }
-  topic.history = (topic.history || []).slice(-9);
+
+  topic.history = (topic.history || []).slice(-(HISTORY_SIZE - 1));
   topic.history.push({ itemId, isCorrect });
   saveStats(stats);
   return stats;
@@ -58,19 +71,4 @@ export function resetStats(topicId = null) {
   }
   saveStats(stats);
   return stats;
-}
-
-/**
- * 항목별 틀린 횟수 가중치 (틀릴수록 더 자주 나옴)
- */
-export function getItemWeights(topicId, items) {
-  const stats = loadStats();
-  const topic = stats[topicId];
-  if (!topic?.items) return items.map(() => 1);
-
-  return items.map((item) => {
-    const itemStats = topic.items[item.id];
-    const wrong = itemStats?.wrong ?? 0;
-    return 1 + wrong * 2; // 틀릴수록 가중치 증가
-  });
 }
