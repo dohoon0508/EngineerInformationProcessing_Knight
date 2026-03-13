@@ -37,6 +37,17 @@ export default function HomePage() {
       {listTopic && (
         <TopicListModal topic={listTopic} onClose={() => setListTopicId(null)} />
       )}
+      <footer className="home-footer">
+        <p className="home-footer-made">만든이 (HWANG DOHOON)</p>
+        <p className="home-footer-links">
+          <a href="https://velog.io/@dohoon0508" target="_blank" rel="noopener noreferrer">개발일지</a>
+          {" · "}
+          추가 기능·버그 발견 문의:{" "}
+          <a href="https://www.instagram.com/dohoon_i/" target="_blank" rel="noopener noreferrer">
+            Instagram @dohoon_i
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }
