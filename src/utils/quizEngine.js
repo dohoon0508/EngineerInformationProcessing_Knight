@@ -12,20 +12,20 @@ export const QUIZ_TYPES = {
 export const PURPOSES = ["생성", "구조", "행위"];
 
 // ----- 출제 가중치 상수 (조정 용이) -----
-/** score(-3~3) → 출제 가중치. 맞은 문제(1,2,3)는 더 낮게 해서 덜 나오게 (최소 1) */
+/** score(-3~3) → 출제 가중치. 맞은 문제(1,2,3)는 최소 1로 더 덜 나오게 */
 const SCORE_TO_WEIGHT = {
   [-3]: 7,
   [-2]: 6,
   [-1]: 5,
   0: 4,
-  1: 2,
+  1: 1,
   2: 1,
   3: 1,
 };
-/** 최근 출제 이력: 초기값 1, 4문제마다 1점 증가, 최대 6 (안 나온 것 = 6) */
-const RECENCY_BASE = 1;  // index 0~3(최근 4문제)일 때의 가중치
-const RECENCY_STEP = 4;  // 4마다 1점 증가
-const RECENCY_MAX = 6;   // 한 번도 안 나왔거나 12+ 전
+/** 최근 출제 이력: 초기값 0.5, 2문제마다 1점 증가, 최대 6 (격차 키워서 최근 건 더 덜 나오게) */
+const RECENCY_BASE = 0.5;  // index 0~1(가장 최근 2문제)일 때의 가중치
+const RECENCY_STEP = 2;   // 2마다 1점 증가
+const RECENCY_MAX = 6;    // 한 번도 안 나왔거나 12+ 전
 
 export function isDesignPatternTopic(topic) {
   return topic?.items?.[0]?.purpose != null;
@@ -41,8 +41,8 @@ export function getScoreWeight(score) {
 }
 
 /**
- * 최근 출제 이력 기반 가중치: 4문제마다 1점 증가, 최대 6
- * - index 0~3(최근 4문제): 1, 4~7: 2, 8~11: 3
+ * 최근 출제 이력 기반 가중치: 2문제마다 1점 증가, 최대 6 (최근일수록 더 낮게)
+ * - index 0~1: 0.5, 2~3: 1.5, 4~5: 2.5, 6~7: 3.5, 8~9: 4.5, 10~11: 5.5
  * - 목록에 없음(안 나왔거나 12+ 전): 6
  */
 export function getRecencyWeight(itemId, recentHistory) {
