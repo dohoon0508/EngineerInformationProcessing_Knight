@@ -31,6 +31,18 @@ export function isDesignPatternTopic(topic) {
   return topic?.items?.[0]?.purpose != null;
 }
 
+/** 암호 알고리즘 등 category(단방향/양방향) 필드가 있는 주제 */
+export function isCryptoTopic(topic) {
+  return topic?.items?.[0]?.category != null;
+}
+
+/** 주제별 분류 옵션 (암호: 단방향/양방향) */
+export function getCategoriesForTopic(topic) {
+  if (!topic?.items?.length) return [];
+  const cats = [...new Set(topic.items.map((i) => i.category).filter(Boolean))];
+  return cats.length ? cats : [];
+}
+
 /**
  * 정오답 기반 출제 가중치 (score -3~3 → 7~1)
  * 많이 틀린 문제일수록 높은 가중치 → 더 자주 출제
@@ -115,6 +127,37 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
   const displayName = formatDisplayName(item);
   const description = item.examDescription || item.description;
   const isDesignPattern = isDesignPatternTopic(topic);
+  const isCrypto = isCryptoTopic(topic);
+  const categories = getCategoriesForTopic(topic);
+
+  if (isCrypto && quizType === QUIZ_TYPES.PURPOSE_ONLY) {
+    return {
+      item,
+      quizType,
+      question: description,
+      answer: item.category,
+      answerDisplay: `${item.category} - ${displayName}`,
+      options: shuffle([...categories]),
+      hint: "분류(단방향 / 양방향)를 선택하세요",
+    };
+  }
+
+  if (isCrypto && quizType === QUIZ_TYPES.PURPOSE_AND_PATTERN) {
+    const others = items.filter((i) => i.id !== item.id);
+    const wrongNames = shuffle(others).slice(0, 3).map((i) => formatDisplayName(i));
+    const patternOptions = shuffle([displayName, ...wrongNames]);
+    return {
+      item,
+      quizType,
+      question: description,
+      answer: { purpose: item.category, pattern: displayName },
+      answerDisplay: `${item.category} - ${displayName}`,
+      purposeOptions: shuffle([...categories]),
+      patternOptions,
+      firstLabel: "분류",
+      secondLabel: "알고리즘명",
+    };
+  }
 
   if (isDesignPattern && quizType === QUIZ_TYPES.PURPOSE_ONLY) {
     return {

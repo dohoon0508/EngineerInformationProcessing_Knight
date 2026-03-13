@@ -16,11 +16,11 @@ export default function PurposeAndPatternQuestion({ question, onSubmit }) {
     <div className="question-card">
       <div className="question-prompt">
         <p className="question-text">{question.question}</p>
-        <p className="question-hint">목적과 패턴명을 모두 선택하세요</p>
+        <p className="question-hint">{question.firstLabel ? "분류와 알고리즘명을 모두 선택하세요" : "목적과 패턴명을 모두 선택하세요"}</p>
       </div>
       <div className="purpose-pattern-form">
         <div className="purpose-section">
-          <strong>1. 목적:</strong>
+          <strong>1. {question.firstLabel ?? "목적"}:</strong>
           <div className="options-grid purpose-options">
             {question.purposeOptions?.map((opt) => (
               <button
@@ -35,7 +35,7 @@ export default function PurposeAndPatternQuestion({ question, onSubmit }) {
           </div>
         </div>
         <div className="pattern-section">
-          <strong>2. 패턴명:</strong>
+          <strong>2. {question.secondLabel ?? "패턴명"}:</strong>
           <div className="options-grid">
             {question.patternOptions?.map((opt) => (
               <button

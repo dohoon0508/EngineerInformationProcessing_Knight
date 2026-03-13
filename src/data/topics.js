@@ -220,4 +220,19 @@ export const topics = [
       { id: "visitor", purpose: "행위", nameKo: "비지터", nameEn: "Visitor", aliases: ["비지터", "visitor"], examDescription: "오퍼레이션을 별도의 클래스에 새롭게 정의하는 패턴" },
     ],
   },
+  {
+    id: "software-security-crypto",
+    title: "소프트웨어 보안 / 개발 보안 구축",
+    items: [
+      { id: "sha-1", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "SHA-1", nameEn: "SHA-1", aliases: ["SHA-1", "sha-1", "sha1"], examDescription: "1993년 NSA가 설계하고 NIST에 의해 발표된 SHA 시리즈 알고리즘" },
+      { id: "md5", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "MD5", nameEn: "MD5", aliases: ["MD5", "md5"], examDescription: "1991년 R. Rivest가 MD4를 대체하기 위해 고안한 암호화 해시 함수로, 블록 크기 512비트, 키는 128비트" },
+      { id: "n-nash", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "N-NASH", nameEn: "N-NASH", aliases: ["N-NASH", "n-nash", "nnash", "N-Nash"], examDescription: "1989년 일본 NTT에서 발표한 암호화 해시 함수로, 블록과 키가 모두 128비트" },
+      { id: "snefru", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "SNEFRU", nameEn: "SNEFRU", aliases: ["SNEFRU", "snefru"], examDescription: "1990년 R. C. Merkle이 발표한 해시 함수로, 32비트 프로세서에서 구현을 용이하게 할 목적으로 개발" },
+      { id: "seed", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "SEED", nameEn: "SEED", aliases: ["SEED", "seed"], examDescription: "KISA가 개발한 블록 암호화 알고리즘으로, 블록 크기는 128비트이며 키에 따라 128, 256으로 분류" },
+      { id: "aria", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "ARIA", nameEn: "ARIA", aliases: ["ARIA", "aria"], examDescription: "2004년 국가정보원과 산학연합회가 개발한 블록 암호화 알고리즘" },
+      { id: "des", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "DES", nameEn: "DES", aliases: ["DES", "des"], examDescription: "1975년 미국 NBS에서 발표한 개인키 암호화 알고리즘이다. 블록 크기는 64비트, 키 길이는 56비트이며 16회의 라운드를 수행한다." },
+      { id: "aes", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "AES", nameEn: "AES", aliases: ["AES", "aes"], examDescription: "2001년 NIST에서 발표한 개인키 암호화 알고리즘으로, DES의 한계를 느낀 NIST에서 공모 후 발표" },
+      { id: "rsa", category: "양방향", subcategory: "공개키 암호화 알고리즘", nameKo: "RSA", nameEn: "RSA", aliases: ["RSA", "rsa"], examDescription: "1978년 MIT의 라이베스트, 샤미르, 애들먼에 의해 제안된 공개키 암호화 알고리즘으로, 큰 수를 소인수분해하기 어렵다는 것에 기반하여 제작" },
+    ],
+  },
 ];
