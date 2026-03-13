@@ -12,23 +12,20 @@ export const QUIZ_TYPES = {
 export const PURPOSES = ["생성", "구조", "행위"];
 
 // ----- 출제 가중치 상수 (조정 용이) -----
-/** score(-3~3) → 출제 가중치. 낮을수록 자주 출제 (최소 1) */
+/** score(-3~3) → 출제 가중치. 맞은 문제(1,2,3)는 더 낮게 해서 덜 나오게 (최소 1) */
 const SCORE_TO_WEIGHT = {
   [-3]: 7,
   [-2]: 6,
   [-1]: 5,
   0: 4,
-  1: 3,
-  2: 2,
+  1: 2,
+  2: 1,
   3: 1,
 };
-/** 최근 N문제 안에 나왔으면 recency 가중치 (1=덜 나오게) */
-const RECENCY_LAST_N_LOW = 4;
-/** N~M문제 사이에 나왔으면 recency 가중치 */
-const RECENCY_MID = 2;
-/** N문제 이상 안 나왔거나 한 번도 안 나온 경우 recency 가중치 (3=더 나오게) */
-const RECENCY_OLD_OR_NEVER = 3;
-const RECENCY_MID_END = 8; // 5~8번째: index 4~7
+/** 최근 출제 이력: 초기값 1, 4문제마다 1점 증가, 최대 6 (안 나온 것 = 6) */
+const RECENCY_BASE = 1;  // index 0~3(최근 4문제)일 때의 가중치
+const RECENCY_STEP = 4;  // 4마다 1점 증가
+const RECENCY_MAX = 6;   // 한 번도 안 나왔거나 12+ 전
 
 export function isDesignPatternTopic(topic) {
   return topic?.items?.[0]?.purpose != null;
@@ -44,18 +41,15 @@ export function getScoreWeight(score) {
 }
 
 /**
- * 최근 출제 이력 기반 가중치
- * @param itemId - 항목 id
- * @param recentHistory - 최근 출제 순서 배열 (가장 최근이 앞) [{ itemId, isCorrect }, ...]
- * @returns 1(최근 4문제 안) | 2(5~8문제 사이) | 3(9+ 또는 한 번도 안 나옴)
+ * 최근 출제 이력 기반 가중치: 4문제마다 1점 증가, 최대 6
+ * - index 0~3(최근 4문제): 1, 4~7: 2, 8~11: 3
+ * - 목록에 없음(안 나왔거나 12+ 전): 6
  */
 export function getRecencyWeight(itemId, recentHistory) {
   const list = recentHistory || [];
   const index = list.findIndex((h) => h.itemId === itemId);
-  if (index === -1) return RECENCY_OLD_OR_NEVER; // 안 나왔거나 12+ 전
-  if (index < RECENCY_LAST_N_LOW) return 1; // 최근 4문제 안
-  if (index <= RECENCY_MID_END) return RECENCY_MID; // 5~8
-  return RECENCY_OLD_OR_NEVER; // 9~11 (또는 그 이상)
+  if (index === -1) return RECENCY_MAX; // 안 나왔거나 12+ 전
+  return Math.min(RECENCY_MAX, RECENCY_BASE + Math.floor(index / RECENCY_STEP));
 }
 
 /**
@@ -72,7 +66,8 @@ export function getFinalWeight(itemId, itemStats, recentHistory) {
  */
 export function selectWeightedRandom(items, topicId, stats, previousItemId = null) {
   const topic = stats[topicId];
-  const recentHistory = topic?.history || [];
+  // storage는 [가장 오래된 … 가장 최근] 순이므로, recency는 "가장 최근이 index 0"이 되도록 뒤집어서 사용
+  const recentHistory = [...(topic?.history || [])].reverse();
 
   const weights = items.map((item, i) => {
     if (previousItemId && item.id === previousItemId) return 0; // 직전 문제 제외
