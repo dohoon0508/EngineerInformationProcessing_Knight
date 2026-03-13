@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { topics } from "../data/topics";
-import { getNextQuestion, QUIZ_TYPES, isDesignPatternTopic, isCryptoTopic } from "../utils/quizEngine";
+import { getNextQuestion, QUIZ_TYPES, isDesignPatternTopic, isCryptoTopic, isCouplingCohesionTopic } from "../utils/quizEngine";
 import { updateItemStats, loadStats, resetStats } from "../utils/storage";
-import { checkNameAnswer, checkPurposeAnswer, formatDisplayName } from "../utils/normalize";
+import { checkNameAnswer, checkPurposeAnswer, checkOrderAnswer, formatDisplayName } from "../utils/normalize";
 import QuizStats from "./QuizStats";
 import SubjectiveQuestion from "./SubjectiveQuestion";
 import MultipleChoiceQuestion from "./MultipleChoiceQuestion";
@@ -11,6 +11,7 @@ import FullListQuestion from "./FullListQuestion";
 import PurposeOnlyQuestion from "./PurposeOnlyQuestion";
 import PurposeAndPatternQuestion from "./PurposeAndPatternQuestion";
 import PurposeAndSubjectiveQuestion from "./PurposeAndSubjectiveQuestion";
+import OrderingQuestion from "./OrderingQuestion";
 import "./QuizPage.css";
 
 export default function QuizPage() {
@@ -44,6 +45,10 @@ export default function QuizPage() {
       const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.FULL_LIST, QUIZ_TYPES.PURPOSE_ONLY, QUIZ_TYPES.PURPOSE_AND_PATTERN];
       if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
+    if (topic && isCouplingCohesionTopic(topic)) {
+      const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.ORDERING];
+      if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
+    }
   }, [topic]);
 
   const handleSubmit = (userAnswer) => {
@@ -63,6 +68,8 @@ export default function QuizPage() {
         checkNameAnswer(pattern, question.item);
     } else if (quizType === QUIZ_TYPES.SUBJECTIVE) {
       isCorrect = checkNameAnswer(userAnswer, question.item);
+    } else if (quizType === QUIZ_TYPES.ORDERING) {
+      isCorrect = checkOrderAnswer(userAnswer, question.correctOrder);
     } else {
       isCorrect = userAnswer === question.answer;
     }
@@ -78,6 +85,7 @@ export default function QuizPage() {
       isCorrect,
       userAnswer: typeof userAnswer === "object" ? `${userAnswer.purpose} - ${userAnswer.pattern}` : userAnswer,
       correctAnswer,
+      correctAnswerExplanation: question.item?.shortDescription,
       questionText: question.question,
     });
     setSolveCount((c) => c + 1);
@@ -136,6 +144,12 @@ export default function QuizPage() {
                 { key: QUIZ_TYPES.PURPOSE_ONLY, label: "분류 맞히기" },
                 { key: QUIZ_TYPES.PURPOSE_AND_PATTERN, label: "분류+알고리즘" },
               ]
+            : isCouplingCohesionTopic(topic)
+            ? [
+                { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                { key: QUIZ_TYPES.ORDERING, label: "순서 맞추기" },
+              ]
             : [
                 { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
                 { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
@@ -181,7 +195,13 @@ export default function QuizPage() {
                   <SubjectiveQuestion
                     question={question}
                     onSubmit={handleSubmit}
-                    hint={isCryptoTopic(topic) ? "알고리즘 이름을 입력하세요 (한국어 또는 영어)" : "공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)"}
+                    hint={
+                      isCryptoTopic(topic)
+                        ? "알고리즘 이름을 입력하세요 (한국어 또는 영어)"
+                        : isCouplingCohesionTopic(topic)
+                        ? "항목명을 입력하세요 (한국어 또는 영어)"
+                        : "공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)"
+                    }
                   />
                 )}
                 {quizType === QUIZ_TYPES.MULTIPLE_CHOICE && (
@@ -209,6 +229,12 @@ export default function QuizPage() {
                     onSubmit={handleSubmit}
                   />
                 )}
+                {quizType === QUIZ_TYPES.ORDERING && (
+                  <OrderingQuestion
+                    question={question}
+                    onSubmit={handleSubmit}
+                  />
+                )}
               </>
             ) : (
               <div className={`result-feedback ${result.isCorrect ? "correct" : "wrong"}`}>
@@ -226,6 +252,11 @@ export default function QuizPage() {
                 <div className="correct-answer">
                   <strong>정답:</strong> {result.correctAnswer}
                 </div>
+                {!result.isCorrect && result.correctAnswerExplanation && (
+                  <div className="correct-answer-explanation">
+                    <strong>해설:</strong> {result.correctAnswerExplanation}
+                  </div>
+                )}
                 <button className="next-btn" onClick={handleNext}>
                   다음 문제
                 </button>

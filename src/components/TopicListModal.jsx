@@ -7,6 +7,7 @@ export default function TopicListModal({ topic, onClose }) {
   const isServiceAttacks = topic.id === "service-attacks";
   const isDesignPatterns = topic.id === "design-patterns";
   const isCrypto = topic.id === "software-security-crypto";
+  const isCouplingCohesion = topic.id === "coupling-cohesion";
 
   const renderTable = () => {
     if (isServiceAttacks) {
@@ -35,6 +36,15 @@ export default function TopicListModal({ topic, onClose }) {
     }
 
     if (isDesignPatterns) {
+      const groups = [];
+      topic.items.forEach((item) => {
+        if (groups.length > 0 && groups[groups.length - 1].purpose === item.purpose) {
+          groups[groups.length - 1].items.push(item);
+        } else {
+          groups.push({ purpose: item.purpose, items: [item] });
+        }
+      });
+      let rowNum = 0;
       return (
         <table className="topic-list-table">
           <thead>
@@ -46,14 +56,23 @@ export default function TopicListModal({ topic, onClose }) {
             </tr>
           </thead>
           <tbody>
-            {topic.items.map((item, i) => (
-              <tr key={item.id}>
-                <td>{i + 1}</td>
-                <td>{item.purpose}</td>
-                <td>{formatDisplayName(item)}</td>
-                <td className="topic-list-desc">{item.examDescription}</td>
-              </tr>
-            ))}
+            {groups.map((group) =>
+              group.items.map((item, i) => {
+                rowNum += 1;
+                return (
+                  <tr key={item.id}>
+                    <td>{rowNum}</td>
+                    {i === 0 && (
+                      <td rowSpan={group.items.length} className="topic-list-purpose-cell">
+                        {group.purpose}
+                      </td>
+                    )}
+                    <td>{formatDisplayName(item)}</td>
+                    <td className="topic-list-desc">{item.examDescription}</td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       );
@@ -81,6 +100,62 @@ export default function TopicListModal({ topic, onClose }) {
             ))}
           </tbody>
         </table>
+      );
+    }
+
+    if (isCouplingCohesion) {
+      const groupInfo = topic.groupInfo || {};
+      const order = ["응집도", "결합도"];
+      return (
+        <div className="topic-list-coupling-cohesion">
+          {order.map((groupKey) => {
+            const info = groupInfo[groupKey] || {};
+            const groupItems = topic.items
+              .filter((i) => i.group === groupKey)
+              .sort((a, b) => (a.orderRank || 0) - (b.orderRank || 0));
+            return (
+              <section key={groupKey} className="topic-list-group-section">
+                <h3 className="topic-list-group-title">{groupKey}</h3>
+                {info.description && (
+                  <p className="topic-list-group-desc">{info.description}</p>
+                )}
+                {(info.orderLabel != null || info.orderText != null) && (
+                  <p className="topic-list-group-order">
+                    <strong>
+                      {info.orderLabel != null ? (
+                        <>
+                          {info.orderLabel}
+                          <br />
+                          {info.orderText}
+                        </>
+                      ) : (
+                        <>순서 (강함 → 약함): {info.orderText}</>
+                      )}
+                    </strong>
+                  </p>
+                )}
+                <table className="topic-list-table">
+                  <thead>
+                    <tr>
+                      <th>번호</th>
+                      <th>항목명</th>
+                      <th>설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupItems.map((item, i) => (
+                      <tr key={item.id}>
+                        <td>{i + 1}</td>
+                        <td>{formatDisplayName(item)}</td>
+                        <td className="topic-list-desc">{item.examDescription}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            );
+          })}
+        </div>
       );
     }
 

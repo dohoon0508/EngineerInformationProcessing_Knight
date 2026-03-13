@@ -85,6 +85,12 @@
   text-align: center;
 }
 
+.topic-list-table td.topic-list-purpose-cell {
+  vertical-align: middle;
+  font-weight: 500;
+  background: #f8fafc;
+}
+
 .topic-list-table .topic-list-desc {
   min-width: 200px;
   max-width: 420px;
@@ -96,6 +102,48 @@
   color: var(--color-text-muted);
   text-align: center;
   padding: 2rem;
+  margin: 0;
+}
+
+.topic-list-coupling-cohesion {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.topic-list-group-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem;
+  background: #fafbfc;
+}
+
+.topic-list-group-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.topic-list-group-desc {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.topic-list-group-order {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.topic-list-group-order strong {
+  color: var(--color-text);
+}
+
+.topic-list-group-section .topic-list-table {
   margin: 0;
 }
 

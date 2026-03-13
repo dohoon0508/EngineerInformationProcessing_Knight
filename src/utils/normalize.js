@@ -52,3 +52,25 @@ export function checkPurposeAnswer(userInput, correctPurpose) {
   const correctNorm = normalizeAnswer(correctPurpose);
   return normalized === correctNorm;
 }
+
+/**
+ * 순서 맞추기 답안 파싱 (하이픈, 공백, 쉼표 구분 허용)
+ * "1-3-4-2", "1 3 4 2", "1,3,4,2" → [1, 3, 4, 2]
+ */
+export function parseOrderInput(input) {
+  if (!input || typeof input !== "string") return [];
+  return input
+    .trim()
+    .split(/[-,\s]+/)
+    .map((s) => parseInt(s, 10))
+    .filter((n) => Number.isInteger(n) && n > 0);
+}
+
+/**
+ * 순서 맞추기 정답 확인 (배열 비교)
+ */
+export function checkOrderAnswer(userInput, correctOrderArray) {
+  const userOrder = parseOrderInput(userInput);
+  if (!correctOrderArray?.length || userOrder.length !== correctOrderArray.length) return false;
+  return userOrder.every((n, i) => n === correctOrderArray[i]);
+}

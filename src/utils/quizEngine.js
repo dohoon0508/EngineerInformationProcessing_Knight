@@ -7,6 +7,7 @@ export const QUIZ_TYPES = {
   MULTIPLE_CHOICE: "multiple-choice",
   PURPOSE_ONLY: "purpose-only",
   PURPOSE_AND_PATTERN: "purpose-and-pattern",
+  ORDERING: "ordering",
 };
 
 export const PURPOSES = ["생성", "구조", "행위"];
@@ -42,6 +43,14 @@ export function getCategoriesForTopic(topic) {
   const cats = [...new Set(topic.items.map((i) => i.category).filter(Boolean))];
   return cats.length ? cats : [];
 }
+
+/** 결합도·응집도 (group, orderRank 필드) 주제 */
+export function isCouplingCohesionTopic(topic) {
+  return topic?.items?.[0]?.group != null && topic?.items?.[0]?.orderRank != null;
+}
+
+/** 결합도·응집도 그룹 목록 */
+const COUPLING_COHESION_GROUPS = ["결합도", "응집도"];
 
 /**
  * 정오답 기반 출제 가중치 (score -3~3 → 7~1)
@@ -185,24 +194,60 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
     };
   }
 
+  const isCouplingCohesion = isCouplingCohesionTopic(topic);
+
+  if (isCouplingCohesion && quizType === QUIZ_TYPES.ORDERING) {
+    const virtualItems = COUPLING_COHESION_GROUPS.map((g) => ({ id: `ordering-${g}` }));
+    const vIdx = selectWeightedRandom(virtualItems, topic.id, stats, lastItemId);
+    const group = COUPLING_COHESION_GROUPS[vIdx];
+    const itemsInGroup = items.filter((i) => i.group === group).sort((a, b) => a.orderRank - b.orderRank);
+    const shuffled = shuffle([...itemsInGroup]);
+    const listWithNum = shuffled.map((it, i) => ({ ...it, displayNum: i + 1 }));
+    const correctOrder = itemsInGroup.map((it) => listWithNum.find((s) => s.id === it.id).displayNum);
+    const orderingItemId = `ordering-${group}`;
+    return {
+      item: { id: orderingItemId },
+      quizType: QUIZ_TYPES.ORDERING,
+      question: `${group} (강한 순서 → 약한 순서)`,
+      list: listWithNum,
+      correctOrder,
+      answerDisplay: correctOrder.join("-"),
+      group,
+    };
+  }
+
+  if (isCouplingCohesion && quizType === QUIZ_TYPES.MULTIPLE_CHOICE) {
+    const options = getMultipleChoiceOptions(items, item, item.group);
+    return {
+      item,
+      quizType,
+      question: description,
+      answer: displayName,
+      answerDisplay: `${item.group} - ${displayName}`,
+      options,
+    };
+  }
+
   return {
     item,
     quizType,
     question: description,
     answer: displayName,
-    answerDisplay: displayName,
+    answerDisplay: isCouplingCohesion ? `${item.group} - ${displayName}` : displayName,
     options:
       quizType === QUIZ_TYPES.MULTIPLE_CHOICE
-        ? getMultipleChoiceOptions(items, item)
+        ? getMultipleChoiceOptions(items, item, isCouplingCohesion ? item.group : null)
         : quizType === QUIZ_TYPES.FULL_LIST
           ? shuffle(items.map((i) => formatDisplayName(i)))
           : null,
   };
 }
 
-function getMultipleChoiceOptions(items, correctItem) {
+function getMultipleChoiceOptions(items, correctItem, groupFilter = null) {
   const correct = formatDisplayName(correctItem);
-  const others = items.filter((i) => i.id !== correctItem.id);
+  const others = items.filter(
+    (i) => i.id !== correctItem.id && (groupFilter == null || i.group === groupFilter)
+  );
   const wrongs = shuffle(others).slice(0, 3).map((i) => formatDisplayName(i));
   return shuffle([correct, ...wrongs]);
 }
