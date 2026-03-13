@@ -85,7 +85,6 @@ export default function QuizPage() {
       isCorrect,
       userAnswer: typeof userAnswer === "object" ? `${userAnswer.purpose} - ${userAnswer.pattern}` : userAnswer,
       correctAnswer,
-      correctAnswerExplanation: question.item?.shortDescription,
       questionText: question.question,
     });
     setSolveCount((c) => c + 1);
@@ -252,11 +251,6 @@ export default function QuizPage() {
                 <div className="correct-answer">
                   <strong>정답:</strong> {result.correctAnswer}
                 </div>
-                {!result.isCorrect && result.correctAnswerExplanation && (
-                  <div className="correct-answer-explanation">
-                    <strong>해설:</strong> {result.correctAnswerExplanation}
-                  </div>
-                )}
                 <button className="next-btn" onClick={handleNext}>
                   다음 문제
                 </button>

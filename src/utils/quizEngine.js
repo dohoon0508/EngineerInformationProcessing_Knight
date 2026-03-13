@@ -244,10 +244,14 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
 }
 
 function getMultipleChoiceOptions(items, correctItem, groupFilter = null) {
+  // 결합도·응집도: 해당 그룹 전체를 보기로 사용
+  if (groupFilter != null) {
+    const inGroup = items.filter((i) => i.group === groupFilter);
+    return shuffle(inGroup.map((i) => formatDisplayName(i)));
+  }
+  // 그 외: 4지선다 (정답 + 오답 3개)
   const correct = formatDisplayName(correctItem);
-  const others = items.filter(
-    (i) => i.id !== correctItem.id && (groupFilter == null || i.group === groupFilter)
-  );
+  const others = items.filter((i) => i.id !== correctItem.id);
   const wrongs = shuffle(others).slice(0, 3).map((i) => formatDisplayName(i));
   return shuffle([correct, ...wrongs]);
 }
