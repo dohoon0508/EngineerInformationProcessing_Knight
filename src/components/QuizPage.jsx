@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { topics } from "../data/topics";
-import { getNextQuestion, QUIZ_TYPES, isDesignPatternTopic, isCryptoTopic, isCouplingCohesionTopic } from "../utils/quizEngine";
+import { getNextQuestion, QUIZ_TYPES, isDesignPatternTopic, isCryptoTopic, isCouplingCohesionTopic, isIntegrityTopic, isLinuxCommandsTopic } from "../utils/quizEngine";
 import { updateItemStats, loadStats, resetStats } from "../utils/storage";
 import { checkNameAnswer, checkPurposeAnswer, checkOrderAnswer, formatDisplayName } from "../utils/normalize";
 import QuizStats from "./QuizStats";
@@ -49,6 +49,13 @@ export default function QuizPage() {
       const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.ORDERING];
       if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
+    if (topic && isIntegrityTopic(topic)) {
+      setQuizType(QUIZ_TYPES.SUBJECTIVE);
+    }
+    if (topic && isLinuxCommandsTopic(topic)) {
+      const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.FULL_LIST];
+      if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
+    }
   }, [topic]);
 
   const handleSubmit = (userAnswer) => {
@@ -86,6 +93,7 @@ export default function QuizPage() {
       userAnswer: typeof userAnswer === "object" ? `${userAnswer.purpose} - ${userAnswer.pattern}` : userAnswer,
       correctAnswer,
       questionText: question.question,
+      ...((isIntegrityTopic(topic) || isLinuxCommandsTopic(topic)) && !isCorrect && question.item?.shortDescription && { correctAnswerExplanation: question.item.shortDescription }),
     });
     setSolveCount((c) => c + 1);
   };
@@ -149,6 +157,14 @@ export default function QuizPage() {
                 { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
                 { key: QUIZ_TYPES.ORDERING, label: "순서 맞추기" },
               ]
+            : isIntegrityTopic(topic)
+            ? [{ key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" }]
+            : isLinuxCommandsTopic(topic)
+            ? [
+                { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+              ]
             : [
                 { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
                 { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
@@ -195,7 +211,11 @@ export default function QuizPage() {
                     question={question}
                     onSubmit={handleSubmit}
                     hint={
-                      isCryptoTopic(topic)
+                      isLinuxCommandsTopic(topic)
+                        ? "명령어를 입력하세요 (대소문자 무관)"
+                        : isIntegrityTopic(topic)
+                        ? "무결성 종류를 입력하세요 (예: 개체, 참조, 도메인 …)"
+                        : isCryptoTopic(topic)
                         ? "알고리즘 이름을 입력하세요 (한국어 또는 영어)"
                         : isCouplingCohesionTopic(topic)
                         ? "항목명을 입력하세요 (한국어 또는 영어)"
@@ -214,6 +234,7 @@ export default function QuizPage() {
                     question={question}
                     items={topic.items}
                     onSubmit={handleSubmit}
+                    getOptionLabel={isLinuxCommandsTopic(topic) ? (item) => item.nameKo ?? item.nameEn : undefined}
                   />
                 )}
                 {quizType === QUIZ_TYPES.PURPOSE_ONLY && (
@@ -251,6 +272,11 @@ export default function QuizPage() {
                 <div className="correct-answer">
                   <strong>정답:</strong> {result.correctAnswer}
                 </div>
+                {!result.isCorrect && result.correctAnswerExplanation && (
+                  <div className="correct-answer-explanation">
+                    <strong>해설:</strong> {result.correctAnswerExplanation}
+                  </div>
+                )}
                 <button className="next-btn" onClick={handleNext}>
                   다음 문제
                 </button>

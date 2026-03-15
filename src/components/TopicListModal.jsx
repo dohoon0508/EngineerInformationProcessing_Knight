@@ -8,16 +8,39 @@ export default function TopicListModal({ topic, onClose }) {
   const isDesignPatterns = topic.id === "design-patterns";
   const isCrypto = topic.id === "software-security-crypto";
   const isCouplingCohesion = topic.id === "coupling-cohesion";
+  const isIntegrity = topic.id === "integrity";
+  const isLinuxCommands = topic.id === "linux-commands";
 
   const renderTable = () => {
-    if (isServiceAttacks) {
+    if (isLinuxCommands) {
+      return (
+        <table className="topic-list-table">
+          <thead>
+            <tr>
+              <th>명령어</th>
+              <th>설명</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topic.items.map((item) => (
+              <tr key={item.id}>
+                <td>{item.nameKo}</td>
+                <td className="topic-list-desc">{item.examDescription}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+
+    if (isServiceAttacks || isIntegrity) {
       return (
         <table className="topic-list-table">
           <thead>
             <tr>
               <th>번호</th>
-              <th>유형명 (한국어)</th>
-              <th>유형명 (영문)</th>
+              <th>{isIntegrity ? "무결성 종류" : "유형명 (한국어)"}</th>
+              <th>{isIntegrity ? "영문" : "유형명 (영문)"}</th>
               <th>설명</th>
             </tr>
           </thead>
@@ -79,27 +102,54 @@ export default function TopicListModal({ topic, onClose }) {
     }
 
     if (isCrypto) {
+      const categories = [...new Set(topic.items.map((i) => i.category).filter(Boolean))];
+      const order = [
+        "단방향",
+        "양방향",
+        "암호 / 보안 프로토콜",
+        "인증 / 접근 권한",
+        "보안 솔루션 / 보안 기술",
+        "기타 보안 개념",
+      ];
+      const orderedCategories = order.filter((c) => categories.includes(c));
+      const rest = categories.filter((c) => !order.includes(c));
+      const displayOrder = [...orderedCategories, ...rest];
+
+      const categoryLabel = (c) => {
+        if (c === "단방향") return "단방향 암호 알고리즘";
+        if (c === "양방향") return "양방향 암호 알고리즘";
+        return c;
+      };
+
       return (
-        <table className="topic-list-table">
-          <thead>
-            <tr>
-              <th>번호</th>
-              <th>분류</th>
-              <th>알고리즘명</th>
-              <th>설명</th>
-            </tr>
-          </thead>
-          <tbody>
-            {topic.items.map((item, i) => (
-              <tr key={item.id}>
-                <td>{i + 1}</td>
-                <td>{item.category}</td>
-                <td>{formatDisplayName(item)}</td>
-                <td className="topic-list-desc">{item.examDescription}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="topic-list-coupling-cohesion">
+          {displayOrder.map((category) => {
+            const groupItems = topic.items.filter((i) => i.category === category);
+            return (
+              <section key={category} className="topic-list-group-section">
+                <h3 className="topic-list-group-title">{categoryLabel(category)}</h3>
+                <table className="topic-list-table">
+                  <thead>
+                    <tr>
+                      <th>번호</th>
+                      <th>항목명</th>
+                      <th>설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupItems.map((item, i) => (
+                      <tr key={item.id}>
+                        <td>{i + 1}</td>
+                        <td>{formatDisplayName(item)}</td>
+                        <td className="topic-list-desc">{item.examDescription}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            );
+          })}
+        </div>
       );
     }
 

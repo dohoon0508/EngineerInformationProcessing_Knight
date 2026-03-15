@@ -49,6 +49,16 @@ export function isCouplingCohesionTopic(topic) {
   return topic?.items?.[0]?.group != null && topic?.items?.[0]?.orderRank != null;
 }
 
+/** 무결성 주제 (주관식만 지원) */
+export function isIntegrityTopic(topic) {
+  return topic?.id === "integrity";
+}
+
+/** 리눅스 명령어 주제 (설명 → 명령어 맞히기) */
+export function isLinuxCommandsTopic(topic) {
+  return topic?.id === "linux-commands";
+}
+
 /** 결합도·응집도 그룹 목록 */
 const COUPLING_COHESION_GROUPS = ["결합도", "응집도"];
 
@@ -224,6 +234,25 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
       question: description,
       answer: displayName,
       answerDisplay: `${item.group} - ${displayName}`,
+      options,
+    };
+  }
+
+  const isLinuxCommands = isLinuxCommandsTopic(topic);
+  if (isLinuxCommands) {
+    const nameKo = item.nameKo ?? item.nameEn ?? displayName;
+    const options =
+      quizType === QUIZ_TYPES.MULTIPLE_CHOICE
+        ? shuffle([nameKo, ...shuffle(items.filter((i) => i.id !== item.id)).slice(0, 3).map((i) => i.nameKo ?? i.nameEn)])
+        : quizType === QUIZ_TYPES.FULL_LIST
+          ? shuffle(items.map((i) => i.nameKo ?? i.nameEn))
+          : null;
+    return {
+      item,
+      quizType,
+      question: description,
+      answer: nameKo,
+      answerDisplay: nameKo,
       options,
     };
   }

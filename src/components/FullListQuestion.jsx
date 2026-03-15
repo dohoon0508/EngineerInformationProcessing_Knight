@@ -2,15 +2,15 @@ import { useState } from "react";
 import { formatDisplayName } from "../utils/normalize";
 import "./QuestionCard.css";
 
-export default function FullListQuestion({ question, items, onSubmit }) {
+export default function FullListQuestion({ question, items, onSubmit, getOptionLabel }) {
   const [search, setSearch] = useState("");
-  const listItems = items.map((i) => formatDisplayName(i));
+  const label = getOptionLabel ?? formatDisplayName;
 
-  const filtered = search.trim()
-    ? listItems.filter((item) =>
-        item.toLowerCase().includes(search.toLowerCase().trim())
+  const filteredItems = search.trim()
+    ? items.filter((item) =>
+        label(item).toLowerCase().includes(search.trim().toLowerCase())
       )
-    : listItems;
+    : items;
 
   return (
     <div className="question-card full-list">
@@ -28,13 +28,13 @@ export default function FullListQuestion({ question, items, onSubmit }) {
         />
       </div>
       <div className="full-list-scroll">
-        {filtered.map((item, i) => (
+        {filteredItems.map((item) => (
           <button
-            key={i}
+            key={item.id}
             className="option-btn full-list-item"
-            onClick={() => onSubmit(item)}
+            onClick={() => onSubmit(label(item))}
           >
-            {item}
+            {label(item)}
           </button>
         ))}
       </div>
