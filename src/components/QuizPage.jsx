@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { topics } from "../data/topics";
-import { getNextQuestion, QUIZ_TYPES, isDesignPatternTopic, isCryptoTopic, isCouplingCohesionTopic, isIntegrityTopic, isLinuxCommandsTopic } from "../utils/quizEngine";
+import { getNextQuestion, QUIZ_TYPES, isDesignPatternTopic, isCryptoTopic, isCouplingCohesionTopic, isIntegrityTopic, isLinuxCommandsTopic, isWhiteBlackTestingTopic } from "../utils/quizEngine";
 import { updateItemStats, loadStats, resetStats } from "../utils/storage";
 import { checkNameAnswer, checkPurposeAnswer, checkOrderAnswer, formatDisplayName } from "../utils/normalize";
 import QuizStats from "./QuizStats";
@@ -53,6 +53,10 @@ export default function QuizPage() {
       setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
     if (topic && isLinuxCommandsTopic(topic)) {
+      const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.FULL_LIST];
+      if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
+    }
+    if (topic && isWhiteBlackTestingTopic(topic)) {
       const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.FULL_LIST];
       if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
@@ -165,6 +169,12 @@ export default function QuizPage() {
                 { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
                 { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
               ]
+            : isWhiteBlackTestingTopic(topic)
+            ? [
+                { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+              ]
             : [
                 { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
                 { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
@@ -213,6 +223,8 @@ export default function QuizPage() {
                     hint={
                       isLinuxCommandsTopic(topic)
                         ? "명령어를 입력하세요 (대소문자 무관)"
+                        : isWhiteBlackTestingTopic(topic)
+                        ? "검사 기법 이름을 입력하세요"
                         : isIntegrityTopic(topic)
                         ? "무결성 종류를 입력하세요 (예: 개체, 참조, 도메인 …)"
                         : isCryptoTopic(topic)

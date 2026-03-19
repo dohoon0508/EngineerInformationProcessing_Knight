@@ -3,6 +3,7 @@ import "./QuestionCard.css";
 
 export default function SubjectiveQuestion({ question, onSubmit, hint }) {
   const [input, setInput] = useState("");
+  const questionGroup = question?.questionGroup;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,6 +17,7 @@ export default function SubjectiveQuestion({ question, onSubmit, hint }) {
   return (
     <div className="question-card">
       <div className="question-prompt">
+        {questionGroup && <p className="question-group-badge">{questionGroup}</p>}
         <p className="question-text">{question.question}</p>
         <p className="question-hint">{hint ?? defaultHint}</p>
       </div>

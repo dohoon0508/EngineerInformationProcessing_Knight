@@ -10,6 +10,7 @@ export default function TopicListModal({ topic, onClose }) {
   const isCouplingCohesion = topic.id === "coupling-cohesion";
   const isIntegrity = topic.id === "integrity";
   const isLinuxCommands = topic.id === "linux-commands";
+  const isWhiteBlackTesting = topic.id === "whitebox-blackbox-testing";
 
   const renderTable = () => {
     if (isLinuxCommands) {
@@ -55,6 +56,41 @@ export default function TopicListModal({ topic, onClose }) {
             ))}
           </tbody>
         </table>
+      );
+    }
+
+    if (isWhiteBlackTesting) {
+      const groups = ["화이트박스 검사", "블랙박스 검사"];
+      return (
+        <div className="topic-list-coupling-cohesion">
+          {groups.map((groupKey) => {
+            const groupItems = topic.items.filter((i) => i.group === groupKey);
+            if (!groupItems.length) return null;
+            return (
+              <section key={groupKey} className="topic-list-group-section">
+                <h3 className="topic-list-group-title">{groupKey}</h3>
+                <table className="topic-list-table">
+                  <thead>
+                    <tr>
+                      <th>번호</th>
+                      <th>기법명</th>
+                      <th>설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupItems.map((item, i) => (
+                      <tr key={item.id}>
+                        <td>{i + 1}</td>
+                        <td>{formatDisplayName(item)}</td>
+                        <td className="topic-list-desc">{item.examDescription}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            );
+          })}
+        </div>
       );
     }
 

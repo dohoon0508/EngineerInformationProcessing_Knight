@@ -59,6 +59,11 @@ export function isLinuxCommandsTopic(topic) {
   return topic?.id === "linux-commands";
 }
 
+/** 화이트박스 / 블랙박스 검사 주제 */
+export function isWhiteBlackTestingTopic(topic) {
+  return topic?.id === "whitebox-blackbox-testing";
+}
+
 /** 결합도·응집도 그룹 목록 */
 const COUPLING_COHESION_GROUPS = ["결합도", "응집도"];
 
@@ -205,6 +210,8 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
   }
 
   const isCouplingCohesion = isCouplingCohesionTopic(topic);
+  const isLinuxCommands = isLinuxCommandsTopic(topic);
+  const isWhiteBlack = isWhiteBlackTestingTopic(topic);
 
   if (isCouplingCohesion && quizType === QUIZ_TYPES.ORDERING) {
     const virtualItems = COUPLING_COHESION_GROUPS.map((g) => ({ id: `ordering-${g}` }));
@@ -238,7 +245,6 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
     };
   }
 
-  const isLinuxCommands = isLinuxCommandsTopic(topic);
   if (isLinuxCommands) {
     const nameKo = item.nameKo ?? item.nameEn ?? displayName;
     const options =
@@ -262,12 +268,17 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
     quizType,
     question: description,
     answer: displayName,
-    answerDisplay: isCouplingCohesion ? `${item.group} - ${displayName}` : displayName,
+    answerDisplay: isCouplingCohesion || isWhiteBlack ? `${item.group} - ${displayName}` : displayName,
+    questionGroup: isWhiteBlack ? item.group : null,
     options:
       quizType === QUIZ_TYPES.MULTIPLE_CHOICE
-        ? getMultipleChoiceOptions(items, item, isCouplingCohesion ? item.group : null)
+        ? getMultipleChoiceOptions(items, item, isCouplingCohesion || isWhiteBlack ? item.group : null)
         : quizType === QUIZ_TYPES.FULL_LIST
-          ? shuffle(items.map((i) => formatDisplayName(i)))
+          ? shuffle(
+              (isWhiteBlack ? items.filter((i) => i.group === item.group) : items).map((i) =>
+                formatDisplayName(i)
+              )
+            )
           : null,
   };
 }
