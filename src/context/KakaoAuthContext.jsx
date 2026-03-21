@@ -28,6 +28,7 @@ function loadKakaoScript() {
 
 export function KakaoAuthProvider({ children }) {
   const [sdkReady, setSdkReady] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
   const [user, setUser] = useState(null);
 
   const jsKey = import.meta.env.VITE_KAKAO_JAVASCRIPT_KEY;
@@ -66,27 +67,54 @@ export function KakaoAuthProvider({ children }) {
     });
   }, []);
 
+  /** 저장된 토큰 복원 여부까지 포함해 “로그인 판정 가능” 상태로 만든다 (리다이렉트 깜빡임 방지) */
   useEffect(() => {
-    if (!sdkReady || !jsKey || typeof window === "undefined" || !window.Kakao?.isInitialized?.()) {
+    if (!sdkReady) {
+      setSessionReady(false);
+      return;
+    }
+    if (!jsKey) {
+      setSessionReady(true);
+      return;
+    }
+    if (typeof window === "undefined" || !window.Kakao?.isInitialized?.()) {
+      setUser(null);
+      setSessionReady(true);
       return;
     }
     const token = window.Kakao.Auth.getAccessToken();
-    if (!token) return;
-    fetchMe().then((res) => {
-      if (!res?.id) return;
-      const u = {
-        id: res.id,
-        nickname: res.properties?.nickname ?? res.kakao_account?.profile?.nickname ?? "카카오 사용자",
-        profileImage:
-          res.properties?.profile_image ??
-          res.kakao_account?.profile?.profile_image_url ??
-          null,
-        accessToken: token,
-      };
-      setUser(u);
-      mergeGuestStatsIntoUser(res.id);
-      syncQuizStatsWithCloudOnLogin(token, res.id);
-    });
+    if (!token) {
+      setUser(null);
+      setSessionReady(true);
+      return;
+    }
+    let cancelled = false;
+    fetchMe()
+      .then((res) => {
+        if (cancelled) return;
+        if (!res?.id) {
+          setUser(null);
+          return;
+        }
+        const u = {
+          id: res.id,
+          nickname: res.properties?.nickname ?? res.kakao_account?.profile?.nickname ?? "카카오 사용자",
+          profileImage:
+            res.properties?.profile_image ??
+            res.kakao_account?.profile?.profile_image_url ??
+            null,
+          accessToken: token,
+        };
+        setUser(u);
+        mergeGuestStatsIntoUser(res.id);
+        syncQuizStatsWithCloudOnLogin(token, res.id);
+      })
+      .finally(() => {
+        if (!cancelled) setSessionReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [sdkReady, jsKey, fetchMe]);
 
   const login = useCallback(() => {
@@ -150,6 +178,7 @@ export function KakaoAuthProvider({ children }) {
   const value = useMemo(
     () => ({
       sdkReady,
+      sessionReady,
       kakaoConfigured: Boolean(jsKey),
       user,
       kakaoUserId,
@@ -157,7 +186,7 @@ export function KakaoAuthProvider({ children }) {
       login,
       logout,
     }),
-    [sdkReady, jsKey, user, kakaoUserId, accessToken, login, logout]
+    [sdkReady, sessionReady, jsKey, user, kakaoUserId, accessToken, login, logout]
   );
 
   return <KakaoAuthContext.Provider value={value}>{children}</KakaoAuthContext.Provider>;

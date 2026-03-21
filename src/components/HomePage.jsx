@@ -7,7 +7,7 @@ import TopicListModal from "./TopicListModal";
 import "./HomePage.css";
 
 export default function HomePage() {
-  const { sdkReady, kakaoConfigured, user, login, logout } = useKakaoAuth();
+  const { kakaoConfigured, user, logout } = useKakaoAuth();
   const [listTopicId, setListTopicId] = useState(null);
   const [highlightRowItemId, setHighlightRowItemId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,31 +46,25 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
-      {kakaoConfigured && sdkReady && (
+      {kakaoConfigured && user && (
         <div className="home-auth-corner">
-          {user ? (
-            <div className="home-auth-user">
-              {user.profileImage && (
-                <img
-                  src={user.profileImage}
-                  alt=""
-                  className="home-auth-avatar"
-                  width={28}
-                  height={28}
-                />
-              )}
-              <span className="home-auth-nickname" title="카카오 로그인됨">
-                {user.nickname}
-              </span>
-              <button type="button" className="home-auth-btn home-auth-btn--ghost" onClick={logout}>
-                로그아웃
-              </button>
-            </div>
-          ) : (
-            <button type="button" className="home-auth-btn home-auth-btn--kakao" onClick={login}>
-              카카오 로그인
+          <div className="home-auth-user">
+            {user.profileImage && (
+              <img
+                src={user.profileImage}
+                alt=""
+                className="home-auth-avatar"
+                width={28}
+                height={28}
+              />
+            )}
+            <span className="home-auth-nickname" title="카카오 로그인됨">
+              {user.nickname}
+            </span>
+            <button type="button" className="home-auth-btn home-auth-btn--ghost" onClick={logout}>
+              로그아웃
             </button>
-          )}
+          </div>
         </div>
       )}
       <div className="home-search-corner" ref={searchWrapRef}>

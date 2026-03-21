@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import { KakaoAuthProvider } from "./context/KakaoAuthContext";
 import HomePage from "./components/HomePage";
 import QuizPage from "./components/QuizPage";
+import LoginPage from "./components/LoginPage";
+import RequireAuth from "./components/RequireAuth";
 import "./App.css";
 
 /** 주제 변경 시 상태(출제 모드·직전 문항 등)를 초기화하기 위해 topicId로 리마운트 */
@@ -16,8 +18,23 @@ export default function App() {
       <KakaoAuthProvider>
         <div className="app">
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/quiz/:topicId" element={<QuizPageWithReset />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/"
+              element={
+                <RequireAuth>
+                  <HomePage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/quiz/:topicId"
+              element={
+                <RequireAuth>
+                  <QuizPageWithReset />
+                </RequireAuth>
+              }
+            />
           </Routes>
         </div>
       </KakaoAuthProvider>
