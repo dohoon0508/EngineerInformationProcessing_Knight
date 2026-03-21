@@ -83,7 +83,8 @@ function getTestingTypesQuizPool(topic, quizType) {
   return list.filter((i) => !i.interactiveType || i.interactiveType !== "matching");
 }
 
-function getTopicQuizPool(topic, quizType) {
+/** 출제 후보 풀 (misc 펼침·테스팅 유형 분기 포함) — 즐겨찾기 가상 주제 생성에도 사용 */
+export function getTopicQuizPool(topic, quizType) {
   if (isMiscTopic(topic)) return expandMiscItems(topic.items);
   if (isTestingTypesTopic(topic)) return getTestingTypesQuizPool(topic, quizType);
   return topic.items;
@@ -158,13 +159,19 @@ export function getFinalWeight(itemId, itemStats, recentHistory) {
 /**
  * 직전 문제 제외, 최종 가중치 기반 weighted random으로 한 항목의 인덱스 선택
  */
-export function selectWeightedRandom(items, topicId, stats, previousItemId = null) {
-  const topic = stats[topicId];
-  // storage는 [가장 오래된 … 가장 최근] 순이므로, recency는 "가장 최근이 index 0"이 되도록 뒤집어서 사용
-  const recentHistory = [...(topic?.history || [])].reverse();
+/**
+ * @param {object} [options]
+ * @param {(item: object) => string} [options.getStatsTopicId] — 통계를 읽을 topic id (전체 즐겨찾기 등)
+ */
+export function selectWeightedRandom(items, topicId, stats, previousItemId = null, options = {}) {
+  const { getStatsTopicId } = options;
+  const resolveTid = (item) => (typeof getStatsTopicId === "function" ? getStatsTopicId(item) : topicId);
 
   const weights = items.map((item) => {
     if (previousItemId && item.id === previousItemId) return 0; // 직전 문제 제외
+    const tid = resolveTid(item);
+    const topic = stats[tid];
+    const recentHistory = [...(topic?.history || [])].reverse();
     const itemStats = topic?.items?.[item.id];
     return getFinalWeight(item.id, itemStats, recentHistory);
   });
@@ -199,13 +206,27 @@ function shuffle(array) {
  * - 일반 주제: 설명 → 이름
  * - 디자인 패턴: 패턴명 / 목적 / 목적+패턴
  */
-export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapshot = null) {
+/**
+ * @param {object} [nextQuestionOptions]
+ * @param {Set<string>} [nextQuestionOptions.allowedItemIds] — 현재 주제 풀에서 이 item id 만 출제
+ * @param {(item: object) => string} [nextQuestionOptions.getItemStatsTopicId] — 가중치용 stats 키 (기본 topic.id)
+ */
+export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapshot = null, nextQuestionOptions = {}) {
+  const { allowedItemIds = null, getItemStatsTopicId = null } = nextQuestionOptions;
   const items = topic.items;
   if (!items?.length) return null;
 
-  const quizItems = getTopicQuizPool(topic, quizType);
+  let quizItems = getTopicQuizPool(topic, quizType);
+  if (allowedItemIds instanceof Set) {
+    if (allowedItemIds.size === 0) return null;
+    quizItems = quizItems.filter((i) => allowedItemIds.has(i.id));
+  }
+  if (!quizItems.length) return null;
+
   const stats = statsSnapshot ?? loadStats();
-  const idx = selectWeightedRandom(quizItems, topic.id, stats, lastItemId);
+  const idx = selectWeightedRandom(quizItems, topic.id, stats, lastItemId, {
+    getStatsTopicId: getItemStatsTopicId ?? undefined,
+  });
   const item = quizItems[idx];
   const displayName = formatDisplayName(item);
   /** 퀴즈 문제 문구: 있으면 사용(출제 목록·암기용은 examDescription 유지) */

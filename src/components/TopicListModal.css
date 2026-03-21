@@ -1,3 +1,18 @@
+.topic-list-fav-col {
+  width: 2.75rem;
+  text-align: center;
+  vertical-align: middle;
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+}
+
+.topic-list-fav-cell {
+  width: 2.75rem;
+  text-align: center;
+  vertical-align: middle;
+  padding: 0.35rem 0.25rem;
+}
+
 .topic-list-row-highlight {
   outline: 2px solid var(--color-primary);
   outline-offset: -2px;

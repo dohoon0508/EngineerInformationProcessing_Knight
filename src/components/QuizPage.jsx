@@ -1,6 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { topics } from "../data/topics";
+import { useFavorites } from "../context/FavoritesContext";
+import {
+  ALL_FAVORITES_TOPIC_ID,
+  buildAllFavoritesTopic,
+  itemIdsForTopicFavorites,
+} from "../utils/favoritesTopic";
 import {
   getNextQuestion,
   QUIZ_TYPES,
@@ -36,6 +42,7 @@ import PurposeAndPatternQuestion from "./PurposeAndPatternQuestion";
 import PurposeAndSubjectiveQuestion from "./PurposeAndSubjectiveQuestion";
 import OrderingQuestion from "./OrderingQuestion";
 import VModelMatchingQuestion from "./VModelMatchingQuestion";
+import FavoriteStarButton from "./FavoriteStarButton";
 import "./QuizPage.css";
 
 /** 데이터베이스 전체 보기: group에 따라 목록 범위·라벨 분기 */
@@ -79,7 +86,42 @@ function QuizPageAuthHint() {
 
 export default function QuizPage() {
   const { topicId } = useParams();
-  const topic = topics.find((t) => t.id === topicId);
+  const [searchParams] = useSearchParams();
+  const favoritesOnly = searchParams.get("favorites") === "1";
+  const { favoriteKeys } = useFavorites();
+  const isAllFavoritesRoute = topicId === ALL_FAVORITES_TOPIC_ID;
+
+  const topic = useMemo(() => {
+    if (isAllFavoritesRoute) {
+      return buildAllFavoritesTopic(favoriteKeys);
+    }
+    return topics.find((t) => t.id === topicId);
+  }, [topicId, isAllFavoritesRoute, favoriteKeys]);
+
+  const topicFavoriteIds = useMemo(() => {
+    if (!topic || isAllFavoritesRoute || !favoritesOnly) return null;
+    const s = itemIdsForTopicFavorites(favoriteKeys, topic.id);
+    return s; // 빈 Set 이면 출제 풀 0건
+  }, [topic, isAllFavoritesRoute, favoritesOnly, favoriteKeys]);
+
+  const nextQuestionOpts = useMemo(() => {
+    const o = {};
+    if (isAllFavoritesRoute) {
+      o.getItemStatsTopicId = (item) => item._statsTopicId;
+    }
+    if (topicFavoriteIds) {
+      o.allowedItemIds = topicFavoriteIds;
+    }
+    return o;
+  }, [isAllFavoritesRoute, topicFavoriteIds]);
+
+  const favoritesPoolEmpty = useMemo(() => {
+    if (!topic) return false;
+    if (isAllFavoritesRoute) return topic.items.length === 0;
+    if (favoritesOnly && topicFavoriteIds) return topicFavoriteIds.size === 0;
+    return false;
+  }, [topic, isAllFavoritesRoute, favoritesOnly, topicFavoriteIds]);
+
   const { kakaoUserId } = useKakaoAuth();
   const [quizType, setQuizType] = useState(QUIZ_TYPES.SUBJECTIVE);
   const [question, setQuestion] = useState(null);
@@ -88,26 +130,45 @@ export default function QuizPage() {
   const [result, setResult] = useState(null); // { isCorrect, userAnswer, correctAnswer }
   const [solveCount, setSolveCount] = useState(0);
 
+  /** 해설(정답/오답) 표시 중 — 즐겨찾기 토글 시 출제 effect가 돌면 안 됨 */
+  const viewingResultRef = useRef(false);
+  useEffect(() => {
+    viewingResultRef.current = result != null;
+  }, [result]);
+
+  const quizRenderTopic = useMemo(() => {
+    if (!isAllFavoritesRoute || !question?.item?._statsTopicId) return topic;
+    return topics.find((t) => t.id === question.item._statsTopicId) ?? topic;
+  }, [isAllFavoritesRoute, question, topic]);
+
+  /** 전체 즐겨찾기 모드는 주관식만 */
+  useEffect(() => {
+    if (isAllFavoritesRoute) {
+      setQuizType(QUIZ_TYPES.SUBJECTIVE);
+    }
+  }, [isAllFavoritesRoute]);
+
   const loadNextQuestion = useCallback(() => {
     if (!topic) return;
     const latest = loadStats(kakaoUserId);
-    const q = getNextQuestion(topic, quizType, lastItemId, latest);
+    const q = getNextQuestion(topic, quizType, lastItemId, latest, nextQuestionOpts);
     setQuestion(q);
     setResult(null);
     if (q) setLastItemId(q.item.id);
     setStats(latest);
-  }, [topic, quizType, lastItemId, kakaoUserId]);
+  }, [topic, quizType, lastItemId, kakaoUserId, nextQuestionOpts]);
 
-  /** 주제·유형·로그인 계정 변경 시 직전 문항 id 없이 새로 출제 */
+  /** 주제·유형·로그인·출제 옵션·즐겨찾기 변경 시 새로 출제 (해설 화면에서는 동일 문항 유지) */
   useEffect(() => {
     if (!topic) return;
+    if (viewingResultRef.current) return;
     const latest = loadStats(kakaoUserId);
-    const q = getNextQuestion(topic, quizType, null, latest);
+    const q = getNextQuestion(topic, quizType, null, latest, nextQuestionOpts);
     setQuestion(q);
     setResult(null);
     if (q) setLastItemId(q.item.id);
     setStats(latest);
-  }, [topic, quizType, kakaoUserId]);
+  }, [topic, quizType, kakaoUserId, nextQuestionOpts, favoriteKeys]);
 
   /** 카카오 로그인 후 클라우드에서 통계를 받아오면 통계 UI 갱신 */
   useEffect(() => {
@@ -119,27 +180,28 @@ export default function QuizPage() {
   }, [kakaoUserId]);
 
   useEffect(() => {
-    if (topic && isDesignPatternTopic(topic)) {
+    if (!topic || topic.id === ALL_FAVORITES_TOPIC_ID) return;
+    if (isDesignPatternTopic(topic)) {
       const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.PURPOSE_AND_PATTERN];
       if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
-    if (topic && isCryptoTopic(topic)) {
+    if (isCryptoTopic(topic)) {
       const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.FULL_LIST, QUIZ_TYPES.PURPOSE_ONLY, QUIZ_TYPES.PURPOSE_AND_PATTERN];
       if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
-    if (topic && isCouplingCohesionTopic(topic)) {
+    if (isCouplingCohesionTopic(topic)) {
       const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.ORDERING];
       if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
-    if (topic && isLinuxCommandsTopic(topic)) {
+    if (isLinuxCommandsTopic(topic)) {
       const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.FULL_LIST];
       if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
-    if (topic && isDatabaseTopic(topic)) {
+    if (isDatabaseTopic(topic)) {
       const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.FULL_LIST];
       if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
-    if (topic && isTestingTypesTopic(topic)) {
+    if (isTestingTypesTopic(topic)) {
       const valid = [
         QUIZ_TYPES.SUBJECTIVE,
         QUIZ_TYPES.MULTIPLE_CHOICE,
@@ -152,6 +214,9 @@ export default function QuizPage() {
 
   const handleSubmit = (userAnswer) => {
     if (!question || result) return;
+    const statsTopicIdForItem = question.item._statsTopicId ?? topicId;
+    const sourceTopic = topics.find((t) => t.id === statsTopicIdForItem) ?? topic;
+
     let isCorrect;
     if (quizType === QUIZ_TYPES.PURPOSE_ONLY) {
       isCorrect = checkPurposeAnswer(userAnswer, question.answer);
@@ -160,7 +225,7 @@ export default function QuizPage() {
       isCorrect =
         checkPurposeAnswer(purpose, question.answer.purpose) &&
         pattern === question.answer.pattern;
-    } else if (quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(topic)) {
+    } else if (quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(sourceTopic)) {
       const { purpose, pattern } = userAnswer;
       isCorrect =
         checkPurposeAnswer(purpose, question.item.purpose) &&
@@ -175,10 +240,10 @@ export default function QuizPage() {
       isCorrect = userAnswer === question.answer;
     }
 
-    updateItemStats(topicId, question.item.id, isCorrect, kakaoUserId);
+    updateItemStats(statsTopicIdForItem, question.item.id, isCorrect, kakaoUserId);
     setStats(loadStats(kakaoUserId));
     const correctAnswer =
-      quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(topic)
+      quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(sourceTopic)
         ? `${question.item.purpose} - ${formatDisplayName(question.item)}`
         : question.answerDisplay;
 
@@ -199,12 +264,12 @@ export default function QuizPage() {
       userAnswer: userAnswerDisplay,
       correctAnswer,
       questionText: question.question,
-      ...((isLinuxCommandsTopic(topic) ||
-        isDatabaseTopic(topic) ||
-        topic?.id === "network" ||
-        isMiscTopic(topic) ||
-        isCryptoTopic(topic) ||
-        isTestingTypesTopic(topic)) &&
+      ...((isLinuxCommandsTopic(sourceTopic) ||
+        isDatabaseTopic(sourceTopic) ||
+        sourceTopic?.id === "network" ||
+        isMiscTopic(sourceTopic) ||
+        isCryptoTopic(sourceTopic) ||
+        isTestingTypesTopic(sourceTopic)) &&
         !isCorrect &&
         question.item?.shortDescription && { correctAnswerExplanation: question.item.shortDescription }),
       ...(quizType === QUIZ_TYPES.MATCHING &&
@@ -219,6 +284,7 @@ export default function QuizPage() {
   };
 
   const handleResetStats = () => {
+    if (isAllFavoritesRoute) return;
     if (confirm("이 주제의 퀴즈 기록을 모두 초기화할까요?")) {
       resetStats(topicId, kakaoUserId);
       setStats(loadStats(kakaoUserId));
@@ -227,7 +293,7 @@ export default function QuizPage() {
     }
   };
 
-  if (!topic) {
+  if (!topic && !isAllFavoritesRoute) {
     return (
       <div className="quiz-page">
         <p>주제를 찾을 수 없습니다.</p>
@@ -243,7 +309,8 @@ export default function QuizPage() {
     history: [],
   };
 
-  const statsDisplayItems = isMiscTopic(topic) ? expandMiscItems(topic.items) : topic.items;
+  const statsDisplayItems =
+    topic && !isAllFavoritesRoute && isMiscTopic(topic) ? expandMiscItems(topic.items) : topic?.items ?? [];
 
   return (
     <div className="quiz-page">
@@ -251,100 +318,141 @@ export default function QuizPage() {
         <Link to="/" className="home-link">
           ← 홈
         </Link>
-        <h1>{topic.title}</h1>
+        <h1>{topic?.title ?? "퀴즈"}</h1>
         <QuizPageAuthHint />
       </header>
 
+      {isAllFavoritesRoute && (
+        <p className="quiz-favorites-mode-hint">주관식만 · 출제 통계는 각 목차에 반영됩니다.</p>
+      )}
+      {favoritesOnly && !isAllFavoritesRoute && (
+        <p className="quiz-favorites-mode-hint">이 목차에서 ★ 즐겨찾기만 출제합니다.</p>
+      )}
+
       <div className="quiz-controls">
-        {isDatabaseTopic(topic) || isTestingTypesTopic(topic) ? (
-          <div className="quiz-type-tabs">
-            {(
-              isTestingTypesTopic(topic)
-                ? [
-                    { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
-                    { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
-                    { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
-                    { key: QUIZ_TYPES.MATCHING, label: "매칭(드래그)" },
-                  ]
-                : [
-                    { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
-                    { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
-                    { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
-                  ]
-            ).map(({ key, label }) => (
-              <button
-                key={key}
-                className={`tab ${quizType === key ? "active" : ""}`}
-                onClick={() => setQuizType(key)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="quiz-type-tabs">
-            {(isDesignPatternTopic(topic)
-              ? [
-                  { key: QUIZ_TYPES.SUBJECTIVE, label: "목적+패턴(주관식)" },
-                  { key: QUIZ_TYPES.PURPOSE_AND_PATTERN, label: "목적+패턴(객관식)" },
-                ]
-              : isCryptoTopic(topic)
-              ? [
-                  { key: QUIZ_TYPES.SUBJECTIVE, label: "알고리즘명(주관식)" },
-                  { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "알고리즘명(4지선다)" },
-                  { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
-                  { key: QUIZ_TYPES.PURPOSE_ONLY, label: "분류 맞히기" },
-                  { key: QUIZ_TYPES.PURPOSE_AND_PATTERN, label: "분류+알고리즘" },
-                ]
-              : isCouplingCohesionTopic(topic)
-              ? [
-                  { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
-                  { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
-                  { key: QUIZ_TYPES.ORDERING, label: "순서 맞추기" },
-                ]
-              : isLinuxCommandsTopic(topic)
-              ? [
-                  { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
-                  { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
-                  { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
-                ]
-              : [
-                  { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
-                  { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
-                  { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "4지 선다" },
-                ]
-            ).map(({ key, label }) => (
-              <button
-                key={key}
-                className={`tab ${quizType === key ? "active" : ""}`}
-                onClick={() => setQuizType(key)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+        {!isAllFavoritesRoute && (
+          <>
+            {isDatabaseTopic(topic) || isTestingTypesTopic(topic) ? (
+              <div className="quiz-type-tabs">
+                {(
+                  isTestingTypesTopic(topic)
+                    ? [
+                        { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                        { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                        { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                        { key: QUIZ_TYPES.MATCHING, label: "매칭(드래그)" },
+                      ]
+                    : [
+                        { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                        { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                        { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                      ]
+                ).map(({ key, label }) => (
+                  <button
+                    key={key}
+                    className={`tab ${quizType === key ? "active" : ""}`}
+                    onClick={() => setQuizType(key)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="quiz-type-tabs">
+                {(isDesignPatternTopic(topic)
+                  ? [
+                      { key: QUIZ_TYPES.SUBJECTIVE, label: "목적+패턴(주관식)" },
+                      { key: QUIZ_TYPES.PURPOSE_AND_PATTERN, label: "목적+패턴(객관식)" },
+                    ]
+                  : isCryptoTopic(topic)
+                  ? [
+                      { key: QUIZ_TYPES.SUBJECTIVE, label: "알고리즘명(주관식)" },
+                      { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "알고리즘명(4지선다)" },
+                      { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                      { key: QUIZ_TYPES.PURPOSE_ONLY, label: "분류 맞히기" },
+                      { key: QUIZ_TYPES.PURPOSE_AND_PATTERN, label: "분류+알고리즘" },
+                    ]
+                  : isCouplingCohesionTopic(topic)
+                  ? [
+                      { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                      { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                      { key: QUIZ_TYPES.ORDERING, label: "순서 맞추기" },
+                    ]
+                  : isLinuxCommandsTopic(topic)
+                  ? [
+                      { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                      { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                      { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                    ]
+                  : [
+                      { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                      { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                      { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "4지 선다" },
+                    ]
+                ).map(({ key, label }) => (
+                  <button
+                    key={key}
+                    className={`tab ${quizType === key ? "active" : ""}`}
+                    onClick={() => setQuizType(key)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+            <button type="button" className="reset-btn" onClick={handleResetStats}>
+              기록 초기화
+            </button>
+          </>
         )}
-        <button className="reset-btn" onClick={handleResetStats}>
-          기록 초기화
-        </button>
       </div>
 
-      <QuizStats
-        totalCorrect={topicStats.totalCorrect}
-        totalWrong={topicStats.totalWrong}
-        solveCount={solveCount}
-        history={topicStats.history || []}
-        items={statsDisplayItems}
-        itemStats={topicStats.items || {}}
-      />
+      {!isAllFavoritesRoute && (
+        <QuizStats
+          totalCorrect={topicStats.totalCorrect}
+          totalWrong={topicStats.totalWrong}
+          solveCount={solveCount}
+          history={topicStats.history || []}
+          items={statsDisplayItems}
+          itemStats={topicStats.items || {}}
+        />
+      )}
 
       <div className="question-area">
-        {question && (
+        {favoritesPoolEmpty && (
+          <div className="quiz-empty-favorites">
+            <p>
+              {isAllFavoritesRoute
+                ? "즐겨찾기한 문제가 없습니다. 각 목차의 출제 목록에서 ★를 눌러 추가하세요."
+                : "이 목차에서 즐겨찾기한 문제가 없습니다."}
+            </p>
+            <Link to="/" className="home-link">
+              홈으로
+            </Link>
+          </div>
+        )}
+        {!favoritesPoolEmpty && question && (
           <>
-            <div className="solve-count">누적 풀이: {solveCount}문제 · {topic.title}</div>
+            <div
+              className={`question-area-top-row${!result ? " question-area-top-row--solo" : ""}`}
+            >
+              <div className="solve-count">
+                누적 풀이: {solveCount}문제 · {quizRenderTopic?.title ?? topic?.title}
+              </div>
+              {result && (
+                <div className="result-favorite-row result-favorite-row--corner">
+                  <FavoriteStarButton
+                    topicId={question.item._statsTopicId ?? topicId}
+                    itemId={question.item.id}
+                    variant="compact"
+                  />
+                  <span className="result-favorite-label">이 문제 즐겨찾기</span>
+                </div>
+              )}
+            </div>
             {!result ? (
               <>
-                {isDatabaseTopic(topic) || isTestingTypesTopic(topic) ? (
+                {isDatabaseTopic(quizRenderTopic) || isTestingTypesTopic(quizRenderTopic) ? (
                   <>
                     {quizType === QUIZ_TYPES.SUBJECTIVE && (
                       <SubjectiveQuestion
@@ -360,43 +468,45 @@ export default function QuizPage() {
                       <FullListQuestion
                         question={question}
                         items={
-                          isTestingTypesTopic(topic)
-                            ? getTestingTypesFullListItems(topic, question)
-                            : getDatabaseFullListItems(topic, question)
+                          isTestingTypesTopic(quizRenderTopic)
+                            ? getTestingTypesFullListItems(quizRenderTopic, question)
+                            : getDatabaseFullListItems(quizRenderTopic, question)
                         }
                         onSubmit={handleSubmit}
                         getOptionLabel={
-                          isTestingTypesTopic(topic) ? undefined : getDatabaseFullListLabel(question)
+                          isTestingTypesTopic(quizRenderTopic)
+                            ? undefined
+                            : getDatabaseFullListLabel(question)
                         }
                       />
                     )}
-                    {isTestingTypesTopic(topic) && quizType === QUIZ_TYPES.MATCHING && (
+                    {isTestingTypesTopic(quizRenderTopic) && quizType === QUIZ_TYPES.MATCHING && (
                       <VModelMatchingQuestion question={question} onSubmit={handleSubmit} />
                     )}
                   </>
                 ) : (
                   <>
-                    {quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(topic) && (
+                    {quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(quizRenderTopic) && (
                       <PurposeAndSubjectiveQuestion
                         question={question}
                         onSubmit={handleSubmit}
                       />
                     )}
-                    {quizType === QUIZ_TYPES.SUBJECTIVE && !isDesignPatternTopic(topic) && (
+                    {quizType === QUIZ_TYPES.SUBJECTIVE && !isDesignPatternTopic(quizRenderTopic) && (
                       <SubjectiveQuestion
                         question={question}
                         onSubmit={handleSubmit}
                         hint={
                           question.hint ??
-                          (isLinuxCommandsTopic(topic)
+                          (isLinuxCommandsTopic(quizRenderTopic)
                             ? "명령어를 입력하세요 (대소문자 무관)"
-                            : isCryptoTopic(topic)
+                            : isCryptoTopic(quizRenderTopic)
                             ? "알고리즘·보안 용어를 입력하세요 (한국어 또는 영어)"
-                            : isCouplingCohesionTopic(topic)
+                            : isCouplingCohesionTopic(quizRenderTopic)
                             ? "항목명을 입력하세요 (한국어 또는 영어)"
-                            : isNetworkTopic(topic)
+                            : isNetworkTopic(quizRenderTopic)
                             ? "네트워크 용어를 입력하세요 (한국어 또는 영어)"
-                            : isMiscTopic(topic)
+                            : isMiscTopic(quizRenderTopic)
                             ? "용어·약어를 입력하세요 (한국어 또는 영어, 예: RAID 5, SRP, SSO)"
                             : "공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)")
                         }
@@ -412,18 +522,22 @@ export default function QuizPage() {
                       <FullListQuestion
                         question={question}
                         items={
-                          question && isNetworkTopic(topic)
-                            ? getNetworkFullListItems(topic, question)
-                            : question && isCryptoTopic(topic)
-                            ? getCryptoFullListItems(topic, question)
-                            : isTestingTypesTopic(topic)
-                            ? getTestingTypesFullListItems(topic, question)
-                            : isMiscTopic(topic)
-                            ? getMiscFullListItems(topic, question)
-                            : topic.items
+                          question && isNetworkTopic(quizRenderTopic)
+                            ? getNetworkFullListItems(quizRenderTopic, question)
+                            : question && isCryptoTopic(quizRenderTopic)
+                            ? getCryptoFullListItems(quizRenderTopic, question)
+                            : isTestingTypesTopic(quizRenderTopic)
+                            ? getTestingTypesFullListItems(quizRenderTopic, question)
+                            : isMiscTopic(quizRenderTopic)
+                            ? getMiscFullListItems(quizRenderTopic, question)
+                            : quizRenderTopic.items
                         }
                         onSubmit={handleSubmit}
-                        getOptionLabel={isLinuxCommandsTopic(topic) ? (item) => item.nameKo ?? item.nameEn : undefined}
+                        getOptionLabel={
+                          isLinuxCommandsTopic(quizRenderTopic)
+                            ? (item) => item.nameKo ?? item.nameEn
+                            : undefined
+                        }
                       />
                     )}
                     {quizType === QUIZ_TYPES.PURPOSE_ONLY && (
@@ -468,7 +582,7 @@ export default function QuizPage() {
                     <strong>해설:</strong> {result.correctAnswerExplanation}
                   </div>
                 )}
-                <button className="next-btn" onClick={handleNext}>
+                <button type="button" className="next-btn" onClick={handleNext}>
                   다음 문제
                 </button>
               </div>

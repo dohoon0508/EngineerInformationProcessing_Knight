@@ -1,6 +1,19 @@
 import { useEffect, useRef } from "react";
 import { formatDisplayName } from "../utils/normalize";
+import FavoriteStarButton from "./FavoriteStarButton";
 import "./TopicListModal.css";
+
+function FavTh() {
+  return <th className="topic-list-fav-col" scope="col" aria-label="즐겨찾기" />;
+}
+
+function FavTd({ topicId, itemId }) {
+  return (
+    <td className="topic-list-fav-cell">
+      <FavoriteStarButton topicId={topicId} itemId={itemId} variant="compact" />
+    </td>
+  );
+}
 
 /** 출제 목록 행/섹션에 검색 하이라이트·스크롤용 */
 function trListRowProps(itemId, highlightRowItemId) {
@@ -63,6 +76,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
               <table className="topic-list-table">
                 <thead>
                   <tr>
+                    <FavTh />
                     <th>subcategory</th>
                     <th>이름</th>
                     <th>설명</th>
@@ -71,6 +85,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <tbody>
                   {noSub.map((item) => (
                     <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                      <FavTd topicId={topic.id} itemId={item.id} />
                       <td>—</td>
                       <td>{formatDisplayName(item)}</td>
                       <td className="topic-list-desc">{item.examDescription}</td>
@@ -88,6 +103,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <table className="topic-list-table">
                   <thead>
                     <tr>
+                      <FavTh />
                       <th>subcategory</th>
                       <th>이름</th>
                       <th>설명</th>
@@ -96,6 +112,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                   <tbody>
                     {groupItems.map((item) => (
                       <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                        <FavTd topicId={topic.id} itemId={item.id} />
                         <td>{item.subcategory}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>
@@ -115,6 +132,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <table className="topic-list-table">
                   <thead>
                     <tr>
+                      <FavTh />
                       <th>번호</th>
                       <th>기법명</th>
                       <th>설명</th>
@@ -123,6 +141,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                   <tbody>
                     {groupItems.map((item, i) => (
                       <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                        <FavTd topicId={topic.id} itemId={item.id} />
                         <td>{i + 1}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>
@@ -143,7 +162,9 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
               }`}
               data-topic-list-row={m.id}
             >
-              <h3 className="topic-list-group-title">{m.nameKo}</h3>
+              <h3 className="topic-list-group-title">
+                <FavoriteStarButton topicId={topic.id} itemId={m.id} variant="compact" /> {m.nameKo}
+              </h3>
               <p className="topic-list-desc topic-list-vmodel-intro">{m.examDescription}</p>
               <ul className="topic-list-vmodel-pairs">
                 {pairOrder.map((k) =>
@@ -165,6 +186,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
         <table className="topic-list-table">
           <thead>
             <tr>
+              <FavTh />
               <th>명령어</th>
               <th>설명</th>
             </tr>
@@ -172,6 +194,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
           <tbody>
             {topic.items.map((item) => (
               <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                <FavTd topicId={topic.id} itemId={item.id} />
                 <td>{item.nameKo}</td>
                 <td className="topic-list-desc">{item.examDescription}</td>
               </tr>
@@ -199,6 +222,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <table className="topic-list-table">
                   <thead>
                     <tr>
+                      <FavTh />
                       <th>group</th>
                       <th>이름</th>
                       <th>설명</th>
@@ -207,6 +231,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                   <tbody>
                     {groupItems.map((item) => (
                       <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                        <FavTd topicId={topic.id} itemId={item.id} />
                         <td>{item.group}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>
@@ -223,6 +248,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
               <table className="topic-list-table">
                 <thead>
                   <tr>
+                    <FavTh />
                     <th>group</th>
                     <th>이름</th>
                     <th>설명</th>
@@ -231,6 +257,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <tbody>
                   {noGroup.map((item) => (
                     <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                      <FavTd topicId={topic.id} itemId={item.id} />
                       <td>—</td>
                       <td>{formatDisplayName(item)}</td>
                       <td className="topic-list-desc">{item.examDescription}</td>
@@ -257,6 +284,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
       const renderMiscTableRows = (list) =>
         list.map((item) => (
           <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+            <FavTd topicId={topic.id} itemId={item.id} />
             <td className="topic-list-misc-name">{formatDisplayName(item)}</td>
             <td className="topic-list-desc topic-list-misc-desc-cell">
               <div className="topic-list-main-desc">{item.examDescription}</div>
@@ -285,6 +313,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
               <table className="topic-list-table topic-list-misc-table">
                 <thead>
                   <tr>
+                    <FavTh />
                     <th>이름</th>
                     <th>설명</th>
                   </tr>
@@ -301,6 +330,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <table className="topic-list-table topic-list-misc-table">
                   <thead>
                     <tr>
+                      <FavTh />
                       <th>이름</th>
                       <th>설명</th>
                     </tr>
@@ -319,6 +349,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
         <table className="topic-list-table">
           <thead>
             <tr>
+              <FavTh />
               <th>번호</th>
               <th>유형명 (한국어)</th>
               <th>유형명 (영문)</th>
@@ -328,6 +359,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
           <tbody>
             {topic.items.map((item, i) => (
               <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                <FavTd topicId={topic.id} itemId={item.id} />
                 <td>{i + 1}</td>
                 <td>{item.nameKo}</td>
                 <td>{item.nameEn ?? "-"}</td>
@@ -353,6 +385,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
         <table className="topic-list-table">
           <thead>
             <tr>
+              <FavTh />
               <th>번호</th>
               <th>목적</th>
               <th>패턴명</th>
@@ -365,6 +398,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 rowNum += 1;
                 return (
                   <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                    <FavTd topicId={topic.id} itemId={item.id} />
                     <td>{rowNum}</td>
                     {i === 0 && (
                       <td rowSpan={group.items.length} className="topic-list-purpose-cell">
@@ -410,6 +444,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <table className="topic-list-table">
                   <thead>
                     <tr>
+                      <FavTh />
                       <th>subcategory</th>
                       <th>이름</th>
                       <th>설명</th>
@@ -418,6 +453,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                   <tbody>
                     {groupItems.map((item) => (
                       <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                        <FavTd topicId={topic.id} itemId={item.id} />
                         <td>{item.subcategory ?? item.category ?? "—"}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>
@@ -446,6 +482,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <table className="topic-list-table">
                   <thead>
                     <tr>
+                      <FavTh />
                       <th>번호</th>
                       <th>이름</th>
                       {showSymbol && <th>기호</th>}
@@ -455,6 +492,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                   <tbody>
                     {groupItems.map((item, i) => (
                       <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                        <FavTd topicId={topic.id} itemId={item.id} />
                         <td>{i + 1}</td>
                         <td>{formatDisplayName(item)}</td>
                         {showSymbol && <td>{item.symbol ?? "—"}</td>}
@@ -504,6 +542,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <table className="topic-list-table">
                   <thead>
                     <tr>
+                      <FavTh />
                       <th>번호</th>
                       <th>항목명</th>
                       <th>설명</th>
@@ -512,6 +551,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                   <tbody>
                     {groupItems.map((item, i) => (
                       <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                        <FavTd topicId={topic.id} itemId={item.id} />
                         <td>{i + 1}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>

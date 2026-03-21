@@ -2,10 +2,14 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { topics } from "../data/topics";
 import { searchItems, resolveListRowItemId } from "../utils/searchIndex";
+import { useFavorites } from "../context/FavoritesContext";
+import { ALL_FAVORITES_TOPIC_ID, itemIdsForTopicFavorites } from "../utils/favoritesTopic";
 import TopicListModal from "./TopicListModal";
 import "./HomePage.css";
 
 export default function HomePage() {
+  const { favoriteKeys } = useFavorites();
+  const allFavCount = favoriteKeys.size;
   const [listTopicId, setListTopicId] = useState(null);
   const [highlightRowItemId, setHighlightRowItemId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -95,28 +99,48 @@ export default function HomePage() {
         <h1>정보처리기사 암기 퀴즈</h1>
         <p>목차를 선택하고 퀴즈를 시작하세요</p>
       </header>
+      <div className="home-favorites-bar">
+        {allFavCount > 0 ? (
+          <Link className="home-all-favorites-link" to={`/quiz/${ALL_FAVORITES_TOPIC_ID}`}>
+            ★ 전체 즐겨찾기 풀기 <span className="home-all-favorites-count">({allFavCount})</span>
+          </Link>
+        ) : (
+          <span className="home-all-favorites-link home-all-favorites-link--disabled" title="출제 목록 등에서 ★를 눌러 추가하세요">
+            ★ 전체 즐겨찾기 풀기 (0)
+          </span>
+        )}
+        <span className="home-favorites-hint">주관식만 · 여러 목차 혼합</span>
+      </div>
       <div className="topic-grid">
-        {topics.map((topic) => (
-          <div key={topic.id} className="topic-card">
-            <h2>{topic.title}</h2>
-            <span className="topic-count">{topic.items.length}개 항목</span>
-            <div className="topic-card-actions">
-              <button
-                type="button"
-                className="topic-list-btn"
-                onClick={() => {
-                  setHighlightRowItemId(null);
-                  setListTopicId(topic.id);
-                }}
-              >
-                출제 목록
-              </button>
-              <Link to={`/quiz/${topic.id}`} className="topic-quiz-link">
-                퀴즈 시작
-              </Link>
+        {topics.map((topic) => {
+          const topicFavCount = itemIdsForTopicFavorites(favoriteKeys, topic.id).size;
+          return (
+            <div key={topic.id} className="topic-card">
+              <h2>{topic.title}</h2>
+              <span className="topic-count">{topic.items.length}개 항목</span>
+              <div className="topic-card-actions">
+                <button
+                  type="button"
+                  className="topic-list-btn"
+                  onClick={() => {
+                    setHighlightRowItemId(null);
+                    setListTopicId(topic.id);
+                  }}
+                >
+                  출제 목록
+                </button>
+                <Link to={`/quiz/${topic.id}`} className="topic-quiz-link">
+                  퀴즈 시작
+                </Link>
+                {topicFavCount > 0 && (
+                  <Link to={`/quiz/${topic.id}?favorites=1`} className="topic-favorites-quiz-link">
+                    즐겨찾기만
+                  </Link>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       {listTopic && (
         <TopicListModal
