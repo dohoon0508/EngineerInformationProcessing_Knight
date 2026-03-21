@@ -30,6 +30,8 @@ npm run dev
 
 **카카오 개발자 콘솔**: 앱 → 플랫폼(Web) 사이트 도메인에 `http://localhost:5173` 과 Vercel URL을 등록하고, **카카오 로그인** 활성화·Redirect URI를 맞춥니다.
 
+카카오 로그인(인가 코드·`/api/kakao-token`·로컬 프록시·Vercel 환경 변수) 상세는 루트의 **[KAKAO_LOGIN.md](./KAKAO_LOGIN.md)** 를 참고하세요.
+
 **Admin 키(REST API 시크릿 등)는 프론트·GitHub에 넣지 마세요.** 통계 API는 사용자 **액세스 토큰**으로 본인만 확인합니다.
 
 ### 기기 간 통계 동기화 (선택, Vercel + Neon)

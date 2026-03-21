@@ -3,6 +3,8 @@
  * DATABASE_URL 이 없으면 API가 503 → 클라이언트는 무시
  */
 
+import { getClientApiOrigin } from "./apiOrigin.js";
+
 let statsPusher = null;
 
 /** KakaoAuthProvider에서 등록: (stats, kakaoUserId) => void */
@@ -27,14 +29,8 @@ export function isCloudSyncEnabled() {
 
 function getEndpoint() {
   if (!isCloudSyncEnabled()) return null;
-  const base = import.meta.env.VITE_STATS_API_BASE;
-  if (base && String(base).trim() !== "") {
-    return `${String(base).replace(/\/$/, "")}/api/stats`;
-  }
-  if (typeof window !== "undefined" && window.location?.origin) {
-    return `${window.location.origin}/api/stats`;
-  }
-  return null;
+  const origin = getClientApiOrigin();
+  return origin ? `${origin}/api/stats` : null;
 }
 
 /**

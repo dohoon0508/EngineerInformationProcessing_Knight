@@ -53,3 +53,53 @@
   font-size: 0.9375rem;
   color: var(--color-text-muted);
 }
+
+.login-page__alert {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  text-align: left;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.login-page__alert-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-error);
+}
+
+.login-page__alert-detail {
+  margin: 0 0 0.65rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.login-page__alert-dismiss {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: var(--color-card);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.login-page__alert-dismiss:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.login-page__working {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.login-page__kakao:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  filter: none;
+}

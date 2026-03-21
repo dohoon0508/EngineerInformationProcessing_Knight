@@ -1,13 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { topics } from "../data/topics";
-import { useKakaoAuth } from "../context/KakaoAuthContext";
 import { searchItems, resolveListRowItemId } from "../utils/searchIndex";
 import TopicListModal from "./TopicListModal";
 import "./HomePage.css";
 
 export default function HomePage() {
-  const { kakaoConfigured, user, logout } = useKakaoAuth();
   const [listTopicId, setListTopicId] = useState(null);
   const [highlightRowItemId, setHighlightRowItemId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,27 +44,6 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
-      {kakaoConfigured && user && (
-        <div className="home-auth-corner">
-          <div className="home-auth-user">
-            {user.profileImage && (
-              <img
-                src={user.profileImage}
-                alt=""
-                className="home-auth-avatar"
-                width={28}
-                height={28}
-              />
-            )}
-            <span className="home-auth-nickname" title="카카오 로그인됨">
-              {user.nickname}
-            </span>
-            <button type="button" className="home-auth-btn home-auth-btn--ghost" onClick={logout}>
-              로그아웃
-            </button>
-          </div>
-        </div>
-      )}
       <div className="home-search-corner" ref={searchWrapRef}>
         <label className="home-search-label screen-reader-only" htmlFor="home-global-search">
           항목 검색

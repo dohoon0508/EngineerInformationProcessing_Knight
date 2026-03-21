@@ -38,4 +38,12 @@ export default defineConfig([
       sourceType: 'module',
     },
   },
+  {
+    files: ['vite.config.js'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+      sourceType: 'module',
+    },
+  },
 ])
