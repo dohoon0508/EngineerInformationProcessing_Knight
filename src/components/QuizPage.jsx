@@ -66,24 +66,6 @@ function getDatabaseFullListLabel(question) {
   return formatDisplayName;
 }
 
-function QuizPageAuthHint() {
-  const { user, kakaoConfigured } = useKakaoAuth();
-  if (!kakaoConfigured) return null;
-  if (!user) {
-    return (
-      <p className="quiz-auth-hint">
-        비로그인 — 기록은 이 브라우저에만 저장됩니다. 홈에서 카카오 로그인 시 계정별로 이어집니다.
-      </p>
-    );
-  }
-  return (
-    <p className="quiz-auth-hint quiz-auth-hint--ok">
-      <span className="quiz-auth-name">{user.nickname}</span> 님 기록으로 풀이 중
-      {import.meta.env.VITE_ENABLE_CLOUD_SYNC === "true" && " · 클라우드 동기화 켜짐"}
-    </p>
-  );
-}
-
 export default function QuizPage() {
   const { topicId } = useParams();
   const [searchParams] = useSearchParams();
@@ -319,7 +301,6 @@ export default function QuizPage() {
           ← 홈
         </Link>
         <h1>{topic?.title ?? "퀴즈"}</h1>
-        <QuizPageAuthHint />
       </header>
 
       {isAllFavoritesRoute && (
