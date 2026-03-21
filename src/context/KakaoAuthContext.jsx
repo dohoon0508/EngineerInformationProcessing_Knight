@@ -66,15 +66,15 @@ export function KakaoAuthProvider({ children }) {
     };
   }, [jsKey]);
 
+  /**
+   * JavaScript SDK v2(예: 2.7.x)의 Kakao.API.request 는 Promise 기반이다.
+   * success / fail 키는 v1 콜백 방식이라 KakaoError: Invalid parameter keys: success,fail 가 난다.
+   */
   const fetchMe = useCallback(() => {
     if (typeof window === "undefined" || !window.Kakao?.API) return Promise.resolve(null);
-    return new Promise((resolve) => {
-      window.Kakao.API.request({
-        url: "/v2/user/me",
-        success: (res) => resolve(res),
-        fail: () => resolve(null),
-      });
-    });
+    return window.Kakao.API.request({
+      url: "/v2/user/me",
+    }).catch(() => null);
   }, []);
 
   const completeLoginWithAccessToken = useCallback(
@@ -253,7 +253,11 @@ export function KakaoAuthProvider({ children }) {
   const logout = useCallback(() => {
     clearAuthError();
     if (typeof window !== "undefined" && window.Kakao?.Auth?.getAccessToken()) {
-      window.Kakao.Auth.logout(() => setUser(null));
+      try {
+        Promise.resolve(window.Kakao.Auth.logout()).finally(() => setUser(null));
+      } catch {
+        setUser(null);
+      }
     } else {
       setUser(null);
     }
