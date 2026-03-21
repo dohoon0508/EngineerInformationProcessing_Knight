@@ -238,7 +238,16 @@ export const topics = [
         id: "sql-injection",
         nameKo: "SQL 삽입",
         nameEn: "SQL Injection",
-        aliases: ["SQL 삽입", "sql 삽입", "sql injection", "sql인젝션"],
+        aliases: [
+          "SQL 삽입",
+          "sql 삽입",
+          "SQL 삽입 공격",
+          "sql 삽입 공격",
+          "SQL삽입공격",
+          "sql injection",
+          "sql injection attack",
+          "sql인젝션",
+        ],
         examDescription:
           "웹 응용 프로그램에 악의적인 SQL을 삽입해 내부 DB 데이터를 유출·변조하거나 관리자 인증을 우회하는 보안 약점이다. 동적 쿼리 입력값에 예약어·특수문자가 들어가지 않도록 필터링해 방지할 수 있다.",
         quizPrompt:
