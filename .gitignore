@@ -10,6 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 
+# 비밀키·로컬 환경 (GitHub에 올리지 않음)
+.env
+.env.*
+!.env.example
+
 # 로컬·개인용 문서 (원격 저장소에 올리지 않음)
 docs/
 dist-ssr

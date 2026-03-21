@@ -163,7 +163,7 @@ export function selectWeightedRandom(items, topicId, stats, previousItemId = nul
   // storage는 [가장 오래된 … 가장 최근] 순이므로, recency는 "가장 최근이 index 0"이 되도록 뒤집어서 사용
   const recentHistory = [...(topic?.history || [])].reverse();
 
-  const weights = items.map((item, i) => {
+  const weights = items.map((item) => {
     if (previousItemId && item.id === previousItemId) return 0; // 직전 문제 제외
     const itemStats = topic?.items?.[item.id];
     return getFinalWeight(item.id, itemStats, recentHistory);
@@ -199,12 +199,12 @@ function shuffle(array) {
  * - 일반 주제: 설명 → 이름
  * - 디자인 패턴: 패턴명 / 목적 / 목적+패턴
  */
-export function getNextQuestion(topic, quizType, lastItemId = null) {
+export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapshot = null) {
   const items = topic.items;
   if (!items?.length) return null;
 
   const quizItems = getTopicQuizPool(topic, quizType);
-  const stats = loadStats();
+  const stats = statsSnapshot ?? loadStats();
   const idx = selectWeightedRandom(quizItems, topic.id, stats, lastItemId);
   const item = quizItems[idx];
   const displayName = formatDisplayName(item);

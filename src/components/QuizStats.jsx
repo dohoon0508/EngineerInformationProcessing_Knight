@@ -4,10 +4,8 @@ import "./QuizStats.css";
 export default function QuizStats({
   totalCorrect,
   totalWrong,
-  solveCount,
   history,
   items,
-  itemStats,
 }) {
   const total = totalCorrect + totalWrong;
   const rate = total > 0 ? ((totalCorrect / total) * 100).toFixed(1) : "0";

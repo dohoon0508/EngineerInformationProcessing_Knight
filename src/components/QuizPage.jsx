@@ -18,6 +18,7 @@ import {
   getTestingTypesFullListItems,
   getMiscFullListItems,
 } from "../utils/quizEngine";
+import { useKakaoAuth } from "../context/KakaoAuthContext";
 import { updateItemStats, loadStats, resetStats } from "../utils/storage";
 import {
   checkNameAnswer,
@@ -58,32 +59,64 @@ function getDatabaseFullListLabel(question) {
   return formatDisplayName;
 }
 
+function QuizPageAuthHint() {
+  const { user, kakaoConfigured } = useKakaoAuth();
+  if (!kakaoConfigured) return null;
+  if (!user) {
+    return (
+      <p className="quiz-auth-hint">
+        비로그인 — 기록은 이 브라우저에만 저장됩니다. 홈에서 카카오 로그인 시 계정별로 이어집니다.
+      </p>
+    );
+  }
+  return (
+    <p className="quiz-auth-hint quiz-auth-hint--ok">
+      <span className="quiz-auth-name">{user.nickname}</span> 님 기록으로 풀이 중
+      {import.meta.env.VITE_ENABLE_CLOUD_SYNC === "true" && " · 클라우드 동기화 켜짐"}
+    </p>
+  );
+}
+
 export default function QuizPage() {
   const { topicId } = useParams();
   const topic = topics.find((t) => t.id === topicId);
+  const { kakaoUserId } = useKakaoAuth();
   const [quizType, setQuizType] = useState(QUIZ_TYPES.SUBJECTIVE);
   const [question, setQuestion] = useState(null);
   const [lastItemId, setLastItemId] = useState(null);
-  const [stats, setStats] = useState(() => loadStats());
+  const [stats, setStats] = useState(() => loadStats(null));
   const [result, setResult] = useState(null); // { isCorrect, userAnswer, correctAnswer }
   const [solveCount, setSolveCount] = useState(0);
 
   const loadNextQuestion = useCallback(() => {
     if (!topic) return;
-    const q = getNextQuestion(topic, quizType, lastItemId);
+    const latest = loadStats(kakaoUserId);
+    const q = getNextQuestion(topic, quizType, lastItemId, latest);
     setQuestion(q);
     setResult(null);
     if (q) setLastItemId(q.item.id);
-  }, [topic, quizType, lastItemId]);
+    setStats(latest);
+  }, [topic, quizType, lastItemId, kakaoUserId]);
 
-  /** 주제·유형 탭 변경 시 직전 문항 id를 쓰지 않고 새로 출제 (전체 보기 등 탭이 비는 현상 방지) */
+  /** 주제·유형·로그인 계정 변경 시 직전 문항 id 없이 새로 출제 */
   useEffect(() => {
     if (!topic) return;
-    const q = getNextQuestion(topic, quizType, null);
+    const latest = loadStats(kakaoUserId);
+    const q = getNextQuestion(topic, quizType, null, latest);
     setQuestion(q);
     setResult(null);
     if (q) setLastItemId(q.item.id);
-  }, [topic, quizType]);
+    setStats(latest);
+  }, [topic, quizType, kakaoUserId]);
+
+  /** 카카오 로그인 후 클라우드에서 통계를 받아오면 통계 UI 갱신 */
+  useEffect(() => {
+    function onStatsMerged() {
+      setStats(loadStats(kakaoUserId));
+    }
+    window.addEventListener("quiz-stats-storage-changed", onStatsMerged);
+    return () => window.removeEventListener("quiz-stats-storage-changed", onStatsMerged);
+  }, [kakaoUserId]);
 
   useEffect(() => {
     if (topic && isDesignPatternTopic(topic)) {
@@ -115,7 +148,7 @@ export default function QuizPage() {
       ];
       if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
-  }, [topic]);
+  }, [topic, quizType]);
 
   const handleSubmit = (userAnswer) => {
     if (!question || result) return;
@@ -142,8 +175,8 @@ export default function QuizPage() {
       isCorrect = userAnswer === question.answer;
     }
 
-    updateItemStats(topicId, question.item.id, isCorrect);
-    setStats(loadStats());
+    updateItemStats(topicId, question.item.id, isCorrect, kakaoUserId);
+    setStats(loadStats(kakaoUserId));
     const correctAnswer =
       quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(topic)
         ? `${question.item.purpose} - ${formatDisplayName(question.item)}`
@@ -187,8 +220,8 @@ export default function QuizPage() {
 
   const handleResetStats = () => {
     if (confirm("이 주제의 퀴즈 기록을 모두 초기화할까요?")) {
-      resetStats(topicId);
-      setStats(loadStats());
+      resetStats(topicId, kakaoUserId);
+      setStats(loadStats(kakaoUserId));
       setSolveCount(0);
       loadNextQuestion();
     }
@@ -219,6 +252,7 @@ export default function QuizPage() {
           ← 홈
         </Link>
         <h1>{topic.title}</h1>
+        <QuizPageAuthHint />
       </header>
 
       <div className="quiz-controls">

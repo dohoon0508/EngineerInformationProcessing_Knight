@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
+import { KakaoAuthProvider } from "./context/KakaoAuthContext";
 import HomePage from "./components/HomePage";
 import QuizPage from "./components/QuizPage";
 import "./App.css";
@@ -12,12 +13,14 @@ function QuizPageWithReset() {
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="app">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/quiz/:topicId" element={<QuizPageWithReset />} />
-        </Routes>
-      </div>
+      <KakaoAuthProvider>
+        <div className="app">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/quiz/:topicId" element={<QuizPageWithReset />} />
+          </Routes>
+        </div>
+      </KakaoAuthProvider>
     </BrowserRouter>
   );
 }

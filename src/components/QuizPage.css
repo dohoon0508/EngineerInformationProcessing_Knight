@@ -7,9 +7,26 @@
 
 .quiz-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
+}
+
+.quiz-auth-hint {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.quiz-auth-hint--ok {
+  color: var(--color-primary);
+}
+
+.quiz-auth-name {
+  font-weight: 600;
 }
 
 .home-link {

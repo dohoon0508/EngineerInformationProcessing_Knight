@@ -8,6 +8,68 @@
   padding: 2rem 1rem;
 }
 
+.home-auth-corner {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 30;
+  max-width: min(16rem, 52vw);
+}
+
+.home-auth-user {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.home-auth-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.home-auth-nickname {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 7rem;
+}
+
+.home-auth-btn {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.home-auth-btn--kakao {
+  background: #fee500;
+  color: #191919;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+
+.home-auth-btn--kakao:hover {
+  filter: brightness(0.97);
+}
+
+.home-auth-btn--ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.home-auth-btn--ghost:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
 .home-header {
   text-align: center;
   margin-bottom: 3rem;
@@ -237,7 +299,12 @@
 @media (max-width: 640px) {
   .home-page {
     padding: 1.5rem 1rem;
-    padding-top: 3.25rem;
+    padding-top: 3.5rem;
+  }
+  .home-auth-corner {
+    top: 0.55rem;
+    left: 0.55rem;
+    max-width: min(14rem, 55vw);
   }
   .home-search-corner {
     top: 0.65rem;
