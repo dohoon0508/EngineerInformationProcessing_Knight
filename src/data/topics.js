@@ -328,84 +328,6 @@ export const topics = [
     ],
   },
   {
-    id: "solid-principles",
-    title: "객체지향 설계 원칙",
-    items: [
-      {
-        id: "srp",
-        nameKo: "단일 책임 원칙",
-        nameEn: "Single Responsibility Principle",
-        shortLabel: "SRP",
-        aliases: [
-          "단일 책임 원칙",
-          "srp",
-          "SRP",
-          "single responsibility principle",
-          "Single Responsibility Principle",
-        ],
-        examDescription: "객체는 단 하나의 책임만 가져야 한다는 원칙",
-        shortDescription: "하나의 객체는 하나의 책임만 가져야 한다",
-      },
-      {
-        id: "ocp",
-        nameKo: "개방-폐쇄 원칙",
-        nameEn: "Open-Closed Principle",
-        shortLabel: "OCP",
-        aliases: ["개방-폐쇄 원칙", "개방 폐쇄 원칙", "ocp", "OCP", "open-closed principle", "Open-Closed Principle"],
-        examDescription: "기존의 코드를 변경하지 않고 기능을 추가할 수 있도록 설계해야 한다는 원칙",
-        shortDescription: "변경 없이 확장(열림·닫힘)",
-      },
-      {
-        id: "lsp",
-        nameKo: "리스코프 치환 원칙",
-        nameEn: "Liskov Substitution Principle",
-        shortLabel: "LSP",
-        aliases: [
-          "리스코프 치환 원칙",
-          "리스코프치환원칙",
-          "lsp",
-          "LSP",
-          "liskov substitution principle",
-          "Liskov Substitution Principle",
-        ],
-        examDescription: "자식 클래스는 최소한 부모 클래스의 기능은 수행할 수 있어야 한다는 원칙",
-        shortDescription: "자식은 부모를 대체 가능해야 함",
-      },
-      {
-        id: "isp",
-        nameKo: "인터페이스 분리 원칙",
-        nameEn: "Interface Segregation Principle",
-        shortLabel: "ISP",
-        aliases: [
-          "인터페이스 분리 원칙",
-          "인터페이스분리원칙",
-          "isp",
-          "ISP",
-          "interface segregation principle",
-          "Interface Segregation Principle",
-        ],
-        examDescription: "자신이 사용하지 않는 인터페이스와 의존 관계를 맺거나 영향을 받지 않아야 한다는 원칙",
-        shortDescription: "쓰지 않는 인터페이스에 의존하지 않기",
-      },
-      {
-        id: "dip",
-        nameKo: "의존 역전 원칙",
-        nameEn: "Dependency Inversion Principle",
-        shortLabel: "DIP",
-        aliases: [
-          "의존 역전 원칙",
-          "의존역전원칙",
-          "dip",
-          "DIP",
-          "dependency inversion principle",
-          "Dependency Inversion Principle",
-        ],
-        examDescription: "의존 관계 성립 시 추상성이 높은 클래스와 의존 관계를 맺어야 한다는 원칙",
-        shortDescription: "구체가 아닌 추상(인터페이스 등)에 의존",
-      },
-    ],
-  },
-  {
     id: "software-security-crypto",
     title: "소프트웨어 보안 / 개발 보안 구축",
     items: [
@@ -654,60 +576,6 @@ export const topics = [
     ],
   },
   {
-    id: "integrity",
-    title: "무결성",
-    items: [
-      {
-        id: "entity-integrity",
-        nameKo: "개체 무결성",
-        nameEn: "Entity Integrity",
-        aliases: ["개체", "개체 무결성", "개체무결성", "entity", "entity integrity"],
-        examDescription: "기본 테이블의 기본키를 구성하는 어떤 속성도 Null값이나 중복값을 가질 수 없다는 규정",
-        shortDescription: "기본키 Null·중복 불가",
-      },
-      {
-        id: "referential-integrity",
-        nameKo: "참조 무결성",
-        nameEn: "Referential Integrity",
-        aliases: ["참조", "참조 무결성", "참조무결성", "referential", "referential integrity"],
-        examDescription: "외래키 값은 Null이거나 참조 릴레이션의 기본키 값과 동일해야 한다. 즉, 릴레이션은 참조할 수 없는 외래키 값을 가질 수 없다는 규정",
-        shortDescription: "외래키는 참조 릴레이션 기본키와 동일하거나 Null",
-      },
-      {
-        id: "domain-integrity",
-        nameKo: "도메인 무결성",
-        nameEn: "Domain Integrity",
-        aliases: ["도메인", "도메인 무결성", "도메인무결성", "domain", "domain integrity"],
-        examDescription: "주어진 속성 값이 정의된 도메인에 속한 값이어야 한다는 규정",
-        shortDescription: "속성 값이 정의된 도메인에 속해야 함",
-      },
-      {
-        id: "user-defined-integrity",
-        nameKo: "사용자정의 무결성",
-        nameEn: "User-defined Integrity",
-        aliases: ["사용자정의", "사용자 정의", "사용자정의 무결성", "user-defined", "user defined integrity"],
-        examDescription: "속성 값들이 사용자가 정의한 제약조건에 만족되어야 한다는 규정",
-        shortDescription: "사용자 정의 제약조건 만족",
-      },
-      {
-        id: "null-integrity",
-        nameKo: "NULL 무결성",
-        nameEn: "NULL Integrity",
-        aliases: ["null", "NULL", "널", "null 무결성", "NULL 무결성", "널 무결성", "null integrity"],
-        examDescription: "릴레이션의 특정 속성 값이 Null이 될 수 없도록 하는 규정",
-        shortDescription: "특정 속성 Null 불가",
-      },
-      {
-        id: "relational-integrity",
-        nameKo: "관계 무결성",
-        nameEn: "Relational Integrity",
-        aliases: ["관계", "관계 무결성", "관계무결성", "relational", "relational integrity"],
-        examDescription: "릴레이션에 어느 한 튜플의 삽입 가능 여부 또는 한 릴레이션과 다른 릴레이션의 튜플들 사이에 관계의 적절성 여부를 지정한 규정",
-        shortDescription: "튜플 삽입 가능 여부·릴레이션 간 관계 적절성",
-      },
-    ],
-  },
-  {
     id: "linux-commands",
     title: "리눅스 명령어",
     items: [
@@ -740,9 +608,57 @@ export const topics = [
     ],
   },
   {
-    id: "whitebox-blackbox-testing",
-    title: "화이트박스 / 블랙박스 검사",
+    id: "testing-types",
+    title: "테스팅 / 검사 유형",
     items: [
+      {
+        id: "test-level",
+        nameKo: "테스트 레벨",
+        nameEn: "Test Level",
+        aliases: ["테스트 레벨", "테스트레벨", "test level", "Test Level"],
+        examDescription:
+          "소프트웨어의 개발 단계에 따라 단위 테스트, 통합 테스트, 시스템 테스트, 인수 테스트로 분류되는 테스트 단계를 말한다. 이렇게 분류된 것을 테스트 레벨이라고 한다.",
+        quizPrompt:
+          "소프트웨어 개발 단계에 따라 단위·통합·시스템·인수 테스트로 나누어 부르는 테스트 단계의 분류 개념은 무엇인가?",
+        shortDescription: "단위/통합/시스템/인수 테스트로 구분되는 테스트 단계",
+      },
+      {
+        id: "v-model",
+        nameKo: "V-모델",
+        nameEn: "V-Model",
+        aliases: ["v모델", "V-모델", "v-model", "V모델", "software life cycle v-model", "V-Model"],
+        examDescription:
+          "애플리케이션 테스트와 소프트웨어 개발 단계를 연결하여 표현한 모델이다. 요구사항↔인수 테스트, 분석↔시스템 테스트, 설계↔통합 테스트, 구현↔단위 테스트 등이 대응된다.",
+        quizPrompt:
+          "애플리케이션 테스트와 소프트웨어 개발 단계를 연결하여 표현한 모델이다. 개발 단계와 검증 단계가 좌우 대응 형태로 나타난다. 이 모델은 무엇인가?",
+        shortDescription: "개발 단계와 테스트 단계를 대응시켜 표현한 모델",
+      },
+      {
+        id: "stub",
+        category: "테스팅 / 검사 유형",
+        subcategory: "통합 테스트 보조 도구",
+        nameKo: "스텁",
+        nameEn: "Stub",
+        aliases: ["스텁", "stub", "Stub", "STUB"],
+        examDescription:
+          "스텁(Stub)은 제어 모듈이 호출하는 타 모듈의 기능을 단순히 수행하는 도구로, 일시적으로 필요한 조건만 가지고 있는 시험용 모듈이다. 하향식 통합 테스트에서 하위 모듈 대신 사용된다.",
+        quizPrompt:
+          "제어 모듈이 호출하는 타 모듈의 기능을 단순히 수행하는 시험용 모듈로, 일시적으로 필요한 조건만 갖춘다. 하향식 통합 테스트에서 아직 없는 하위 모듈 자리를 대신한다. 이 도구는 무엇인가?",
+        shortDescription: "하향식 통합 테스트에서 하위 모듈 대신 사용하는 시험용 모듈",
+      },
+      {
+        id: "driver",
+        category: "테스팅 / 검사 유형",
+        subcategory: "통합 테스트 보조 도구",
+        nameKo: "드라이버",
+        nameEn: "Driver",
+        aliases: ["드라이버", "driver", "Driver", "테스트 드라이버", "test driver"],
+        examDescription:
+          "드라이버(Driver)는 테스트 대상의 하위 모듈을 호출하고, 파라미터를 전달하고, 모듈 테스트 수행 후의 결과를 도출하는 도구이다. 상향식 통합 테스트에서 상위 모듈 대신 사용된다.",
+        quizPrompt:
+          "테스트 대상의 하위 모듈을 호출하고 파라미터를 넘기며, 테스트 수행 후 결과를 끌어내는 시험용 도구이다. 상향식 통합 테스트에서 아직 없는 상위 모듈 역할을 대신한다. 이 도구는 무엇인가?",
+        shortDescription: "상향식 통합 테스트에서 상위 모듈 대신 사용하는 시험용 도구",
+      },
       {
         id: "statement-coverage",
         group: "화이트박스 검사",
@@ -841,60 +757,6 @@ export const topics = [
         aliases: ["비교검사", "비교 검사", "comparison testing"],
         examDescription: "동일한 테스트 케이스를 여러 버전의 프로그램에 적용해 결과를 비교하는 검사",
         shortDescription: "여러 버전 결과를 비교해 차이 검사",
-      },
-    ],
-  },
-  {
-    id: "testing-types",
-    title: "테스팅 / 검사 유형",
-    items: [
-      {
-        id: "test-level",
-        nameKo: "테스트 레벨",
-        nameEn: "Test Level",
-        aliases: ["테스트 레벨", "테스트레벨", "test level", "Test Level"],
-        examDescription:
-          "소프트웨어의 개발 단계에 따라 단위 테스트, 통합 테스트, 시스템 테스트, 인수 테스트로 분류되는 테스트 단계를 말한다. 이렇게 분류된 것을 테스트 레벨이라고 한다.",
-        quizPrompt:
-          "소프트웨어 개발 단계에 따라 단위·통합·시스템·인수 테스트로 나누어 부르는 테스트 단계의 분류 개념은 무엇인가?",
-        shortDescription: "단위/통합/시스템/인수 테스트로 구분되는 테스트 단계",
-      },
-      {
-        id: "v-model",
-        nameKo: "V-모델",
-        nameEn: "V-Model",
-        aliases: ["v모델", "V-모델", "v-model", "V모델", "software life cycle v-model", "V-Model"],
-        examDescription:
-          "애플리케이션 테스트와 소프트웨어 개발 단계를 연결하여 표현한 모델이다. 요구사항↔인수 테스트, 분석↔시스템 테스트, 설계↔통합 테스트, 구현↔단위 테스트 등이 대응된다.",
-        quizPrompt:
-          "애플리케이션 테스트와 소프트웨어 개발 단계를 연결하여 표현한 모델이다. 개발 단계와 검증 단계가 좌우 대응 형태로 나타난다. 이 모델은 무엇인가?",
-        shortDescription: "개발 단계와 테스트 단계를 대응시켜 표현한 모델",
-      },
-      {
-        id: "stub",
-        category: "테스팅 / 검사 유형",
-        subcategory: "통합 테스트 보조 도구",
-        nameKo: "스텁",
-        nameEn: "Stub",
-        aliases: ["스텁", "stub", "Stub", "STUB"],
-        examDescription:
-          "스텁(Stub)은 제어 모듈이 호출하는 타 모듈의 기능을 단순히 수행하는 도구로, 일시적으로 필요한 조건만 가지고 있는 시험용 모듈이다. 하향식 통합 테스트에서 하위 모듈 대신 사용된다.",
-        quizPrompt:
-          "제어 모듈이 호출하는 타 모듈의 기능을 단순히 수행하는 시험용 모듈로, 일시적으로 필요한 조건만 갖춘다. 하향식 통합 테스트에서 아직 없는 하위 모듈 자리를 대신한다. 이 도구는 무엇인가?",
-        shortDescription: "하향식 통합 테스트에서 하위 모듈 대신 사용하는 시험용 모듈",
-      },
-      {
-        id: "driver",
-        category: "테스팅 / 검사 유형",
-        subcategory: "통합 테스트 보조 도구",
-        nameKo: "드라이버",
-        nameEn: "Driver",
-        aliases: ["드라이버", "driver", "Driver", "테스트 드라이버", "test driver"],
-        examDescription:
-          "드라이버(Driver)는 테스트 대상의 하위 모듈을 호출하고, 파라미터를 전달하고, 모듈 테스트 수행 후의 결과를 도출하는 도구이다. 상향식 통합 테스트에서 상위 모듈 대신 사용된다.",
-        quizPrompt:
-          "테스트 대상의 하위 모듈을 호출하고 파라미터를 넘기며, 테스트 수행 후 결과를 끌어내는 시험용 도구이다. 상향식 통합 테스트에서 아직 없는 상위 모듈 역할을 대신한다. 이 도구는 무엇인가?",
-        shortDescription: "상향식 통합 테스트에서 상위 모듈 대신 사용하는 시험용 도구",
       },
       {
         id: "v-model-matching",
@@ -1105,6 +967,62 @@ export const topics = [
           "관계 데이터의 연산을 표현하는 방법이다. 코드(E. F. Codd)가 수학의 Predicate Calculus(술어 해석)에 기반하여 제안했으며, 원하는 정보가 무엇인지만 정의하는 비절차적 특성을 갖는다. 원하는 정보를 정의할 때는 계산 수식을 사용한다. 이 용어는 무엇인가?",
         shortDescription: "비절차적·무엇을 원하는지만 정의(코드·술어 해석 기반)",
       },
+      {
+        id: "entity-integrity",
+        group: "무결성",
+        nameKo: "개체 무결성",
+        nameEn: "Entity Integrity",
+        aliases: ["개체", "개체 무결성", "개체무결성", "entity", "entity integrity"],
+        examDescription: "기본 테이블의 기본키를 구성하는 어떤 속성도 Null값이나 중복값을 가질 수 없다는 규정",
+        shortDescription: "기본키 Null·중복 불가",
+      },
+      {
+        id: "referential-integrity",
+        group: "무결성",
+        nameKo: "참조 무결성",
+        nameEn: "Referential Integrity",
+        aliases: ["참조", "참조 무결성", "참조무결성", "referential", "referential integrity"],
+        examDescription:
+          "외래키 값은 Null이거나 참조 릴레이션의 기본키 값과 동일해야 한다. 즉, 릴레이션은 참조할 수 없는 외래키 값을 가질 수 없다는 규정",
+        shortDescription: "외래키는 참조 릴레이션 기본키와 동일하거나 Null",
+      },
+      {
+        id: "domain-integrity",
+        group: "무결성",
+        nameKo: "도메인 무결성",
+        nameEn: "Domain Integrity",
+        aliases: ["도메인", "도메인 무결성", "도메인무결성", "domain", "domain integrity"],
+        examDescription: "주어진 속성 값이 정의된 도메인에 속한 값이어야 한다는 규정",
+        shortDescription: "속성 값이 정의된 도메인에 속해야 함",
+      },
+      {
+        id: "user-defined-integrity",
+        group: "무결성",
+        nameKo: "사용자정의 무결성",
+        nameEn: "User-defined Integrity",
+        aliases: ["사용자정의", "사용자 정의", "사용자정의 무결성", "user-defined", "user defined integrity"],
+        examDescription: "속성 값들이 사용자가 정의한 제약조건에 만족되어야 한다는 규정",
+        shortDescription: "사용자 정의 제약조건 만족",
+      },
+      {
+        id: "null-integrity",
+        group: "무결성",
+        nameKo: "NULL 무결성",
+        nameEn: "NULL Integrity",
+        aliases: ["null", "NULL", "널", "null 무결성", "NULL 무결성", "널 무결성", "null integrity"],
+        examDescription: "릴레이션의 특정 속성 값이 Null이 될 수 없도록 하는 규정",
+        shortDescription: "특정 속성 Null 불가",
+      },
+      {
+        id: "relational-integrity",
+        group: "무결성",
+        nameKo: "관계 무결성",
+        nameEn: "Relational Integrity",
+        aliases: ["관계", "관계 무결성", "관계무결성", "relational", "relational integrity"],
+        examDescription:
+          "릴레이션에 어느 한 튜플의 삽입 가능 여부 또는 한 릴레이션과 다른 릴레이션의 튜플들 사이에 관계의 적절성 여부를 지정한 규정",
+        shortDescription: "튜플 삽입 가능 여부·릴레이션 간 관계 적절성",
+      },
     ],
   },
   {
@@ -1228,84 +1146,6 @@ export const topics = [
     ],
   },
   {
-    id: "it-platform-latest",
-    title: "IT·플랫폼·최신 기술",
-    items: [
-      {
-        id: "sddc",
-        nameKo: "소프트웨어 정의 데이터센터",
-        nameEn: "Software Defined Data Center",
-        aliases: [
-          "소프트웨어 정의 데이터센터",
-          "SDDC",
-          "sddc",
-          "Software Defined Data Center",
-          "software defined data center",
-        ],
-        examDescription:
-          "소프트웨어 정의 데이터센터(SDDC; Software Defined Data Center)는 데이터 센터의 모든 자원을 가상화하여 인력의 개입 없이 소프트웨어 조작만으로 관리 및 제어되는 데이터 센터를 의미한다. 컴퓨팅, 네트워킹, 스토리지, 관리 등을 모두 소프트웨어로 정의한다.",
-        quizPrompt:
-          "데이터 센터의 모든 자원을 가상화하여 인력의 개입 없이 소프트웨어 조작만으로 관리 및 제어되는 데이터 센터를 의미한다. 컴퓨팅, 네트워킹, 스토리지, 관리 등을 모두 소프트웨어로 정의한다.",
-        shortDescription: "데이터센터 자원 가상화·SW로만 관리",
-      },
-      {
-        id: "lod",
-        nameKo: "개방형 링크드 데이터",
-        nameEn: "Linked Open Data",
-        aliases: ["개방형 링크드 데이터", "LOD", "lod", "Linked Open Data", "linked open data", "링크드 오픈 데이터"],
-        examDescription:
-          "개방형 링크드 데이터(LOD; Linked Open Data)는 Linked Data와 Open Data의 합성어로, 누구나 사용할 수 있도록 웹상에 공개된 연계 데이터를 의미한다. 웹상에 존재하는 데이터를 개별 URI(인터넷 식별 자료)로 식별하고, 각 URI에 링크 정보를 부여함으로써 서로 상호 연결된 웹을 지향하는 모형이다.",
-        quizPrompt:
-          "Linked Data와 Open Data의 합성어로, 누구나 사용할 수 있도록 웹상에 공개된 연계 데이터를 의미한다. 웹상에 존재하는 데이터를 개별 URI(인터넷 식별 자료)로 식별하고, 각 URI에 링크 정보를 부여함으로써 서로 상호 연결된 웹을 지향하는 모형이다.",
-        shortDescription: "웹 공개 연계 데이터·URI·상호 링크",
-      },
-      {
-        id: "iot",
-        nameKo: "IoT",
-        nameEn: "Internet of Things",
-        aliases: ["IoT", "iot", "사물 인터넷", "사물인터넷", "Internet of Things", "internet of things"],
-        examDescription:
-          "IoT(Internet of Things, 사물 인터넷)는 정보 통신 기술을 기반으로 실제계(Physical World)와 가상 세계(Virtual World)의 다양한 사물들을 인터넷으로 서로 연결하여 진보된 서비스를 제공하기 위한 서비스 기반 기술이다.",
-        quizPrompt:
-          "정보 통신 기술을 기반으로 실제계(Physical World)와 가상 세계(Virtual World)의 다양한 사물들을 인터넷으로 서로 연결하여 진보된 서비스를 제공하기 위한 서비스 기반 기술이다.",
-        shortDescription: "사물·인터넷 연결 서비스 기술",
-      },
-      {
-        id: "cloud-computing",
-        nameKo: "클라우드 컴퓨팅",
-        nameEn: "Cloud Computing",
-        aliases: ["클라우드 컴퓨팅", "클라우드컴퓨팅", "cloud computing", "Cloud Computing"],
-        examDescription:
-          "클라우드 컴퓨팅(Cloud Computing)은 각종 컴퓨팅 자원을 중앙 컴퓨터에 두고 인터넷 기능을 갖는 단말기로 언제 어디서나 인터넷을 통해 컴퓨터 작업을 수행할 수 있는 가상화된 환경을 의미한다.",
-        quizPrompt:
-          "각종 컴퓨팅 자원을 중앙 컴퓨터에 두고 인터넷 기능을 갖는 단말기로 언제 어디서나 인터넷을 통해 컴퓨터 작업을 수행할 수 있는 가상화된 환경을 의미한다.",
-        shortDescription: "중앙 자원·인터넷 단말로 언제 어디서나",
-      },
-      {
-        id: "usn",
-        nameKo: "USN",
-        nameEn: "Ubiquitous Sensor Network",
-        aliases: ["USN", "usn", "Ubiquitous Sensor Network", "유비쿼터스 센서 네트워크", "유비쿼터스센서네트워크"],
-        examDescription:
-          "USN(Ubiquitous Sensor Network)은 각종 센서로 수집한 정보를 무선으로 수집할 수 있도록 구성한 네트워크이다. 필요한 모든 것에 RFID 태그를 부착하고, 이를 통하여 사물의 인식정보는 물론 주변의 환경정보까지 탐지하여 이를 네트워크에 연결하여 정보를 관리한다.",
-        quizPrompt:
-          "각종 센서로 수집한 정보를 무선으로 수집할 수 있도록 구성한 네트워크이다. 필요한 모든 것에 RFID 태그를 부착하고, 이를 통하여 사물의 인식정보는 물론 주변의 환경정보까지 탐지하여 이를 네트워크에 연결하여 정보를 관리한다.",
-        shortDescription: "센서·RFID·무선 수집 네트워크",
-      },
-      {
-        id: "sso",
-        nameKo: "SSO",
-        nameEn: "Single Sign On",
-        aliases: ["SSO", "sso", "Single Sign On", "single sign on", "싱글 사인 온", "싱글사인온"],
-        examDescription:
-          "SSO(Single Sign On)는 한 번의 로그인으로 개인이 가입한 모든 사이트를 이용할 수 있게 해주는 시스템이다. 개인정보를 각 사이트마다 일일이 기록해야 하던 불편함을 해소할 수 있다. 기업에서는 회원에 대한 통합관리가 가능해 마케팅을 극대화시킬 수 있다.",
-        quizPrompt:
-          "한 번의 로그인으로 개인이 가입한 모든 사이트를 이용할 수 있게 해주는 시스템이다. 개인정보를 각 사이트마다 일일이 기록해야 하던 불편함을 해소할 수 있다. 기업에서는 회원에 대한 통합관리가 가능해 마케팅을 극대화시킬 수 있다.",
-        shortDescription: "한 번 로그인으로 여러 사이트 이용",
-      },
-    ],
-  },
-  {
     id: "misc",
     title: "기타",
     items: [
@@ -1397,6 +1237,161 @@ export const topics = [
             aliases: ["nui", "NUI", "natural user interface", "자연 사용자 인터페이스"],
           },
         ],
+      },
+      {
+        id: "sddc",
+        subcategory: "IT·플랫폼·최신 기술",
+        nameKo: "소프트웨어 정의 데이터센터",
+        nameEn: "Software Defined Data Center",
+        aliases: [
+          "소프트웨어 정의 데이터센터",
+          "SDDC",
+          "sddc",
+          "Software Defined Data Center",
+          "software defined data center",
+        ],
+        examDescription:
+          "소프트웨어 정의 데이터센터(SDDC; Software Defined Data Center)는 데이터 센터의 모든 자원을 가상화하여 인력의 개입 없이 소프트웨어 조작만으로 관리 및 제어되는 데이터 센터를 의미한다. 컴퓨팅, 네트워킹, 스토리지, 관리 등을 모두 소프트웨어로 정의한다.",
+        quizPrompt:
+          "데이터 센터의 모든 자원을 가상화하여 인력의 개입 없이 소프트웨어 조작만으로 관리 및 제어되는 데이터 센터를 의미한다. 컴퓨팅, 네트워킹, 스토리지, 관리 등을 모두 소프트웨어로 정의한다.",
+        shortDescription: "데이터센터 자원 가상화·SW로만 관리",
+      },
+      {
+        id: "lod",
+        subcategory: "IT·플랫폼·최신 기술",
+        nameKo: "개방형 링크드 데이터",
+        nameEn: "Linked Open Data",
+        aliases: ["개방형 링크드 데이터", "LOD", "lod", "Linked Open Data", "linked open data", "링크드 오픈 데이터"],
+        examDescription:
+          "개방형 링크드 데이터(LOD; Linked Open Data)는 Linked Data와 Open Data의 합성어로, 누구나 사용할 수 있도록 웹상에 공개된 연계 데이터를 의미한다. 웹상에 존재하는 데이터를 개별 URI(인터넷 식별 자료)로 식별하고, 각 URI에 링크 정보를 부여함으로써 서로 상호 연결된 웹을 지향하는 모형이다.",
+        quizPrompt:
+          "Linked Data와 Open Data의 합성어로, 누구나 사용할 수 있도록 웹상에 공개된 연계 데이터를 의미한다. 웹상에 존재하는 데이터를 개별 URI(인터넷 식별 자료)로 식별하고, 각 URI에 링크 정보를 부여함으로써 서로 상호 연결된 웹을 지향하는 모형이다.",
+        shortDescription: "웹 공개 연계 데이터·URI·상호 링크",
+      },
+      {
+        id: "iot",
+        subcategory: "IT·플랫폼·최신 기술",
+        nameKo: "IoT",
+        nameEn: "Internet of Things",
+        aliases: ["IoT", "iot", "사물 인터넷", "사물인터넷", "Internet of Things", "internet of things"],
+        examDescription:
+          "IoT(Internet of Things, 사물 인터넷)는 정보 통신 기술을 기반으로 실제계(Physical World)와 가상 세계(Virtual World)의 다양한 사물들을 인터넷으로 서로 연결하여 진보된 서비스를 제공하기 위한 서비스 기반 기술이다.",
+        quizPrompt:
+          "정보 통신 기술을 기반으로 실제계(Physical World)와 가상 세계(Virtual World)의 다양한 사물들을 인터넷으로 서로 연결하여 진보된 서비스를 제공하기 위한 서비스 기반 기술이다.",
+        shortDescription: "사물·인터넷 연결 서비스 기술",
+      },
+      {
+        id: "cloud-computing",
+        subcategory: "IT·플랫폼·최신 기술",
+        nameKo: "클라우드 컴퓨팅",
+        nameEn: "Cloud Computing",
+        aliases: ["클라우드 컴퓨팅", "클라우드컴퓨팅", "cloud computing", "Cloud Computing"],
+        examDescription:
+          "클라우드 컴퓨팅(Cloud Computing)은 각종 컴퓨팅 자원을 중앙 컴퓨터에 두고 인터넷 기능을 갖는 단말기로 언제 어디서나 인터넷을 통해 컴퓨터 작업을 수행할 수 있는 가상화된 환경을 의미한다.",
+        quizPrompt:
+          "각종 컴퓨팅 자원을 중앙 컴퓨터에 두고 인터넷 기능을 갖는 단말기로 언제 어디서나 인터넷을 통해 컴퓨터 작업을 수행할 수 있는 가상화된 환경을 의미한다.",
+        shortDescription: "중앙 자원·인터넷 단말로 언제 어디서나",
+      },
+      {
+        id: "usn",
+        subcategory: "IT·플랫폼·최신 기술",
+        nameKo: "USN",
+        nameEn: "Ubiquitous Sensor Network",
+        aliases: ["USN", "usn", "Ubiquitous Sensor Network", "유비쿼터스 센서 네트워크", "유비쿼터스센서네트워크"],
+        examDescription:
+          "USN(Ubiquitous Sensor Network)은 각종 센서로 수집한 정보를 무선으로 수집할 수 있도록 구성한 네트워크이다. 필요한 모든 것에 RFID 태그를 부착하고, 이를 통하여 사물의 인식정보는 물론 주변의 환경정보까지 탐지하여 이를 네트워크에 연결하여 정보를 관리한다.",
+        quizPrompt:
+          "각종 센서로 수집한 정보를 무선으로 수집할 수 있도록 구성한 네트워크이다. 필요한 모든 것에 RFID 태그를 부착하고, 이를 통하여 사물의 인식정보는 물론 주변의 환경정보까지 탐지하여 이를 네트워크에 연결하여 정보를 관리한다.",
+        shortDescription: "센서·RFID·무선 수집 네트워크",
+      },
+      {
+        id: "sso",
+        subcategory: "IT·플랫폼·최신 기술",
+        nameKo: "SSO",
+        nameEn: "Single Sign On",
+        aliases: ["SSO", "sso", "Single Sign On", "single sign on", "싱글 사인 온", "싱글사인온"],
+        examDescription:
+          "SSO(Single Sign On)는 한 번의 로그인으로 개인이 가입한 모든 사이트를 이용할 수 있게 해주는 시스템이다. 개인정보를 각 사이트마다 일일이 기록해야 하던 불편함을 해소할 수 있다. 기업에서는 회원에 대한 통합관리가 가능해 마케팅을 극대화시킬 수 있다.",
+        quizPrompt:
+          "한 번의 로그인으로 개인이 가입한 모든 사이트를 이용할 수 있게 해주는 시스템이다. 개인정보를 각 사이트마다 일일이 기록해야 하던 불편함을 해소할 수 있다. 기업에서는 회원에 대한 통합관리가 가능해 마케팅을 극대화시킬 수 있다.",
+        shortDescription: "한 번 로그인으로 여러 사이트 이용",
+      },
+      {
+        id: "srp",
+        subcategory: "SOLID (객체지향 설계 원칙)",
+        nameKo: "단일 책임 원칙",
+        nameEn: "Single Responsibility Principle",
+        shortLabel: "SRP",
+        aliases: [
+          "단일 책임 원칙",
+          "srp",
+          "SRP",
+          "single responsibility principle",
+          "Single Responsibility Principle",
+        ],
+        examDescription: "객체는 단 하나의 책임만 가져야 한다는 원칙",
+        shortDescription: "하나의 객체는 하나의 책임만 가져야 한다",
+      },
+      {
+        id: "ocp",
+        subcategory: "SOLID (객체지향 설계 원칙)",
+        nameKo: "개방-폐쇄 원칙",
+        nameEn: "Open-Closed Principle",
+        shortLabel: "OCP",
+        aliases: ["개방-폐쇄 원칙", "개방 폐쇄 원칙", "ocp", "OCP", "open-closed principle", "Open-Closed Principle"],
+        examDescription: "기존의 코드를 변경하지 않고 기능을 추가할 수 있도록 설계해야 한다는 원칙",
+        shortDescription: "변경 없이 확장(열림·닫힘)",
+      },
+      {
+        id: "lsp",
+        subcategory: "SOLID (객체지향 설계 원칙)",
+        nameKo: "리스코프 치환 원칙",
+        nameEn: "Liskov Substitution Principle",
+        shortLabel: "LSP",
+        aliases: [
+          "리스코프 치환 원칙",
+          "리스코프치환원칙",
+          "lsp",
+          "LSP",
+          "liskov substitution principle",
+          "Liskov Substitution Principle",
+        ],
+        examDescription: "자식 클래스는 최소한 부모 클래스의 기능은 수행할 수 있어야 한다는 원칙",
+        shortDescription: "자식은 부모를 대체 가능해야 함",
+      },
+      {
+        id: "isp",
+        subcategory: "SOLID (객체지향 설계 원칙)",
+        nameKo: "인터페이스 분리 원칙",
+        nameEn: "Interface Segregation Principle",
+        shortLabel: "ISP",
+        aliases: [
+          "인터페이스 분리 원칙",
+          "인터페이스분리원칙",
+          "isp",
+          "ISP",
+          "interface segregation principle",
+          "Interface Segregation Principle",
+        ],
+        examDescription: "자신이 사용하지 않는 인터페이스와 의존 관계를 맺거나 영향을 받지 않아야 한다는 원칙",
+        shortDescription: "쓰지 않는 인터페이스에 의존하지 않기",
+      },
+      {
+        id: "dip",
+        subcategory: "SOLID (객체지향 설계 원칙)",
+        nameKo: "의존 역전 원칙",
+        nameEn: "Dependency Inversion Principle",
+        shortLabel: "DIP",
+        aliases: [
+          "의존 역전 원칙",
+          "의존역전원칙",
+          "dip",
+          "DIP",
+          "dependency inversion principle",
+          "Dependency Inversion Principle",
+        ],
+        examDescription: "의존 관계 성립 시 추상성이 높은 클래스와 의존 관계를 맺어야 한다는 원칙",
+        shortDescription: "구체가 아닌 추상(인터페이스 등)에 의존",
       },
     ],
   },

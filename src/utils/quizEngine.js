@@ -50,19 +50,9 @@ export function isCouplingCohesionTopic(topic) {
   return topic?.items?.[0]?.group != null && topic?.items?.[0]?.orderRank != null;
 }
 
-/** 무결성 주제 (주관식만 지원) */
-export function isIntegrityTopic(topic) {
-  return topic?.id === "integrity";
-}
-
 /** 리눅스 명령어 주제 (설명 → 명령어 맞히기) */
 export function isLinuxCommandsTopic(topic) {
   return topic?.id === "linux-commands";
-}
-
-/** 화이트박스 / 블랙박스 검사 주제 */
-export function isWhiteBlackTestingTopic(topic) {
-  return topic?.id === "whitebox-blackbox-testing";
 }
 
 /** 데이터베이스 주제 (순수 관계·집합·이상 등 group 필드, 객관식은 같은 group 내 보기) */
@@ -241,7 +231,7 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
     };
   }
 
-  /** 테스팅/검사 유형: subcategory 우선 객관식(스텁·드라이버 등), 전체 보기 범위 분리 */
+  /** 테스팅/검사 유형: 화이트/블랙박스=같은 group 보기, subcategory 우선(스텁·드라이버), 전체 보기 범위 분리 */
   if (
     isTestingTypesTopic(topic) &&
     quizType !== QUIZ_TYPES.MATCHING &&
@@ -251,7 +241,11 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
   ) {
     const quizPool = getTestingTypesQuizPool(topic, quizType);
     const sub = item.subcategory;
-    const answerDisplay = sub ? `${sub} - ${displayName}` : displayName;
+    const wbBb =
+      item.group === "화이트박스 검사" || item.group === "블랙박스 검사";
+    let answerDisplay = displayName;
+    if (wbBb) answerDisplay = `${item.group} - ${displayName}`;
+    else if (sub) answerDisplay = `${sub} - ${displayName}`;
     if (quizType === QUIZ_TYPES.SUBJECTIVE) {
       return {
         item,
@@ -259,18 +253,23 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
         question: description,
         answer: displayName,
         answerDisplay,
-        hint: "용어를 입력하세요 (한국어 또는 영어, 예: 스텁, Stub, 드라이버)",
+        hint: wbBb
+          ? "검사 기법 이름을 입력하세요 (한국어 또는 영어)"
+          : "용어를 입력하세요 (한국어 또는 영어, 예: 스텁, Stub, 드라이버)",
         options: null,
       };
     }
     if (quizType === QUIZ_TYPES.MULTIPLE_CHOICE) {
+      const options = wbBb
+        ? getMultipleChoiceOptions(quizPool, item, item.group)
+        : getCryptoMcOptions(quizPool, item);
       return {
         item,
         quizType,
         question: description,
         answer: displayName,
         answerDisplay,
-        options: getCryptoMcOptions(quizPool, item),
+        options,
       };
     }
     if (quizType === QUIZ_TYPES.FULL_LIST) {
@@ -308,6 +307,8 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
           ? "연산명 또는 기호(σ, π, ⋈, ÷, ∪, ∩, -, × 등)를 입력하세요"
           : g === "이상"
           ? "이상 유형을 입력하세요 (예: 삽입 이상)"
+          : g === "무결성"
+          ? "무결성 종류를 입력하세요 (예: 개체 무결성, 참조 무결성)"
           : "용어를 입력하세요 (한국어 또는 영어)",
         options: null,
       };
@@ -368,6 +369,19 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
           hint: "정답 용어를 선택하세요",
         };
       }
+      if (g === "무결성") {
+        const options = getMultipleChoiceOptions(items, item, "무결성");
+        return {
+          item,
+          quizType,
+          question: description,
+          answer: displayName,
+          answerDisplay: `${g} - ${displayName}`,
+          options,
+          questionGroup: g,
+          hint: "해당 무결성 유형을 선택하세요",
+        };
+      }
     }
 
     if (quizType === QUIZ_TYPES.FULL_LIST) {
@@ -395,7 +409,7 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
           options: null,
         };
       }
-      if (g === "함수적 종속" || g === "관계해석") {
+      if (g === "함수적 종속" || g === "관계해석" || g === "무결성") {
         return {
           item,
           quizType,
@@ -479,9 +493,8 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
 
   const isCouplingCohesion = isCouplingCohesionTopic(topic);
   const isLinuxCommands = isLinuxCommandsTopic(topic);
-  const isWhiteBlack = isWhiteBlackTestingTopic(topic);
-  /** 주관식·객관식·전체보기에서 그룹(결합도/화이트박스) 단위로 정답 표기·보기 풀 제한 */
-  const useGroupForQuiz = isCouplingCohesion || isWhiteBlack;
+  /** 주관식·객관식·전체보기에서 그룹(결합도) 단위로 정답 표기·보기 풀 제한 */
+  const useGroupForQuiz = isCouplingCohesion;
 
   if (isCouplingCohesion && quizType === QUIZ_TYPES.ORDERING) {
     const virtualItems = COUPLING_COHESION_GROUPS.map((g) => ({ id: `ordering-${g}` }));
@@ -578,6 +591,50 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
     }
   }
 
+  /** 기타(misc): expandMiscItems 풀, subcategory 있으면 객관식·전체 보기에서 동일 분류 우선 */
+  if (
+    isMiscTopic(topic) &&
+    (quizType === QUIZ_TYPES.SUBJECTIVE ||
+      quizType === QUIZ_TYPES.MULTIPLE_CHOICE ||
+      quizType === QUIZ_TYPES.FULL_LIST)
+  ) {
+    const quizPool = expandMiscItems(topic.items);
+    const sub = item.subcategory;
+    const answerDisplay = sub ? `${sub} - ${displayName}` : displayName;
+    if (quizType === QUIZ_TYPES.SUBJECTIVE) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        hint: "용어·약어를 입력하세요 (한국어 또는 영어, 예: RAID 5, SSO, SRP)",
+        options: null,
+      };
+    }
+    if (quizType === QUIZ_TYPES.MULTIPLE_CHOICE) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        options: getCryptoMcOptions(quizPool, item),
+      };
+    }
+    if (quizType === QUIZ_TYPES.FULL_LIST) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        hint: "목록에서 정답을 선택하세요",
+        options: null,
+      };
+    }
+  }
+
   if (isNetworkTopic(topic)) {
     const g = item.group;
     const answerDisplay = g ? `${g} - ${displayName}` : displayName;
@@ -626,16 +683,12 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
     question: description,
     answer: displayName,
     answerDisplay: useGroupForQuiz ? `${item.group} - ${displayName}` : displayName,
-    questionGroup: isWhiteBlack ? item.group : null,
+    questionGroup: null,
     options:
       quizType === QUIZ_TYPES.MULTIPLE_CHOICE
         ? getMultipleChoiceOptions(mcListPool, item, useGroupForQuiz ? item.group : null)
         : quizType === QUIZ_TYPES.FULL_LIST
-          ? shuffle(
-              (isWhiteBlack ? items.filter((i) => i.group === item.group) : mcListPool).map((i) =>
-                formatDisplayName(i)
-              )
-            )
+          ? shuffle(mcListPool.map((i) => formatDisplayName(i)))
           : null,
   };
 }
@@ -656,13 +709,27 @@ function getCryptoMcOptions(items, correctItem) {
   return shuffle([correct, ...wrongs]);
 }
 
-/** 테스팅/검사 유형 전체 보기: 동일 subcategory가 2개 이상이면 그 범위만(스텁·드라이버), 아니면 매칭 제외 전체 */
+/** 테스팅/검사 유형 전체 보기: 화이트/블랙은 같은 group, subcategory 2개 이상이면 해당 범위, 아니면 매칭 제외 전체 */
 export function getTestingTypesFullListItems(topic, question) {
   const normal = topic.items.filter((i) => i.interactiveType !== "matching");
   const qItem = question?.item;
+  const g = qItem?.group;
+  if (g === "화이트박스 검사" || g === "블랙박스 검사") {
+    const inG = normal.filter((i) => i.group === g);
+    return inG.length >= 2 ? inG : normal;
+  }
   if (!qItem?.subcategory) return normal;
   const inSub = normal.filter((i) => i.subcategory === qItem.subcategory);
   return inSub.length >= 2 ? inSub : normal;
+}
+
+/** 기타(misc) 전체 보기: 펼친 풀에서 동일 subcategory가 2개 이상이면 그 범위만 */
+export function getMiscFullListItems(topic, question) {
+  const expanded = expandMiscItems(topic.items || []);
+  const qItem = question?.item;
+  if (!qItem?.subcategory) return expanded;
+  const inSub = expanded.filter((i) => i.subcategory === qItem.subcategory);
+  return inSub.length >= 2 ? inSub : expanded;
 }
 
 /** 전체 보기: 동일 subcategory가 2개 이상이면 그 범위만, 아니면 topic 전체 */
