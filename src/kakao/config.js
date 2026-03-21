@@ -22,6 +22,13 @@
 export const KAKAO_SDK_SCRIPT_URL = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";
 
 /**
+ * Kakao.Auth.authorize 에 넣는 scope (동의항목 ID, 쉼표 구분 — 카카오 문서 예: account_email,gender).
+ * 분리 동의: 닉네임(profile_nickname), 프로필 사진(profile_image).
+ * 앱이 예전 통합 항목만 쓰는 경우 콘솔에 맞게 문자열을 바꾸면 됨.
+ */
+export const KAKAO_AUTH_SCOPES = "profile_nickname,profile_image";
+
+/**
  * Strict Mode 대비: 리다이렉트 직후 URL에서 code가 지워져도 교환을 이어가기 위한 sessionStorage 키
  */
 export const KAKAO_OAUTH_PENDING_CODE_KEY = "kakao.oauth.code.pending";

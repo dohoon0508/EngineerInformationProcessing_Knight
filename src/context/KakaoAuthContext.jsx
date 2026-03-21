@@ -5,11 +5,45 @@ import { syncQuizStatsWithCloudOnLogin } from "../utils/cloudStatsMerge";
 import {
   KAKAO_SDK_SCRIPT_URL,
   KAKAO_OAUTH_PENDING_CODE_KEY,
+  KAKAO_AUTH_SCOPES,
   getKakaoOAuthRedirectUri,
   exchangeKakaoCodeViaApi,
 } from "../kakao/index.js";
 
 const KakaoAuthContext = createContext(null);
+
+/** 사용자 정보 조회 시 프로필(닉네임·이미지 URL)을 명시 요청 — 없으면 id만 오고 닉네임이 비는 경우가 많음 */
+const KAKAO_ME_PROPERTY_KEYS = ["kakao_account.profile"];
+
+/**
+ * /v2/user/me 응답에서 표시용 닉네임.
+ * - 최신: kakao_account.profile.nickname (동의항목: 닉네임 또는 프로필 정보)
+ * - properties.nickname 은 Deprecated 이지만 하위 호환
+ * - kakao_account.name 은 [이름] 동의 시
+ * 동의를 안 했거나 콘솔에 닉네임 항목이 없으면 비어 "카카오 사용자"로 떨어짐.
+ */
+function nicknameFromKakaoMe(res) {
+  if (!res || typeof res !== "object") return "카카오 사용자";
+  const candidates = [
+    res.kakao_account?.profile?.nickname,
+    res.properties?.nickname,
+    res.kakao_account?.name,
+  ];
+  for (const v of candidates) {
+    if (typeof v === "string" && v.trim() !== "") return v.trim();
+  }
+  return "카카오 사용자";
+}
+
+function profileImageFromKakaoMe(res) {
+  if (!res || typeof res !== "object") return null;
+  return (
+    res.kakao_account?.profile?.profile_image_url ??
+    res.kakao_account?.profile?.thumbnail_image_url ??
+    res.properties?.profile_image ??
+    null
+  );
+}
 
 function loadKakaoScript() {
   return new Promise((resolve, reject) => {
@@ -74,6 +108,7 @@ export function KakaoAuthProvider({ children }) {
     if (typeof window === "undefined" || !window.Kakao?.API) return Promise.resolve(null);
     return window.Kakao.API.request({
       url: "/v2/user/me",
+      data: { property_keys: KAKAO_ME_PROPERTY_KEYS },
     }).catch(() => null);
   }, []);
 
@@ -92,11 +127,8 @@ export function KakaoAuthProvider({ children }) {
       mergeGuestStatsIntoUser(res.id);
       const u = {
         id: res.id,
-        nickname: res.properties?.nickname ?? res.kakao_account?.profile?.nickname ?? "카카오 사용자",
-        profileImage:
-          res.properties?.profile_image ??
-          res.kakao_account?.profile?.profile_image_url ??
-          null,
+        nickname: nicknameFromKakaoMe(res),
+        profileImage: profileImageFromKakaoMe(res),
         accessToken: token,
       };
       setUser(u);
@@ -202,11 +234,8 @@ export function KakaoAuthProvider({ children }) {
         }
         const u = {
           id: res.id,
-          nickname: res.properties?.nickname ?? res.kakao_account?.profile?.nickname ?? "카카오 사용자",
-          profileImage:
-            res.properties?.profile_image ??
-            res.kakao_account?.profile?.profile_image_url ??
-            null,
+          nickname: nicknameFromKakaoMe(res),
+          profileImage: profileImageFromKakaoMe(res),
           accessToken: token,
         };
         setUser(u);
@@ -247,6 +276,8 @@ export function KakaoAuthProvider({ children }) {
     }
     window.Kakao.Auth.authorize({
       redirectUri,
+      // 콘솔에서 연 동의항목을 인가 단계에서 요청 — 없으면 토큰 scope에 프로필이 안 붙을 수 있음
+      scope: KAKAO_AUTH_SCOPES,
     });
   }, [jsKey, clearAuthError]);
 
