@@ -76,8 +76,13 @@ export default function QuizPage() {
     if (q) setLastItemId(q.item.id);
   }, [topic, quizType, lastItemId]);
 
+  /** 주제·유형 탭 변경 시 직전 문항 id를 쓰지 않고 새로 출제 (전체 보기 등 탭이 비는 현상 방지) */
   useEffect(() => {
-    if (topic) loadNextQuestion();
+    if (!topic) return;
+    const q = getNextQuestion(topic, quizType, null);
+    setQuestion(q);
+    setResult(null);
+    if (q) setLastItemId(q.item.id);
   }, [topic, quizType]);
 
   useEffect(() => {

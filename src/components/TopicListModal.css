@@ -1,3 +1,9 @@
+.topic-list-row-highlight {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  background: rgba(37, 99, 235, 0.08);
+}
+
 .topic-list-overlay {
   position: fixed;
   inset: 0;

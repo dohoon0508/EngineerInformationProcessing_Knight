@@ -1,7 +1,32 @@
+import { useEffect, useRef } from "react";
 import { formatDisplayName } from "../utils/normalize";
 import "./TopicListModal.css";
 
-export default function TopicListModal({ topic, onClose }) {
+/** 출제 목록 행/섹션에 검색 하이라이트·스크롤용 */
+function trListRowProps(itemId, highlightRowItemId) {
+  const isHl =
+    highlightRowItemId != null && String(highlightRowItemId) === String(itemId);
+  return {
+    "data-topic-list-row": itemId,
+    ...(isHl ? { className: "topic-list-row-highlight" } : {}),
+  };
+}
+
+export default function TopicListModal({ topic, onClose, highlightRowItemId = null }) {
+  const bodyRef = useRef(null);
+
+  useEffect(() => {
+    if (!highlightRowItemId || !bodyRef.current) return;
+    const id = String(highlightRowItemId);
+    const safe = typeof CSS !== "undefined" && CSS.escape ? CSS.escape(id) : id.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+    const el = bodyRef.current.querySelector(`[data-topic-list-row="${safe}"]`);
+    if (el) {
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ block: "center", behavior: "smooth" });
+      });
+    }
+  }, [highlightRowItemId, topic?.id]);
+
   if (!topic) return null;
 
   const isServiceAttacks = topic.id === "service-attacks";
@@ -45,7 +70,7 @@ export default function TopicListModal({ topic, onClose }) {
                 </thead>
                 <tbody>
                   {noSub.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                       <td>—</td>
                       <td>{formatDisplayName(item)}</td>
                       <td className="topic-list-desc">{item.examDescription}</td>
@@ -70,7 +95,7 @@ export default function TopicListModal({ topic, onClose }) {
                   </thead>
                   <tbody>
                     {groupItems.map((item) => (
-                      <tr key={item.id}>
+                      <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                         <td>{item.subcategory}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>
@@ -97,7 +122,7 @@ export default function TopicListModal({ topic, onClose }) {
                   </thead>
                   <tbody>
                     {groupItems.map((item, i) => (
-                      <tr key={item.id}>
+                      <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                         <td>{i + 1}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>
@@ -109,7 +134,15 @@ export default function TopicListModal({ topic, onClose }) {
             );
           })}
           {matching.map((m) => (
-            <section key={m.id} className="topic-list-group-section">
+            <section
+              key={m.id}
+              className={`topic-list-group-section${
+                highlightRowItemId != null && String(highlightRowItemId) === String(m.id)
+                  ? " topic-list-row-highlight"
+                  : ""
+              }`}
+              data-topic-list-row={m.id}
+            >
               <h3 className="topic-list-group-title">{m.nameKo}</h3>
               <p className="topic-list-desc topic-list-vmodel-intro">{m.examDescription}</p>
               <ul className="topic-list-vmodel-pairs">
@@ -138,7 +171,7 @@ export default function TopicListModal({ topic, onClose }) {
           </thead>
           <tbody>
             {topic.items.map((item) => (
-              <tr key={item.id}>
+              <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                 <td>{item.nameKo}</td>
                 <td className="topic-list-desc">{item.examDescription}</td>
               </tr>
@@ -173,7 +206,7 @@ export default function TopicListModal({ topic, onClose }) {
                   </thead>
                   <tbody>
                     {groupItems.map((item) => (
-                      <tr key={item.id}>
+                      <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                         <td>{item.group}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>
@@ -197,7 +230,7 @@ export default function TopicListModal({ topic, onClose }) {
                 </thead>
                 <tbody>
                   {noGroup.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                       <td>—</td>
                       <td>{formatDisplayName(item)}</td>
                       <td className="topic-list-desc">{item.examDescription}</td>
@@ -223,7 +256,7 @@ export default function TopicListModal({ topic, onClose }) {
 
       const renderMiscTableRows = (list) =>
         list.map((item) => (
-          <tr key={item.id}>
+          <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
             <td className="topic-list-misc-name">{formatDisplayName(item)}</td>
             <td className="topic-list-desc topic-list-misc-desc-cell">
               <div className="topic-list-main-desc">{item.examDescription}</div>
@@ -294,7 +327,7 @@ export default function TopicListModal({ topic, onClose }) {
           </thead>
           <tbody>
             {topic.items.map((item, i) => (
-              <tr key={item.id}>
+              <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                 <td>{i + 1}</td>
                 <td>{item.nameKo}</td>
                 <td>{item.nameEn ?? "-"}</td>
@@ -331,7 +364,7 @@ export default function TopicListModal({ topic, onClose }) {
               group.items.map((item, i) => {
                 rowNum += 1;
                 return (
-                  <tr key={item.id}>
+                  <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                     <td>{rowNum}</td>
                     {i === 0 && (
                       <td rowSpan={group.items.length} className="topic-list-purpose-cell">
@@ -384,7 +417,7 @@ export default function TopicListModal({ topic, onClose }) {
                   </thead>
                   <tbody>
                     {groupItems.map((item) => (
-                      <tr key={item.id}>
+                      <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                         <td>{item.subcategory ?? item.category ?? "—"}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>
@@ -421,7 +454,7 @@ export default function TopicListModal({ topic, onClose }) {
                   </thead>
                   <tbody>
                     {groupItems.map((item, i) => (
-                      <tr key={item.id}>
+                      <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                         <td>{i + 1}</td>
                         <td>{formatDisplayName(item)}</td>
                         {showSymbol && <td>{item.symbol ?? "—"}</td>}
@@ -478,7 +511,7 @@ export default function TopicListModal({ topic, onClose }) {
                   </thead>
                   <tbody>
                     {groupItems.map((item, i) => (
-                      <tr key={item.id}>
+                      <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                         <td>{i + 1}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>
@@ -507,7 +540,7 @@ export default function TopicListModal({ topic, onClose }) {
             ×
           </button>
         </div>
-        <div className="topic-list-body">
+        <div className="topic-list-body" ref={bodyRef}>
           {renderTable()}
         </div>
       </div>
