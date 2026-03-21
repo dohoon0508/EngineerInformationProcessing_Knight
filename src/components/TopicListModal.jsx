@@ -11,8 +11,94 @@ export default function TopicListModal({ topic, onClose }) {
   const isIntegrity = topic.id === "integrity";
   const isLinuxCommands = topic.id === "linux-commands";
   const isWhiteBlackTesting = topic.id === "whitebox-blackbox-testing";
+  const isSolidPrinciples = topic.id === "solid-principles";
+  const isDatabase = topic.id === "database";
+  const isNetwork = topic.id === "network";
+  const isMisc = topic.id === "misc";
+  const isTestingTypes = topic.id === "testing-types";
 
   const renderTable = () => {
+    if (isTestingTypes) {
+      const normal = topic.items.filter((i) => i.interactiveType !== "matching");
+      const matching = topic.items.filter((i) => i.interactiveType === "matching");
+      const pairOrder = ["요구사항", "분석", "설계", "구현"];
+      const noSub = normal.filter((i) => !i.subcategory);
+      const subKeys = [...new Set(normal.map((i) => i.subcategory).filter(Boolean))];
+      const subOrderPref = ["통합 테스트 보조 도구"];
+      const orderedSubs = [
+        ...subOrderPref.filter((s) => subKeys.includes(s)),
+        ...subKeys.filter((s) => !subOrderPref.includes(s)),
+      ];
+      return (
+        <div className="topic-list-coupling-cohesion">
+          {noSub.length > 0 && (
+            <section className="topic-list-group-section">
+              <h3 className="topic-list-group-title">테스트 개념</h3>
+              <table className="topic-list-table">
+                <thead>
+                  <tr>
+                    <th>subcategory</th>
+                    <th>이름</th>
+                    <th>설명</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {noSub.map((item) => (
+                    <tr key={item.id}>
+                      <td>—</td>
+                      <td>{formatDisplayName(item)}</td>
+                      <td className="topic-list-desc">{item.examDescription}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          )}
+          {orderedSubs.map((sub) => {
+            const groupItems = normal.filter((i) => i.subcategory === sub);
+            return (
+              <section key={sub} className="topic-list-group-section">
+                <h3 className="topic-list-group-title">{sub}</h3>
+                <table className="topic-list-table">
+                  <thead>
+                    <tr>
+                      <th>subcategory</th>
+                      <th>이름</th>
+                      <th>설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupItems.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.subcategory}</td>
+                        <td>{formatDisplayName(item)}</td>
+                        <td className="topic-list-desc">{item.examDescription}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            );
+          })}
+          {matching.map((m) => (
+            <section key={m.id} className="topic-list-group-section">
+              <h3 className="topic-list-group-title">{m.nameKo}</h3>
+              <p className="topic-list-desc topic-list-vmodel-intro">{m.examDescription}</p>
+              <ul className="topic-list-vmodel-pairs">
+                {pairOrder.map((k) =>
+                  m.correctPairs?.[k] ? (
+                    <li key={k}>
+                      <strong>{k}</strong> ↔ {m.correctPairs[k]}
+                    </li>
+                  ) : null
+                )}
+              </ul>
+            </section>
+          ))}
+        </div>
+      );
+    }
+
     if (isLinuxCommands) {
       return (
         <table className="topic-list-table">
@@ -31,6 +117,107 @@ export default function TopicListModal({ topic, onClose }) {
             ))}
           </tbody>
         </table>
+      );
+    }
+
+    if (isNetwork) {
+      const groupOrder = ["라우팅 프로토콜", "주소 변환"];
+      const groupKeys = [...new Set(topic.items.map((i) => i.group).filter(Boolean))];
+      const orderedGroups = [
+        ...groupOrder.filter((k) => groupKeys.includes(k)),
+        ...groupKeys.filter((k) => !groupOrder.includes(k)),
+      ];
+      const noGroup = topic.items.filter((i) => !i.group);
+      return (
+        <div className="topic-list-coupling-cohesion">
+          {orderedGroups.map((groupKey) => {
+            const groupItems = topic.items.filter((i) => i.group === groupKey);
+            return (
+              <section key={groupKey} className="topic-list-group-section">
+                <h3 className="topic-list-group-title">{groupKey}</h3>
+                <table className="topic-list-table">
+                  <thead>
+                    <tr>
+                      <th>group</th>
+                      <th>이름</th>
+                      <th>설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupItems.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.group}</td>
+                        <td>{formatDisplayName(item)}</td>
+                        <td className="topic-list-desc">{item.examDescription}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            );
+          })}
+          {noGroup.length > 0 && (
+            <section className="topic-list-group-section">
+              <h3 className="topic-list-group-title">기타 네트워크 개념</h3>
+              <table className="topic-list-table">
+                <thead>
+                  <tr>
+                    <th>group</th>
+                    <th>이름</th>
+                    <th>설명</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {noGroup.map((item) => (
+                    <tr key={item.id}>
+                      <td>—</td>
+                      <td>{formatDisplayName(item)}</td>
+                      <td className="topic-list-desc">{item.examDescription}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          )}
+        </div>
+      );
+    }
+
+    if (isMisc) {
+      return (
+        <div className="topic-list-misc-wrap">
+          <table className="topic-list-table topic-list-misc-table">
+            <thead>
+              <tr>
+                <th>이름</th>
+                <th>설명</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topic.items.map((item) => (
+                <tr key={item.id}>
+                  <td className="topic-list-misc-name">{formatDisplayName(item)}</td>
+                  <td className="topic-list-desc topic-list-misc-desc-cell">
+                    <div className="topic-list-main-desc">{item.examDescription}</div>
+                    {item.details?.length > 0 && (
+                      <ul className="topic-list-details">
+                        {item.details.map((d, j) => (
+                          <li key={j} className="topic-list-detail-item">
+                            <span className="topic-list-detail-title">
+                              {d.nameKo}
+                              {d.nameEn && d.nameEn !== d.nameKo ? ` (${d.nameEn})` : ""}
+                            </span>
+                            <span className="topic-list-detail-text">: {d.description}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       );
     }
 
@@ -94,6 +281,29 @@ export default function TopicListModal({ topic, onClose }) {
       );
     }
 
+    if (isSolidPrinciples) {
+      return (
+        <table className="topic-list-table">
+          <thead>
+            <tr>
+              <th>약어</th>
+              <th>이름</th>
+              <th>설명</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topic.items.map((item) => (
+              <tr key={item.id}>
+                <td>{item.shortLabel}</td>
+                <td>{item.nameKo}</td>
+                <td className="topic-list-desc">{item.examDescription}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+
     if (isDesignPatterns) {
       const groups = [];
       topic.items.forEach((item) => {
@@ -138,37 +348,72 @@ export default function TopicListModal({ topic, onClose }) {
     }
 
     if (isCrypto) {
-      const categories = [...new Set(topic.items.map((i) => i.category).filter(Boolean))];
+      const subcats = [...new Set(topic.items.map((i) => i.subcategory || i.category).filter(Boolean))];
       const order = [
-        "단방향",
-        "양방향",
+        "HASH 알고리즘",
+        "블록 암호화 알고리즘",
+        "공개키 암호화 알고리즘",
+        "인증 / 접근 제어",
+        "접근통제",
+        "보안 관리 체계",
+        "터널링 / 네트워크 방식",
         "암호 / 보안 프로토콜",
-        "인증 / 접근 권한",
-        "보안 솔루션 / 보안 기술",
+        "보안 솔루션 / 기술",
         "기타 보안 개념",
       ];
-      const orderedCategories = order.filter((c) => categories.includes(c));
-      const rest = categories.filter((c) => !order.includes(c));
-      const displayOrder = [...orderedCategories, ...rest];
-
-      const categoryLabel = (c) => {
-        if (c === "단방향") return "단방향 암호 알고리즘";
-        if (c === "양방향") return "양방향 암호 알고리즘";
-        return c;
-      };
+      const ordered = order.filter((s) => subcats.includes(s));
+      const rest = subcats.filter((s) => !order.includes(s));
+      const displayOrder = [...ordered, ...rest];
 
       return (
         <div className="topic-list-coupling-cohesion">
-          {displayOrder.map((category) => {
-            const groupItems = topic.items.filter((i) => i.category === category);
+          {displayOrder.map((sub) => {
+            const groupItems = topic.items.filter((i) => (i.subcategory || i.category) === sub);
             return (
-              <section key={category} className="topic-list-group-section">
-                <h3 className="topic-list-group-title">{categoryLabel(category)}</h3>
+              <section key={sub} className="topic-list-group-section">
+                <h3 className="topic-list-group-title">{sub}</h3>
+                <table className="topic-list-table">
+                  <thead>
+                    <tr>
+                      <th>subcategory</th>
+                      <th>이름</th>
+                      <th>설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupItems.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.subcategory ?? item.category ?? "—"}</td>
+                        <td>{formatDisplayName(item)}</td>
+                        <td className="topic-list-desc">{item.examDescription}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (isDatabase) {
+      const groups = ["순수 관계 연산자", "집합 연산자", "이상", "함수적 종속", "관계해석"];
+      return (
+        <div className="topic-list-coupling-cohesion">
+          {groups.map((groupKey) => {
+            const groupItems = topic.items.filter((i) => i.group === groupKey);
+            if (!groupItems.length) return null;
+            const showSymbol = groupKey === "순수 관계 연산자" || groupKey === "집합 연산자";
+            return (
+              <section key={groupKey} className="topic-list-group-section">
+                <h3 className="topic-list-group-title">{groupKey}</h3>
                 <table className="topic-list-table">
                   <thead>
                     <tr>
                       <th>번호</th>
-                      <th>항목명</th>
+                      <th>이름</th>
+                      {showSymbol && <th>기호</th>}
                       <th>설명</th>
                     </tr>
                   </thead>
@@ -177,6 +422,7 @@ export default function TopicListModal({ topic, onClose }) {
                       <tr key={item.id}>
                         <td>{i + 1}</td>
                         <td>{formatDisplayName(item)}</td>
+                        {showSymbol && <td>{item.symbol ?? "—"}</td>}
                         <td className="topic-list-desc">{item.examDescription}</td>
                       </tr>
                     ))}

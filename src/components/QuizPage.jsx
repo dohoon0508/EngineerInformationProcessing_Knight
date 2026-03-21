@@ -1,9 +1,32 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { topics } from "../data/topics";
-import { getNextQuestion, QUIZ_TYPES, isDesignPatternTopic, isCryptoTopic, isCouplingCohesionTopic, isIntegrityTopic, isLinuxCommandsTopic, isWhiteBlackTestingTopic } from "../utils/quizEngine";
+import {
+  getNextQuestion,
+  QUIZ_TYPES,
+  isDesignPatternTopic,
+  isCryptoTopic,
+  isCouplingCohesionTopic,
+  isIntegrityTopic,
+  isLinuxCommandsTopic,
+  isWhiteBlackTestingTopic,
+  isDatabaseTopic,
+  isNetworkTopic,
+  getNetworkFullListItems,
+  isMiscTopic,
+  expandMiscItems,
+  getCryptoFullListItems,
+  isTestingTypesTopic,
+  getTestingTypesFullListItems,
+} from "../utils/quizEngine";
 import { updateItemStats, loadStats, resetStats } from "../utils/storage";
-import { checkNameAnswer, checkPurposeAnswer, checkOrderAnswer, formatDisplayName } from "../utils/normalize";
+import {
+  checkNameAnswer,
+  checkPurposeAnswer,
+  checkOrderAnswer,
+  checkVModelMatching,
+  formatDisplayName,
+} from "../utils/normalize";
 import QuizStats from "./QuizStats";
 import SubjectiveQuestion from "./SubjectiveQuestion";
 import MultipleChoiceQuestion from "./MultipleChoiceQuestion";
@@ -12,7 +35,29 @@ import PurposeOnlyQuestion from "./PurposeOnlyQuestion";
 import PurposeAndPatternQuestion from "./PurposeAndPatternQuestion";
 import PurposeAndSubjectiveQuestion from "./PurposeAndSubjectiveQuestion";
 import OrderingQuestion from "./OrderingQuestion";
+import VModelMatchingQuestion from "./VModelMatchingQuestion";
 import "./QuizPage.css";
+
+/** 데이터베이스 전체 보기: group에 따라 목록 범위·라벨 분기 */
+function getDatabaseFullListItems(topic, question) {
+  const g = question?.item?.group;
+  if (!g) return topic.items;
+  if (g === "순수 관계 연산자" || g === "집합 연산자") {
+    return topic.items.filter(
+      (i) => i.group === "순수 관계 연산자" || i.group === "집합 연산자"
+    );
+  }
+  if (g === "이상") return topic.items.filter((i) => i.group === "이상");
+  if (g === "함수적 종속") return topic.items.filter((i) => i.group === "함수적 종속");
+  return topic.items;
+}
+
+function getDatabaseFullListLabel(question) {
+  const g = question?.item?.group;
+  if (g === "순수 관계 연산자" || g === "집합 연산자") return (item) => item.symbol;
+  if (g === "이상") return (item) => item.nameKo;
+  return formatDisplayName;
+}
 
 export default function QuizPage() {
   const { topicId } = useParams();
@@ -60,6 +105,19 @@ export default function QuizPage() {
       const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.FULL_LIST];
       if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
     }
+    if (topic && isDatabaseTopic(topic)) {
+      const valid = [QUIZ_TYPES.SUBJECTIVE, QUIZ_TYPES.MULTIPLE_CHOICE, QUIZ_TYPES.FULL_LIST];
+      if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
+    }
+    if (topic && isTestingTypesTopic(topic)) {
+      const valid = [
+        QUIZ_TYPES.SUBJECTIVE,
+        QUIZ_TYPES.MULTIPLE_CHOICE,
+        QUIZ_TYPES.FULL_LIST,
+        QUIZ_TYPES.MATCHING,
+      ];
+      if (!valid.includes(quizType)) setQuizType(QUIZ_TYPES.SUBJECTIVE);
+    }
   }, [topic]);
 
   const handleSubmit = (userAnswer) => {
@@ -79,6 +137,8 @@ export default function QuizPage() {
         checkNameAnswer(pattern, question.item);
     } else if (quizType === QUIZ_TYPES.SUBJECTIVE) {
       isCorrect = checkNameAnswer(userAnswer, question.item);
+    } else if (quizType === QUIZ_TYPES.MATCHING) {
+      isCorrect = checkVModelMatching(userAnswer, question.correctPairs);
     } else if (quizType === QUIZ_TYPES.ORDERING) {
       isCorrect = checkOrderAnswer(userAnswer, question.correctOrder);
     } else {
@@ -92,12 +152,37 @@ export default function QuizPage() {
         ? `${question.item.purpose} - ${formatDisplayName(question.item)}`
         : question.answerDisplay;
 
+    const userAnswerDisplay = (() => {
+      if (quizType === QUIZ_TYPES.MATCHING && userAnswer && typeof userAnswer === "object") {
+        return Object.entries(userAnswer)
+          .map(([k, v]) => `${k} → ${v}`)
+          .join("\n");
+      }
+      if (typeof userAnswer === "object" && userAnswer != null && "purpose" in userAnswer) {
+        return `${userAnswer.purpose} - ${userAnswer.pattern}`;
+      }
+      return userAnswer;
+    })();
+
     setResult({
       isCorrect,
-      userAnswer: typeof userAnswer === "object" ? `${userAnswer.purpose} - ${userAnswer.pattern}` : userAnswer,
+      userAnswer: userAnswerDisplay,
       correctAnswer,
       questionText: question.question,
-      ...((isIntegrityTopic(topic) || isLinuxCommandsTopic(topic)) && !isCorrect && question.item?.shortDescription && { correctAnswerExplanation: question.item.shortDescription }),
+      ...((isIntegrityTopic(topic) ||
+        isLinuxCommandsTopic(topic) ||
+        isDatabaseTopic(topic) ||
+        isWhiteBlackTestingTopic(topic) ||
+        topic?.id === "network" ||
+        topic?.id === "solid-principles" ||
+        isMiscTopic(topic) ||
+        isCryptoTopic(topic) ||
+        isTestingTypesTopic(topic)) &&
+        !isCorrect &&
+        question.item?.shortDescription && { correctAnswerExplanation: question.item.shortDescription }),
+      ...(quizType === QUIZ_TYPES.MATCHING &&
+        !isCorrect &&
+        question.answerDisplay && { correctAnswerExplanation: question.answerDisplay }),
     });
     setSolveCount((c) => c + 1);
   };
@@ -131,6 +216,8 @@ export default function QuizPage() {
     history: [],
   };
 
+  const statsDisplayItems = isMiscTopic(topic) ? expandMiscItems(topic.items) : topic.items;
+
   return (
     <div className="quiz-page">
       <header className="quiz-header">
@@ -141,55 +228,82 @@ export default function QuizPage() {
       </header>
 
       <div className="quiz-controls">
-        <div className="quiz-type-tabs">
-          {(isDesignPatternTopic(topic)
-            ? [
-                { key: QUIZ_TYPES.SUBJECTIVE, label: "목적+패턴(주관식)" },
-                { key: QUIZ_TYPES.PURPOSE_AND_PATTERN, label: "목적+패턴(객관식)" },
-              ]
-            : isCryptoTopic(topic)
-            ? [
-                { key: QUIZ_TYPES.SUBJECTIVE, label: "알고리즘명(주관식)" },
-                { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "알고리즘명(4지선다)" },
-                { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
-                { key: QUIZ_TYPES.PURPOSE_ONLY, label: "분류 맞히기" },
-                { key: QUIZ_TYPES.PURPOSE_AND_PATTERN, label: "분류+알고리즘" },
-              ]
-            : isCouplingCohesionTopic(topic)
-            ? [
-                { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
-                { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
-                { key: QUIZ_TYPES.ORDERING, label: "순서 맞추기" },
-              ]
-            : isIntegrityTopic(topic)
-            ? [{ key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" }]
-            : isLinuxCommandsTopic(topic)
-            ? [
-                { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
-                { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
-                { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
-              ]
-            : isWhiteBlackTestingTopic(topic)
-            ? [
-                { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
-                { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
-                { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
-              ]
-            : [
-                { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
-                { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
-                { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "4지 선다" },
-              ]
-          ).map(({ key, label }) => (
-            <button
-              key={key}
-              className={`tab ${quizType === key ? "active" : ""}`}
-              onClick={() => setQuizType(key)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        {isDatabaseTopic(topic) || isTestingTypesTopic(topic) ? (
+          <div className="quiz-type-tabs">
+            {(
+              isTestingTypesTopic(topic)
+                ? [
+                    { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                    { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                    { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                    { key: QUIZ_TYPES.MATCHING, label: "매칭(드래그)" },
+                  ]
+                : [
+                    { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                    { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                    { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                  ]
+            ).map(({ key, label }) => (
+              <button
+                key={key}
+                className={`tab ${quizType === key ? "active" : ""}`}
+                onClick={() => setQuizType(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="quiz-type-tabs">
+            {(isDesignPatternTopic(topic)
+              ? [
+                  { key: QUIZ_TYPES.SUBJECTIVE, label: "목적+패턴(주관식)" },
+                  { key: QUIZ_TYPES.PURPOSE_AND_PATTERN, label: "목적+패턴(객관식)" },
+                ]
+              : isCryptoTopic(topic)
+              ? [
+                  { key: QUIZ_TYPES.SUBJECTIVE, label: "알고리즘명(주관식)" },
+                  { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "알고리즘명(4지선다)" },
+                  { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                  { key: QUIZ_TYPES.PURPOSE_ONLY, label: "분류 맞히기" },
+                  { key: QUIZ_TYPES.PURPOSE_AND_PATTERN, label: "분류+알고리즘" },
+                ]
+              : isCouplingCohesionTopic(topic)
+              ? [
+                  { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                  { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                  { key: QUIZ_TYPES.ORDERING, label: "순서 맞추기" },
+                ]
+              : isIntegrityTopic(topic)
+              ? [{ key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" }]
+              : isLinuxCommandsTopic(topic)
+              ? [
+                  { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                  { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                  { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                ]
+              : isWhiteBlackTestingTopic(topic)
+              ? [
+                  { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                  { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "객관식" },
+                  { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                ]
+              : [
+                  { key: QUIZ_TYPES.SUBJECTIVE, label: "주관식" },
+                  { key: QUIZ_TYPES.FULL_LIST, label: "전체 보기" },
+                  { key: QUIZ_TYPES.MULTIPLE_CHOICE, label: "4지 선다" },
+                ]
+            ).map(({ key, label }) => (
+              <button
+                key={key}
+                className={`tab ${quizType === key ? "active" : ""}`}
+                onClick={() => setQuizType(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
         <button className="reset-btn" onClick={handleResetStats}>
           기록 초기화
         </button>
@@ -200,7 +314,7 @@ export default function QuizPage() {
         totalWrong={topicStats.totalWrong}
         solveCount={solveCount}
         history={topicStats.history || []}
-        items={topic.items}
+        items={statsDisplayItems}
         itemStats={topicStats.items || {}}
       />
 
@@ -210,62 +324,115 @@ export default function QuizPage() {
             <div className="solve-count">누적 풀이: {solveCount}문제 · {topic.title}</div>
             {!result ? (
               <>
-                {quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(topic) && (
-                  <PurposeAndSubjectiveQuestion
-                    question={question}
-                    onSubmit={handleSubmit}
-                  />
-                )}
-                {quizType === QUIZ_TYPES.SUBJECTIVE && !isDesignPatternTopic(topic) && (
-                  <SubjectiveQuestion
-                    question={question}
-                    onSubmit={handleSubmit}
-                    hint={
-                      isLinuxCommandsTopic(topic)
-                        ? "명령어를 입력하세요 (대소문자 무관)"
-                        : isWhiteBlackTestingTopic(topic)
-                        ? "검사 기법 이름을 입력하세요"
-                        : isIntegrityTopic(topic)
-                        ? "무결성 종류를 입력하세요 (예: 개체, 참조, 도메인 …)"
-                        : isCryptoTopic(topic)
-                        ? "알고리즘 이름을 입력하세요 (한국어 또는 영어)"
-                        : isCouplingCohesionTopic(topic)
-                        ? "항목명을 입력하세요 (한국어 또는 영어)"
-                        : "공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)"
-                    }
-                  />
-                )}
-                {quizType === QUIZ_TYPES.MULTIPLE_CHOICE && (
-                  <MultipleChoiceQuestion
-                    question={question}
-                    onSubmit={handleSubmit}
-                  />
-                )}
-                {quizType === QUIZ_TYPES.FULL_LIST && (
-                  <FullListQuestion
-                    question={question}
-                    items={topic.items}
-                    onSubmit={handleSubmit}
-                    getOptionLabel={isLinuxCommandsTopic(topic) ? (item) => item.nameKo ?? item.nameEn : undefined}
-                  />
-                )}
-                {quizType === QUIZ_TYPES.PURPOSE_ONLY && (
-                  <PurposeOnlyQuestion
-                    question={question}
-                    onSubmit={handleSubmit}
-                  />
-                )}
-                {quizType === QUIZ_TYPES.PURPOSE_AND_PATTERN && (
-                  <PurposeAndPatternQuestion
-                    question={question}
-                    onSubmit={handleSubmit}
-                  />
-                )}
-                {quizType === QUIZ_TYPES.ORDERING && (
-                  <OrderingQuestion
-                    question={question}
-                    onSubmit={handleSubmit}
-                  />
+                {isDatabaseTopic(topic) || isTestingTypesTopic(topic) ? (
+                  <>
+                    {quizType === QUIZ_TYPES.SUBJECTIVE && (
+                      <SubjectiveQuestion
+                        question={question}
+                        onSubmit={handleSubmit}
+                        hint={question.hint ?? "용어를 입력하세요 (한국어 또는 영어)"}
+                      />
+                    )}
+                    {quizType === QUIZ_TYPES.MULTIPLE_CHOICE && (
+                      <MultipleChoiceQuestion question={question} onSubmit={handleSubmit} />
+                    )}
+                    {quizType === QUIZ_TYPES.FULL_LIST && (
+                      <FullListQuestion
+                        question={question}
+                        items={
+                          isTestingTypesTopic(topic)
+                            ? topic.items.filter((i) => i.interactiveType !== "matching")
+                            : getDatabaseFullListItems(topic, question)
+                        }
+                        onSubmit={handleSubmit}
+                        getOptionLabel={
+                          isTestingTypesTopic(topic) ? undefined : getDatabaseFullListLabel(question)
+                        }
+                      />
+                    )}
+                    {isTestingTypesTopic(topic) && quizType === QUIZ_TYPES.MATCHING && (
+                      <VModelMatchingQuestion question={question} onSubmit={handleSubmit} />
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(topic) && (
+                      <PurposeAndSubjectiveQuestion
+                        question={question}
+                        onSubmit={handleSubmit}
+                      />
+                    )}
+                    {quizType === QUIZ_TYPES.SUBJECTIVE && !isDesignPatternTopic(topic) && (
+                      <SubjectiveQuestion
+                        question={question}
+                        onSubmit={handleSubmit}
+                        hint={
+                          question.hint ??
+                          (isLinuxCommandsTopic(topic)
+                            ? "명령어를 입력하세요 (대소문자 무관)"
+                            : isWhiteBlackTestingTopic(topic)
+                            ? "검사 기법 이름을 입력하세요"
+                            : isIntegrityTopic(topic)
+                            ? "무결성 종류를 입력하세요 (예: 개체, 참조, 도메인 …)"
+                            : isCryptoTopic(topic)
+                            ? "알고리즘·보안 용어를 입력하세요 (한국어 또는 영어)"
+                            : isCouplingCohesionTopic(topic)
+                            ? "항목명을 입력하세요 (한국어 또는 영어)"
+                            : isNetworkTopic(topic)
+                            ? "네트워크 용어를 입력하세요 (한국어 또는 영어)"
+                            : topic?.id === "solid-principles"
+                            ? "원칙 이름을 입력하세요 (한국어 또는 약어, 예: SRP)"
+                            : isMiscTopic(topic)
+                            ? "용어·약어를 입력하세요 (한국어 또는 영어, 예: RAID 5, CLI)"
+                            : "공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)")
+                        }
+                      />
+                    )}
+                    {quizType === QUIZ_TYPES.MULTIPLE_CHOICE && (
+                      <MultipleChoiceQuestion
+                        question={question}
+                        onSubmit={handleSubmit}
+                      />
+                    )}
+                    {quizType === QUIZ_TYPES.FULL_LIST && (
+                      <FullListQuestion
+                        question={question}
+                        items={
+                          question && isWhiteBlackTestingTopic(topic)
+                            ? topic.items.filter((i) => i.group === question.item.group)
+                            : question && isNetworkTopic(topic)
+                            ? getNetworkFullListItems(topic, question)
+                            : question && isCryptoTopic(topic)
+                            ? getCryptoFullListItems(topic, question)
+                            : isTestingTypesTopic(topic)
+                            ? getTestingTypesFullListItems(topic, question)
+                            : isMiscTopic(topic)
+                            ? expandMiscItems(topic.items)
+                            : topic.items
+                        }
+                        onSubmit={handleSubmit}
+                        getOptionLabel={isLinuxCommandsTopic(topic) ? (item) => item.nameKo ?? item.nameEn : undefined}
+                      />
+                    )}
+                    {quizType === QUIZ_TYPES.PURPOSE_ONLY && (
+                      <PurposeOnlyQuestion
+                        question={question}
+                        onSubmit={handleSubmit}
+                      />
+                    )}
+                    {quizType === QUIZ_TYPES.PURPOSE_AND_PATTERN && (
+                      <PurposeAndPatternQuestion
+                        question={question}
+                        onSubmit={handleSubmit}
+                      />
+                    )}
+                    {quizType === QUIZ_TYPES.ORDERING && (
+                      <OrderingQuestion
+                        question={question}
+                        onSubmit={handleSubmit}
+                      />
+                    )}
+                  </>
                 )}
               </>
             ) : (

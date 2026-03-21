@@ -8,7 +8,7 @@ export default function MultipleChoiceQuestion({ question, onSubmit }) {
           <p className="question-group-badge">{question.questionGroup}</p>
         )}
         <p className="question-text">{question.question}</p>
-        <p className="question-hint">정답을 선택하세요</p>
+        <p className="question-hint">{question.hint ?? "정답을 선택하세요"}</p>
       </div>
       <div className="options-grid">
         {question.options?.map((opt, i) => (

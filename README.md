@@ -27,6 +27,8 @@ npm run dev
 ## 프로젝트 구조
 
 ```
+scripts/
+└── validate-topics.mjs  # topics 데이터 검증 (npm run validate:topics)
 src/
 ├── main.jsx          # 앱 진입점
 ├── App.jsx            # 라우팅 및 레이아웃
@@ -49,7 +51,7 @@ src/
 
 ## 새 목차 추가 방법
 
-`src/data/topics.js` 파일의 `topics` 배열에 새 객체를 추가하면 됩니다.
+`src/data/topics.js`의 `topics` 배열에 객체를 추가하면 홈에 자동 반영됩니다.
 
 ```javascript
 {
@@ -58,13 +60,19 @@ src/
   items: [
     {
       id: "항목-id",
-      name: "항목 이름",
+      nameKo: "한글 이름",
+      nameEn: "English name",
       aliases: ["대체표기1", "대체표기2"],
-      description: "설명"
-    }
-  ]
+      examDescription: "출제 목록·교재용 전체 설명",
+      quizPrompt: "선택: 퀴즈에만 쓸 문구(정답 단어가 본문에 나오지 않게)",
+      shortDescription: "선택: 짧은 요약",
+    },
+  ],
 }
 ```
+
+데이터 검증: `npm run validate:topics`  
+(선택) 로컬 전용 메모는 `docs/` 폴더에 두면 되며, `.gitignore`로 원격 저장소에는 포함되지 않습니다.
 
 ## 기능
 

@@ -1,6 +1,10 @@
 /**
  * 정보처리기사 퀴즈 데이터 (한국어 우선)
  * topics 배열에 새 목차를 추가하면 홈 화면에 자동 반영됨
+ *
+ * - examDescription: 출제 목록·교재용 전체 설명
+ * - quizPrompt(선택): 퀴즈 문제 문구만 따로 둘 때(정답·용어가 본문에 그대로 나오는 것을 피할 때)
+ * - details(선택): 기타(misc) 등 하위 개념 목록 — 출제 목록·퀴즈 풀 확장에 사용
  */
 export const topics = [
   {
@@ -48,6 +52,8 @@ export const topics = [
         nameEn: "UDP flooding",
         aliases: ["UDP 플러딩", "udp 플러딩", "udp플러딩", "udp flooding", "udpflooding"],
         examDescription: "대량의 UDP 패킷을 이용하여 대상 호스트의 네트워크 자원을 소모시키는 공격",
+        quizPrompt:
+          "비연결형 전송 계층 프로토콜의 패킷을 대량으로 이용하여 대상 호스트의 네트워크 자원을 소모시키는 공격이다.",
       },
       {
         id: "ping-flooding",
@@ -222,28 +228,73 @@ export const topics = [
         nameKo: "세션 하이재킹",
         nameEn: "Session Hijacking",
         aliases: ["세션 하이재킹", "세션하이재킹", "session hijacking", "sessionhijacking"],
-        examDescription: "정상 사용자의 세션 정보를 가로채거나 탈취하여 인증된 사용자 권한을 불법적으로 사용하는 공격 기법",
+        examDescription:
+          "상호 인증을 마친 클라이언트와 서버 사이의 세션 정보를 가로채, 인증 정보 없이도 정상 클라이언트처럼 위장해 서버 자원·데이터를 무단 사용하는 공격 기법. TCP 3-way-handshake에 끼어들어 시퀀스 번호를 탈취해 서버에 무단 접근하는 TCP 세션 하이재킹이 대표적이다.",
+        quizPrompt:
+          "상호 인증을 마친 클라이언트와 서버 사이의 연결 상태 정보를 가로채, 인증 정보 없이도 정상 클라이언트처럼 위장해 서버 자원·데이터를 무단 사용하는 공격 기법이다. TCP 3-way-handshake에 끼어들어 시퀀스 번호를 탈취해 서버에 무단 접근하는 방식이 대표적이다.",
+        shortDescription: "세션 탈취·위장으로 무단 접근",
       },
       {
         id: "sql-injection",
         nameKo: "SQL 삽입",
         nameEn: "SQL Injection",
         aliases: ["SQL 삽입", "sql 삽입", "sql injection", "sql인젝션"],
-        examDescription: "웹 응용 프로그램에 악의적인 SQL을 삽입하여 DB 데이터를 유출·변조하거나 인증을 우회하는 공격",
+        examDescription:
+          "웹 응용 프로그램에 악의적인 SQL을 삽입해 내부 DB 데이터를 유출·변조하거나 관리자 인증을 우회하는 보안 약점이다. 동적 쿼리 입력값에 예약어·특수문자가 들어가지 않도록 필터링해 방지할 수 있다.",
+        quizPrompt:
+          "웹 응용 프로그램에 악의적으로 구조화된 질의 언어 문장을 삽입해 내부 DB 데이터를 유출·변조하거나 관리자 인증을 우회하는 보안 약점이다. 동적 쿼리 입력값에 예약어·특수문자가 들어가지 않도록 필터링해 방지할 수 있다.",
+        shortDescription: "SQL 삽입으로 DB 유출·인증 우회",
       },
       {
         id: "typosquatting",
         nameKo: "타이포스쿼팅",
         nameEn: "Typosquatting",
-        aliases: ["타이포스쿼팅", "타이포 스쿼팅", "typosquatting", "typo squatting"],
-        examDescription: "사용자의 오타를 노려 유사한 도메인을 미리 등록하여 가짜 사이트로 유도하는 기법",
+        aliases: ["타이포스쿼팅", "타이포 스쿼팅", "typosquatting", "typo squatting", "url 하이재킹", "URL 하이재킹"],
+        examDescription:
+          "사용자가 사이트 주소를 잘못 입력하거나 철자를 빠뜨리는 실수를 노려, 유명 도메인과 유사한 도메인을 미리 등록하는 기법이다. URL 하이재킹(Hijacking)이라고도 한다.",
+        shortDescription: "오타·유사 도메인 선점",
       },
       {
         id: "scareware",
         nameKo: "스케어웨어",
         nameEn: "Scareware",
         aliases: ["스케어웨어", "scareware"],
-        examDescription: "허위 경고로 불안감을 조성하여 불필요한 소프트웨어 구매나 설치를 유도하는 악성 소프트웨어",
+        examDescription:
+          "바이러스 감염·보안 위험 등 거짓 경고로 불안을 조성한 뒤, 문제 해결을 명목으로 불필요한 소프트웨어 구매·설치를 유도하는 악성 소프트웨어이다.",
+        shortDescription: "거짓 경고로 구매·설치 유도",
+      },
+      {
+        id: "arp-spoofing",
+        nameKo: "ARP 스푸핑",
+        nameEn: "ARP Spoofing",
+        aliases: ["ARP 스푸핑", "arp 스푸핑", "arp spoofing", "arpspoofing", "ARP Spoofing"],
+        examDescription:
+          "ARP 스푸핑(ARP Spoofing)은 ARP의 취약성을 이용한 공격 기법으로, 자신의 물리적 주소(MAC)를 공격 대상의 것으로 변조하여 공격 대상에게 도달해야 하는 데이터 패킷을 가로채거나 방해하는 기법이다. ARP(Address Resolution Protocol): 호스트의 IP 주소를 호스트와 연결된 네트워크 접속 장치의 물리적 주소(MAC Address)로 변환해주는 프로토콜이다.",
+        quizPrompt:
+          "IP 주소를 MAC 주소로 알아내기 위한 주소 결정 프로토콜의 취약성을 이용한 공격 기법으로, 자신의 물리적 주소(MAC)를 공격 대상의 것으로 변조하여 공격 대상에게 도달해야 하는 데이터 패킷을 가로채거나 방해한다.",
+        shortDescription: "MAC 변조로 패킷 가로채기·방해(ARP 악용)",
+      },
+      {
+        id: "social-engineering",
+        nameKo: "사회 공학",
+        nameEn: "Social Engineering",
+        aliases: ["사회 공학", "사회공학", "social engineering", "socialengineering"],
+        examDescription:
+          "사회 공학(Social Engineering)은 컴퓨터 보안에 있어서, 인간 상호 작용의 깊은 신뢰를 바탕으로 사람들을 속여 정상 보안 절차를 깨트리기 위한 비기술적 시스템 침입 수단이다.",
+        quizPrompt:
+          "컴퓨터 보안에서, 인간 상호 작용의 깊은 신뢰를 바탕으로 사람들을 속여 정상 보안 절차를 깨트리기 위한 비기술적 시스템 침입 수단이다.",
+        shortDescription: "인간 신뢰·심리 악용 비기술적 침입",
+      },
+      {
+        id: "watering-hole",
+        nameKo: "워터링 홀",
+        nameEn: "Watering Hole",
+        aliases: ["워터링 홀", "워터링홀", "watering hole", "wateringhole"],
+        examDescription:
+          "워터링 홀(Watering Hole)은 목표 대상이 자주 방문하는 웹 사이트를 사전에 감염시켜 대상이 해당 사이트에 방문했을 때 악성 코드에 감염되게 하는 웹 기반 공격이다. 감염된 PC를 기반으로 대상이 속한 조직의 중요 시스템에 접근하거나 불능으로 만드는 등의 영향력을 행사할 수 있다.",
+        quizPrompt:
+          "목표 대상이 자주 방문하는 웹 사이트를 사전에 감염시켜 대상이 해당 사이트에 방문했을 때 악성 코드에 감염되게 하는 웹 기반 공격이다. 감염된 PC를 기반으로 대상이 속한 조직의 중요 시스템에 접근하거나 불능으로 만드는 등의 영향력을 행사할 수 있다.",
+        shortDescription: "자주 방문하는 사이트 감염·유인 공격",
       },
     ],
   },
@@ -277,27 +328,298 @@ export const topics = [
     ],
   },
   {
+    id: "solid-principles",
+    title: "객체지향 설계 원칙",
+    items: [
+      {
+        id: "srp",
+        nameKo: "단일 책임 원칙",
+        nameEn: "Single Responsibility Principle",
+        shortLabel: "SRP",
+        aliases: [
+          "단일 책임 원칙",
+          "srp",
+          "SRP",
+          "single responsibility principle",
+          "Single Responsibility Principle",
+        ],
+        examDescription: "객체는 단 하나의 책임만 가져야 한다는 원칙",
+        shortDescription: "하나의 객체는 하나의 책임만 가져야 한다",
+      },
+      {
+        id: "ocp",
+        nameKo: "개방-폐쇄 원칙",
+        nameEn: "Open-Closed Principle",
+        shortLabel: "OCP",
+        aliases: ["개방-폐쇄 원칙", "개방 폐쇄 원칙", "ocp", "OCP", "open-closed principle", "Open-Closed Principle"],
+        examDescription: "기존의 코드를 변경하지 않고 기능을 추가할 수 있도록 설계해야 한다는 원칙",
+        shortDescription: "변경 없이 확장(열림·닫힘)",
+      },
+      {
+        id: "lsp",
+        nameKo: "리스코프 치환 원칙",
+        nameEn: "Liskov Substitution Principle",
+        shortLabel: "LSP",
+        aliases: [
+          "리스코프 치환 원칙",
+          "리스코프치환원칙",
+          "lsp",
+          "LSP",
+          "liskov substitution principle",
+          "Liskov Substitution Principle",
+        ],
+        examDescription: "자식 클래스는 최소한 부모 클래스의 기능은 수행할 수 있어야 한다는 원칙",
+        shortDescription: "자식은 부모를 대체 가능해야 함",
+      },
+      {
+        id: "isp",
+        nameKo: "인터페이스 분리 원칙",
+        nameEn: "Interface Segregation Principle",
+        shortLabel: "ISP",
+        aliases: [
+          "인터페이스 분리 원칙",
+          "인터페이스분리원칙",
+          "isp",
+          "ISP",
+          "interface segregation principle",
+          "Interface Segregation Principle",
+        ],
+        examDescription: "자신이 사용하지 않는 인터페이스와 의존 관계를 맺거나 영향을 받지 않아야 한다는 원칙",
+        shortDescription: "쓰지 않는 인터페이스에 의존하지 않기",
+      },
+      {
+        id: "dip",
+        nameKo: "의존 역전 원칙",
+        nameEn: "Dependency Inversion Principle",
+        shortLabel: "DIP",
+        aliases: [
+          "의존 역전 원칙",
+          "의존역전원칙",
+          "dip",
+          "DIP",
+          "dependency inversion principle",
+          "Dependency Inversion Principle",
+        ],
+        examDescription: "의존 관계 성립 시 추상성이 높은 클래스와 의존 관계를 맺어야 한다는 원칙",
+        shortDescription: "구체가 아닌 추상(인터페이스 등)에 의존",
+      },
+    ],
+  },
+  {
     id: "software-security-crypto",
     title: "소프트웨어 보안 / 개발 보안 구축",
     items: [
-      { id: "sha-1", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "SHA-1", nameEn: "SHA-1", aliases: ["SHA-1", "sha-1", "sha1"], examDescription: "1993년 NSA가 설계하고 NIST에 의해 발표된 SHA 시리즈 알고리즘" },
-      { id: "md5", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "MD5", nameEn: "MD5", aliases: ["MD5", "md5"], examDescription: "1991년 R. Rivest가 MD4를 대체하기 위해 고안한 암호화 해시 함수로, 블록 크기 512비트, 키는 128비트" },
-      { id: "n-nash", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "N-NASH", nameEn: "N-NASH", aliases: ["N-NASH", "n-nash", "nnash", "N-Nash"], examDescription: "1989년 일본 NTT에서 발표한 암호화 해시 함수로, 블록과 키가 모두 128비트" },
-      { id: "snefru", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "SNEFRU", nameEn: "SNEFRU", aliases: ["SNEFRU", "snefru"], examDescription: "1990년 R. C. Merkle이 발표한 해시 함수로, 32비트 프로세서에서 구현을 용이하게 할 목적으로 개발" },
-      { id: "seed", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "SEED", nameEn: "SEED", aliases: ["SEED", "seed"], examDescription: "KISA가 개발한 블록 암호화 알고리즘으로, 블록 크기는 128비트이며 키에 따라 128, 256으로 분류" },
-      { id: "aria", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "ARIA", nameEn: "ARIA", aliases: ["ARIA", "aria"], examDescription: "2004년 국가정보원과 산학연합회가 개발한 블록 암호화 알고리즘" },
-      { id: "des", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "DES", nameEn: "DES", aliases: ["DES", "des"], examDescription: "1975년 미국 NBS에서 발표한 개인키 암호화 알고리즘이다. 블록 크기는 64비트, 키 길이는 56비트이며 16회의 라운드를 수행한다." },
-      { id: "aes", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "AES", nameEn: "AES", aliases: ["AES", "aes"], examDescription: "2001년 NIST에서 발표한 개인키 암호화 알고리즘으로, DES의 한계를 느낀 NIST에서 공모 후 발표" },
-      { id: "rsa", category: "양방향", subcategory: "공개키 암호화 알고리즘", nameKo: "RSA", nameEn: "RSA", aliases: ["RSA", "rsa"], examDescription: "1978년 MIT의 라이베스트, 샤미르, 애들먼에 의해 제안된 공개키 암호화 알고리즘으로, 큰 수를 소인수분해하기 어렵다는 것에 기반하여 제작" },
-      { id: "idea", category: "암호 / 보안 프로토콜", subcategory: "암호 / 보안 프로토콜", nameKo: "IDEA", nameEn: "IDEA", aliases: ["IDEA", "idea", "국제 데이터 암호화 알고리즘"], examDescription: "Lai와 Massey가 개발한 블록 암호 알고리즘으로, 64비트 블록, 128비트 키를 사용한다" },
-      { id: "skipjack", category: "암호 / 보안 프로토콜", subcategory: "암호 / 보안 프로토콜", nameKo: "Skipjack", nameEn: "Skipjack", aliases: ["Skipjack", "skipjack", "스킵잭"], examDescription: "NSA가 개발한 암호 알고리즘으로, 64비트 블록, 80비트 키를 사용한다" },
-      { id: "tkip", category: "암호 / 보안 프로토콜", subcategory: "암호 / 보안 프로토콜", nameKo: "TKIP", nameEn: "TKIP", aliases: ["TKIP", "tkip", "티킵", "Temporal Key Integrity Protocol"], examDescription: "WEP의 취약성을 보완한 무선 LAN 보안 프로토콜로, 패킷마다 키를 갱신하는 방식이다" },
-      { id: "hash-concept", category: "암호 / 보안 프로토콜", subcategory: "암호 / 보안 프로토콜", nameKo: "해시", nameEn: "Hash", aliases: ["해시", "hash", "해시 함수", "hash function"], examDescription: "임의 길이의 입력 데이터를 고정 길이의 값으로 변환하는 함수 또는 기법" },
-      { id: "oauth", category: "인증 / 접근 권한", subcategory: "인증 / 접근 권한", nameKo: "OAuth", nameEn: "OAuth", aliases: ["OAuth", "oauth", "오어스"], examDescription: "비밀번호를 직접 제공하지 않고, 제3자 서비스에 접근 권한을 위임하는 표준 인증·권한 부여 방식" },
-      { id: "vpn", category: "보안 솔루션 / 보안 기술", subcategory: "보안 솔루션 / 보안 기술", nameKo: "VPN", nameEn: "Virtual Private Network", aliases: ["VPN", "vpn", "가상 사설 통신망", "가상 사설망", "virtual private network"], examDescription: "공용 네트워크를 이용하여 사설 네트워크처럼 안전하게 통신하는 기술" },
-      { id: "siem", category: "보안 솔루션 / 보안 기술", subcategory: "보안 솔루션 / 보안 기술", nameKo: "SIEM", nameEn: "SIEM", aliases: ["SIEM", "siem", "시엠", "Security Information and Event Management"], examDescription: "다양한 장비의 로그 및 보안 이벤트를 통합 수집·분석·관리하는 보안 솔루션" },
-      { id: "stack-guard", category: "보안 솔루션 / 보안 기술", subcategory: "보안 솔루션 / 보안 기술", nameKo: "Stack Guard", nameEn: "Stack Guard", aliases: ["Stack Guard", "stack guard", "스택 가드", "스택가드"], examDescription: "스택 기반 버퍼 오버플로우 공격을 방지하기 위해 복귀 주소 앞에 보호 값을 두는 기술" },
-      { id: "dark-data", category: "기타 보안 개념", subcategory: "기타 보안 개념", nameKo: "다크 데이터", nameEn: "Dark Data", aliases: ["다크 데이터", "dark data", "다크데이터"], examDescription: "수집되었지만 활용되지 않고 저장만 되어 있는 대량의 데이터" },
+      {
+        id: "sha-1",
+        category: "단방향",
+        subcategory: "HASH 알고리즘",
+        nameKo: "SHA-1",
+        nameEn: "SHA-1",
+        aliases: ["SHA-1", "sha-1", "sha1"],
+        examDescription: "1993년 NSA가 설계하고 NIST에 의해 발표된 SHA 시리즈 알고리즘",
+        quizPrompt: "1993년 NSA가 설계하고 NIST가 발표한 일방향 암호화 해시 함수 계열의 하나이다.",
+        shortDescription: "SHA 시리즈 해시",
+      },
+      { id: "md5", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "MD5", nameEn: "MD5", aliases: ["MD5", "md5"], examDescription: "1991년 R. Rivest가 MD4를 대체하기 위해 고안한 암호화 해시 함수로, 블록 크기 512비트, 키는 128비트", shortDescription: "Rivest 설계 해시(MD4 후속)" },
+      { id: "n-nash", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "N-NASH", nameEn: "N-NASH", aliases: ["N-NASH", "n-nash", "nnash", "N-Nash"], examDescription: "1989년 일본 NTT에서 발표한 암호화 해시 함수로, 블록과 키가 모두 128비트", shortDescription: "NTT N-NASH 해시" },
+      { id: "snefru", category: "단방향", subcategory: "HASH 알고리즘", nameKo: "SNEFRU", nameEn: "SNEFRU", aliases: ["SNEFRU", "snefru"], examDescription: "1990년 R. C. Merkle이 발표한 해시 함수로, 32비트 프로세서에서 구현을 용이하게 할 목적으로 개발", shortDescription: "Merkle SNEFRU" },
+      { id: "seed", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "SEED", nameEn: "SEED", aliases: ["SEED", "seed"], examDescription: "KISA가 개발한 블록 암호화 알고리즘으로, 블록 크기는 128비트이며 키에 따라 128, 256으로 분류", shortDescription: "국내 SEED 블록암호" },
+      { id: "aria", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "ARIA", nameEn: "ARIA", aliases: ["ARIA", "aria"], examDescription: "2004년 국가정보원과 산학연합회가 개발한 블록 암호화 알고리즘", shortDescription: "국내 ARIA 블록암호" },
+      { id: "des", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "DES", nameEn: "DES", aliases: ["DES", "des"], examDescription: "1975년 미국 NBS에서 발표한 개인키 암호화 알고리즘이다. 블록 크기는 64비트, 키 길이는 56비트이며 16회의 라운드를 수행한다.", shortDescription: "64비트 블록 대칭키 DES" },
+      { id: "aes", category: "양방향", subcategory: "블록 암호화 알고리즘", nameKo: "AES", nameEn: "AES", aliases: ["AES", "aes"], examDescription: "2001년 NIST에서 발표한 개인키 암호화 알고리즘으로, DES의 한계를 느낀 NIST에서 공모 후 발표", shortDescription: "NIST AES(대칭키)" },
+      { id: "rsa", category: "양방향", subcategory: "공개키 암호화 알고리즘", nameKo: "RSA", nameEn: "RSA", aliases: ["RSA", "rsa"], examDescription: "1978년 MIT의 라이베스트, 샤미르, 애들먼에 의해 제안된 공개키 암호화 알고리즘으로, 큰 수를 소인수분해하기 어렵다는 것에 기반하여 제작", shortDescription: "소인수분해 난제 기반 공개키" },
+      { id: "aaa", category: "인증 / 접근 제어", subcategory: "인증 / 접근 제어", nameKo: "AAA", nameEn: "AAA", aliases: ["AAA", "aaa", "3A", "3a", "트리플 에이"], examDescription: "인증(Authentication)·인가(Authorization)·과금(Accounting) 세 가지를 기반으로 사용자의 자원 접근 처리와 서비스를 제공하는 인프라 또는 규격이다. 인증은 신원 검증, 인가는 검증된 사용자에게 권한·서비스 허용, 과금은 이용 서비스·사용 자원의 기록·보관이다.", shortDescription: "인증·인가·과금(3A) 구조" },
+      {
+        id: "ssh",
+        category: "인증 / 접근 제어",
+        subcategory: "인증 / 접근 제어",
+        nameKo: "SSH",
+        nameEn: "SSH",
+        aliases: ["SSH", "ssh", "시큐어 셸", "secure shell"],
+        examDescription:
+          "Secure SHell(시큐어 셸). 원격 접속 등에 쓰이는 프로토콜·응용으로, 데이터 암호화와 강한 인증으로 보안이 낮은 네트워크에서도 안전하게 통신할 수 있다. 키 인증 시 클라이언트 공개키를 서버에 사전 등록해야 하며, 기본 포트는 22번이다.",
+        quizPrompt:
+          "원격 호스트에 접속해 작업할 때 쓰는 프로토콜·응용으로, 데이터 암호화와 강한 인증을 제공해 보안이 낮은 네트워크에서도 통신을 보호한다. 공개키 인증 시 클라이언트 공개키를 서버에 미리 등록해야 하며, 기본 포트는 22번이다.",
+        shortDescription: "암호화·강인증 원격 셸(22번 포트)",
+      },
+      {
+        id: "oauth",
+        category: "인증 / 접근 제어",
+        subcategory: "인증 / 접근 제어",
+        nameKo: "OAuth",
+        nameEn: "OAuth",
+        aliases: ["OAuth", "oauth", "오어스", "Open Authorization"],
+        examDescription:
+          "Open Authorization. 웹·앱에서 쓰는 표준 인증 방식으로 공개 API로 구현되었다. 비밀번호를 직접 넘기지 않고 접근 권한을 위임할 수 있으며, 2010년 IETF에서 1.0이 공식 표준안으로 발표되었다.",
+        quizPrompt:
+          "웹·앱에서 비밀번호를 직접 넘기지 않고 제3자 서비스에 접근 권한만 위임할 수 있게 하는 표준 인증 방식이다. 공개 API로 구현되며, 2010년 IETF에서 1.0이 공식 표준안으로 발표되었다.",
+        shortDescription: "비밀번호 없이 권한 위임(표준)",
+      },
+      {
+        id: "l2tp",
+        category: "터널링 / 네트워크 방식",
+        subcategory: "터널링 / 네트워크 방식",
+        nameKo: "L2TP",
+        nameEn: "L2TP",
+        aliases: ["L2TP", "l2tp", "Layer 2 Tunneling Protocol"],
+        examDescription:
+          "Layer 2 Tunneling Protocol. PPTP와 L2F의 장점을 결합한 터널링 프로토콜로, 데이터 링크 계층에서 동작한다. 자체 암호화·인증은 약해 IPSec 등과 함께 쓰는 경우가 많다. PPTP는 PPP를 IP에 캡슐화하는 터널링, L2F는 VPN 연결용 터널링 프로토콜이다.",
+        quizPrompt:
+          "데이터 링크 계층에서 동작하는 터널링 프로토콜로, PPTP와 L2F의 장점을 합쳐 만들었다. 단독으로는 암호화·인증이 약해 IPSec 등과 함께 쓰는 경우가 많다. PPTP는 PPP를 IP에 싣는 터널링, L2F는 가상 사설망 연결용 터널링 프로토콜이다.",
+        shortDescription: "L2 터널링(PPTP+L2F 계열)",
+      },
+      {
+        id: "virtual-circuit",
+        category: "터널링 / 네트워크 방식",
+        subcategory: "터널링 / 네트워크 방식",
+        nameKo: "가상 회선 방식",
+        nameEn: "Virtual Circuit",
+        aliases: ["가상 회선 방식", "가상회선방식", "가상 회선", "virtual circuit"],
+        examDescription:
+          "단말 간 논리적 가상 회선을 먼저 설정한 뒤, 그 경로를 따라 패킷을 발생 순서대로 운반하는 방식이다. 제어 패킷으로 경로가 설정되며 송·수신 순서가 같다.",
+        quizPrompt:
+          "단말 간에 논리적 통신 경로를 먼저 잡아 둔 다음, 그 경로를 따라 패킷을 낸 순서대로 보내는 전송 방식이다. 제어 패킷으로 경로가 설정되며 송·수신 순서가 같다.",
+        shortDescription: "사전 경로 설정·순서 유지 전송",
+      },
+      { id: "datagram", category: "터널링 / 네트워크 방식", subcategory: "터널링 / 네트워크 방식", nameKo: "데이터그램 방식", nameEn: "Datagram", aliases: ["데이터그램 방식", "데이터그램방식", "데이터그램", "datagram"], examDescription: "연결 경로를 미리 두지 않고, 노드 트래픽을 감안해 패킷을 독립적으로 운반하는 방식이다. 패킷마다 목적지 전체 주소를 갖고, 도착 순서가 다를 수 있어 수신 측에서 순서를 재정리한다.", shortDescription: "비연결·패킷 독립 전송·수신에서 정렬" },
+      {
+        id: "vpn",
+        category: "터널링 / 네트워크 방식",
+        subcategory: "터널링 / 네트워크 방식",
+        nameKo: "VPN",
+        nameEn: "Virtual Private Network",
+        aliases: ["VPN", "vpn", "가상 사설 통신망", "가상 사설망", "virtual private network"],
+        examDescription:
+          "Virtual Private Network(가상 사설 통신망). 공중망과 암호화로 전용 회선처럼 안전하게 통신하게 하는 보안 솔루션이다. SSL VPN은 웹 브라우저·SSL/TLS로 원격 접속하는 방식, IPSec VPN은 IPSec으로 터널·암호화해 사설망을 구성하는 방식이 대표적이다.",
+        quizPrompt:
+          "공중 네트워크와 암호화를 이용해 마치 전용 회선처럼 안전하게 통신하도록 하는 보안 솔루션이다. 웹 브라우저와 SSL/TLS를 이용한 원격 접속 방식과, IPSec으로 터널을 만들어 사설망을 구성하는 방식 등이 대표적이다.",
+        shortDescription: "공중망+암호화 가상 사설망(SSL/IPSec)",
+      },
+      {
+        id: "hash-concept",
+        category: "암호 / 보안 프로토콜",
+        subcategory: "암호 / 보안 프로토콜",
+        nameKo: "해시",
+        nameEn: "Hash",
+        aliases: ["해시", "hash", "해시 함수", "hash function", "해시키", "해시값"],
+        examDescription:
+          "임의 길이의 입력·메시지를 고정 길이의 값·키로 바꾸는 것이다. 알고리즘은 해시 함수, 결과는 해시값·해시키라 부른다. 예: SHA 시리즈, HAVAL, MD4, MD5, N-NASH, SNEFRU 등.",
+        quizPrompt:
+          "임의 길이의 입력이나 메시지를 고정된 길이의 값이나 키로 바꾸는 것을 말한다. 그 변환에 쓰는 알고리즘을 함수라 부르고, 나온 값을 값·키라고도 한다. 예: 특정 시리즈 알고리즘, HAVAL, MD4, MD5, N-NASH, SNEFRU 등.",
+        shortDescription: "고정 길이로 압축(해시 함수·해시값)",
+      },
+      {
+        id: "idea",
+        category: "암호 / 보안 프로토콜",
+        subcategory: "암호 / 보안 프로토콜",
+        nameKo: "IDEA",
+        nameEn: "IDEA",
+        aliases: ["IDEA", "idea", "International Data Encryption Algorithm", "국제 데이터 암호화 알고리즘"],
+        examDescription:
+          "International Data Encryption Algorithm. 스위스 라이(Lai)와 메세이(Massey)가 1990년 PES를 개선한 블록 암호이다. 블록 64비트, 키 128비트이다.",
+        quizPrompt: "1990년 스위스의 라이(Lai)와 메세이(Massey)가 PES를 개선한 블록 암호 알고리즘으로, 블록 크기 64비트·키 128비트이다.",
+        shortDescription: "64비트 블록·128비트 키 블록암호",
+      },
+      { id: "skipjack", category: "암호 / 보안 프로토콜", subcategory: "암호 / 보안 프로토콜", nameKo: "Skipjack", nameEn: "Skipjack", aliases: ["Skipjack", "skipjack", "스킵잭"], examDescription: "NSA가 개발한 암호 알고리즘으로 클리퍼 칩(Clipper Chip)에 내장된다. 블록 64비트, 키 80비트이며 음성 통신 장비에 넣어 음성 데이터를 암호화하는 데 쓰인다.", shortDescription: "NSA·클리퍼칩·64/80비트" },
+      {
+        id: "tkip",
+        category: "암호 / 보안 프로토콜",
+        subcategory: "암호 / 보안 프로토콜",
+        nameKo: "TKIP",
+        nameEn: "TKIP",
+        aliases: ["TKIP", "tkip", "티킵", "Temporal Key Integrity Protocol"],
+        examDescription:
+          "Temporal Key Integrity Protocol. WEP 취약점을 보완한 무선 LAN 데이터 보안 프로토콜로, 입력 키를 128비트로 늘리고 패킷별 키 할당·재설정 등 키 관리를 개선했다.",
+        quizPrompt:
+          "기존 무선 LAN 보안 방식의 취약점을 보완한 데이터 보안 프로토콜로, 암호에 쓰는 입력 키를 128비트로 늘리고 패킷마다 키를 주거나 재설정하는 등 키 관리를 강화했다.",
+        shortDescription: "WEP 보완·키 길이·패킷별 키",
+      },
+      {
+        id: "siem",
+        category: "보안 솔루션 / 기술",
+        subcategory: "보안 솔루션 / 기술",
+        nameKo: "SIEM",
+        nameEn: "SIEM",
+        aliases: ["SIEM", "siem", "시엠", "Security Information and Event Management"],
+        examDescription:
+          "Security Information and Event Management. 여러 장비의 로그·보안 이벤트를 통합해 관리하는 빅데이터 기반 보안 솔루션이다.",
+        quizPrompt:
+          "방화벽·서버 등 여러 장비에서 발생하는 로그와 보안 이벤트를 한곳에 모아 통합·분석·관리하는 빅데이터 기반 보안 솔루션이다.",
+        shortDescription: "로그·이벤트 통합 보안(빅데이터)",
+      },
+      { id: "stack-guard", category: "보안 솔루션 / 기술", subcategory: "보안 솔루션 / 기술", nameKo: "Stack Guard", nameEn: "Stack Guard", aliases: ["Stack Guard", "stack guard", "스택 가드", "스택가드"], examDescription: "스택에 저장되는 복귀 주소 등을 보호하는 기술이다. 복귀 주소와 변수 사이에 특정 값을 두고, 변경 시 오버플로우로 판단해 실행을 중단해 잘못된 복귀 주소 호출을 막는다.", shortDescription: "스택 카나리로 오버플로우 방지" },
+      {
+        id: "dac",
+        category: "소프트웨어 보안 / 개발 보안 구축",
+        subcategory: "접근통제",
+        nameKo: "임의 접근통제",
+        nameEn: "DAC",
+        aliases: [
+          "임의 접근통제",
+          "dac",
+          "DAC",
+          "discretionary access control",
+          "Discretionary Access Control",
+        ],
+        examDescription:
+          "임의 접근통제(DAC; Discretionary Access Control)는 데이터에 접근하는 사용자의 신원에 따라 접근 권한을 부여하는 방식이다. 데이터 소유자가 접근통제 권한을 지정하고 제어한다. 객체를 생성한 사용자가 생성된 객체에 대한 모든 권한을 부여받고, 부여된 권한을 다른 사용자에게 허가할 수도 있다.",
+        quizPrompt:
+          "데이터에 접근하는 사용자의 신원에 따라 접근 권한을 부여하는 방식이다. 데이터 소유자가 접근통제 권한을 지정·제어하고, 객체를 생성한 사용자는 그 객체에 대한 모든 권한을 갖으며 부여된 권한을 다른 사용자에게 허가할 수도 있다.",
+        shortDescription: "데이터 소유자가 권한을 지정하는 방식",
+      },
+      {
+        id: "mac",
+        category: "소프트웨어 보안 / 개발 보안 구축",
+        subcategory: "접근통제",
+        nameKo: "강제 접근통제",
+        nameEn: "MAC",
+        aliases: [
+          "강제 접근통제",
+          "mac",
+          "MAC",
+          "mandatory access control",
+          "Mandatory Access Control",
+        ],
+        examDescription:
+          "강제 접근통제(MAC; Mandatory Access Control)는 주체와 객체의 등급을 비교하여 접근 권한을 부여하는 방식이다. 시스템이 접근통제 권한을 지정한다. 데이터베이스 객체별로 보안 등급을 부여할 수 있다. 사용자별로 인가 등급을 부여할 수 있다.",
+        quizPrompt:
+          "주체와 객체의 등급을 비교하여 접근 권한을 부여하는 방식이다. 시스템이 접근통제 권한을 지정하며, 데이터베이스 객체별 보안 등급과 사용자별 인가 등급을 둘 수 있다.",
+        shortDescription: "보안 등급을 기준으로 시스템이 권한을 통제하는 방식",
+      },
+      {
+        id: "rbac",
+        category: "소프트웨어 보안 / 개발 보안 구축",
+        subcategory: "접근통제",
+        nameKo: "역할기반 접근통제",
+        nameEn: "RBAC",
+        aliases: [
+          "역할기반 접근통제",
+          "역할 기반 접근통제",
+          "rbac",
+          "RBAC",
+          "role based access control",
+          "Role Based Access Control",
+        ],
+        examDescription:
+          "역할기반 접근통제(RBAC; Role Based Access Control)는 사용자의 역할에 따라 접근 권한을 부여하는 방식이다. 중앙관리자가 접근통제 권한을 지정한다. 임의 접근통제와 강제 접근통제의 단점을 보완하였다. 다중 프로그래밍 환경에 최적화된 방식이다.",
+        quizPrompt:
+          "사용자의 역할에 따라 접근 권한을 부여하는 방식이다. 중앙관리자가 접근통제 권한을 지정하며, 다른 접근통제 방식들의 단점을 보완하고 다중 프로그래밍 환경에 잘 맞는다.",
+        shortDescription: "사용자 역할에 따라 권한을 부여하는 방식",
+      },
+      {
+        id: "isms",
+        category: "소프트웨어 보안 / 개발 보안 구축",
+        subcategory: "보안 관리 체계",
+        nameKo: "ISMS",
+        nameEn: "Information Security Management System",
+        aliases: ["isms", "ISMS", "정보보호 관리 체계", "information security management system", "Information Security Management System"],
+        examDescription:
+          "정보 자산을 안전하게 보호하기 위한 보호 절차와 대책을 의미하며, 여러 보안 대책을 통합 관리·운용하는 체계이다. 조직에 맞는 정보보호 정책을 수립하고 위험에 상시 대응한다. 우리나라에서는 정보보호 관리 체계를 평가하고 인증하는 사업을 한국인터넷진흥원(KISA)에서 운영한다.",
+        quizPrompt:
+          "정보 자산을 안전하게 보호하기 위한 보호 절차와 대책을 의미하며, 조직에 맞는 정보보호 정책 수립과 위험 대응을 위해 여러 보안 대책을 통합 관리·운용하는 체계이다. 국내에서는 평가·인증 사업을 한국인터넷진흥원(KISA)에서 운영한다.",
+        shortDescription: "정보보호 정책과 대책을 통합 관리·운용하는 체계",
+      },
+      { id: "dark-data", category: "기타 보안 개념", subcategory: "기타 보안 개념", nameKo: "다크 데이터", nameEn: "Dark Data", aliases: ["다크 데이터", "dark data", "다크데이터"], examDescription: "특정 목적으로 수집했으나 이후 활용되지 않고 저장만 되어 있는 대량의 데이터를 뜻한다.", shortDescription: "수집만 하고 미활용 데이터" },
     ],
   },
   {
@@ -403,7 +725,17 @@ export const topics = [
       { id: "ps", nameKo: "ps", nameEn: "ps", aliases: ["ps", "PS"], examDescription: "현재 실행 중인 프로세스를 표시함", shortDescription: "실행 중인 프로세스 표시" },
       { id: "pwd", nameKo: "pwd", nameEn: "pwd", aliases: ["pwd", "PWD"], examDescription: "현재 작업 중인 디렉터리 경로를 화면에 표시함", shortDescription: "현재 디렉터리 경로 표시" },
       { id: "who", nameKo: "who", nameEn: "who", aliases: ["who", "WHO"], examDescription: "현재 시스템에 접속해 있는 사용자를 표시함", shortDescription: "접속 사용자 표시" },
-      { id: "umask", nameKo: "umask", nameEn: "umask", aliases: ["umask", "UMASK"], examDescription: "파일이나 디렉터리의 초기 권한을 설정할 때 사용하는 값. 파일은 666에서 umask를 뺀 값, 디렉터리는 777에서 umask를 뺀 값을 초기 접근 권한으로 가짐", shortDescription: "초기 권한 설정값(666/777−umask)" },
+      {
+        id: "umask",
+        nameKo: "umask",
+        nameEn: "umask",
+        aliases: ["umask", "UMASK"],
+        examDescription:
+          "파일이나 디렉터리의 초기 권한을 설정할 때 사용하는 값. 파일은 666에서 umask를 뺀 값, 디렉터리는 777에서 umask를 뺀 값을 초기 접근 권한으로 가짐",
+        quizPrompt:
+          "파일이나 디렉터리의 초기 접근 권한을 만들 때 쓰이는 마스크 값이다. 일반적으로 파일은 666에서 이 값을 뺀 권한이, 디렉터리는 777에서 뺀 권한이 된다.",
+        shortDescription: "초기 권한 설정값(666/777−umask)",
+      },
       { id: "chmod", nameKo: "chmod", nameEn: "chmod", aliases: ["chmod", "CHMOD"], examDescription: "파일의 보호 모드를 설정하여 사용 허가를 지정하는 UNIX 명령어. 8진법 숫자로도 보호 모드를 설정할 수 있음", shortDescription: "파일 보호 모드(허가) 설정" },
     ],
   },
@@ -509,6 +841,562 @@ export const topics = [
         aliases: ["비교검사", "비교 검사", "comparison testing"],
         examDescription: "동일한 테스트 케이스를 여러 버전의 프로그램에 적용해 결과를 비교하는 검사",
         shortDescription: "여러 버전 결과를 비교해 차이 검사",
+      },
+    ],
+  },
+  {
+    id: "testing-types",
+    title: "테스팅 / 검사 유형",
+    items: [
+      {
+        id: "test-level",
+        nameKo: "테스트 레벨",
+        nameEn: "Test Level",
+        aliases: ["테스트 레벨", "테스트레벨", "test level", "Test Level"],
+        examDescription:
+          "소프트웨어의 개발 단계에 따라 단위 테스트, 통합 테스트, 시스템 테스트, 인수 테스트로 분류되는 테스트 단계를 말한다. 이렇게 분류된 것을 테스트 레벨이라고 한다.",
+        quizPrompt:
+          "소프트웨어 개발 단계에 따라 단위·통합·시스템·인수 테스트로 나누어 부르는 테스트 단계의 분류 개념은 무엇인가?",
+        shortDescription: "단위/통합/시스템/인수 테스트로 구분되는 테스트 단계",
+      },
+      {
+        id: "v-model",
+        nameKo: "V-모델",
+        nameEn: "V-Model",
+        aliases: ["v모델", "V-모델", "v-model", "V모델", "software life cycle v-model", "V-Model"],
+        examDescription:
+          "애플리케이션 테스트와 소프트웨어 개발 단계를 연결하여 표현한 모델이다. 요구사항↔인수 테스트, 분석↔시스템 테스트, 설계↔통합 테스트, 구현↔단위 테스트 등이 대응된다.",
+        quizPrompt:
+          "애플리케이션 테스트와 소프트웨어 개발 단계를 연결하여 표현한 모델이다. 개발 단계와 검증 단계가 좌우 대응 형태로 나타난다. 이 모델은 무엇인가?",
+        shortDescription: "개발 단계와 테스트 단계를 대응시켜 표현한 모델",
+      },
+      {
+        id: "stub",
+        category: "테스팅 / 검사 유형",
+        subcategory: "통합 테스트 보조 도구",
+        nameKo: "스텁",
+        nameEn: "Stub",
+        aliases: ["스텁", "stub", "Stub", "STUB"],
+        examDescription:
+          "스텁(Stub)은 제어 모듈이 호출하는 타 모듈의 기능을 단순히 수행하는 도구로, 일시적으로 필요한 조건만 가지고 있는 시험용 모듈이다. 하향식 통합 테스트에서 하위 모듈 대신 사용된다.",
+        quizPrompt:
+          "제어 모듈이 호출하는 타 모듈의 기능을 단순히 수행하는 시험용 모듈로, 일시적으로 필요한 조건만 갖춘다. 하향식 통합 테스트에서 아직 없는 하위 모듈 자리를 대신한다. 이 도구는 무엇인가?",
+        shortDescription: "하향식 통합 테스트에서 하위 모듈 대신 사용하는 시험용 모듈",
+      },
+      {
+        id: "driver",
+        category: "테스팅 / 검사 유형",
+        subcategory: "통합 테스트 보조 도구",
+        nameKo: "드라이버",
+        nameEn: "Driver",
+        aliases: ["드라이버", "driver", "Driver", "테스트 드라이버", "test driver"],
+        examDescription:
+          "드라이버(Driver)는 테스트 대상의 하위 모듈을 호출하고, 파라미터를 전달하고, 모듈 테스트 수행 후의 결과를 도출하는 도구이다. 상향식 통합 테스트에서 상위 모듈 대신 사용된다.",
+        quizPrompt:
+          "테스트 대상의 하위 모듈을 호출하고 파라미터를 넘기며, 테스트 수행 후 결과를 끌어내는 시험용 도구이다. 상향식 통합 테스트에서 아직 없는 상위 모듈 역할을 대신한다. 이 도구는 무엇인가?",
+        shortDescription: "상향식 통합 테스트에서 상위 모듈 대신 사용하는 시험용 도구",
+      },
+      {
+        id: "v-model-matching",
+        nameKo: "V-모델 대응 관계",
+        nameEn: "V-Model Mapping",
+        interactiveType: "matching",
+        examDescription:
+          "V-모델에서 개발 단계(요구사항, 분석, 설계, 구현)와 테스트 단계(인수, 시스템, 통합, 단위)의 대응 관계를 연습합니다.",
+        quizPrompt: "V-모델의 대응 관계를 올바르게 연결하세요",
+        shortDescription:
+          "요구사항↔인수 테스트, 분석↔시스템 테스트, 설계↔통합 테스트, 구현↔단위 테스트",
+        leftItems: ["요구사항", "분석", "설계", "구현"],
+        rightItems: ["인수 테스트", "시스템 테스트", "통합 테스트", "단위 테스트"],
+        correctPairs: {
+          요구사항: "인수 테스트",
+          분석: "시스템 테스트",
+          설계: "통합 테스트",
+          구현: "단위 테스트",
+        },
+      },
+    ],
+  },
+  {
+    id: "database",
+    title: "데이터베이스",
+    items: [
+      {
+        id: "relational-select",
+        group: "순수 관계 연산자",
+        nameKo: "Select",
+        nameEn: "Select",
+        aliases: ["select", "Select", "셀렉트", "시그마", "σ", "선택"],
+        symbol: "σ",
+        examDescription:
+          "릴레이션에 존재하는 튜플 중에서 선택 조건을 만족하는 튜플의 부분집합을 구하여 새로운 릴레이션을 만드는 연산이다. 릴레이션의 행에 해당하는 튜플(Tuple)을 구하는 것이므로 수평 연산이라고도 한다.",
+        shortDescription: "조건에 맞는 튜플 선택(수평 연산, σ)",
+      },
+      {
+        id: "relational-project",
+        group: "순수 관계 연산자",
+        nameKo: "Project",
+        nameEn: "Project",
+        aliases: ["project", "Project", "프로젝트", "파이", "π", "투영"],
+        symbol: "π",
+        examDescription:
+          "주어진 릴레이션에서 속성 리스트(Attribute List)에 제시된 속성 값만을 추출하여 새로운 릴레이션을 만드는 연산이다. 릴레이션의 열에 해당하는 속성을 추출하는 것이므로 수직 연산자라고도 한다.",
+        shortDescription: "속성만 추출(수직 연산, π)",
+      },
+      {
+        id: "relational-join",
+        group: "순수 관계 연산자",
+        nameKo: "Join",
+        nameEn: "Join",
+        aliases: ["join", "Join", "조인", "⋈"],
+        symbol: "⋈",
+        examDescription:
+          "공통 속성을 중심으로 두 개의 릴레이션을 하나로 합쳐서 새로운 릴레이션을 만드는 연산이다. Join의 결과는 Cartesian Product(교차곱)를 수행한 다음 Select를 수행한 것과 같다.",
+        quizPrompt:
+          "공통 속성을 기준으로 두 릴레이션을 하나로 합쳐 새 릴레이션을 만드는 연산이다. 그 결과는 먼저 두 릴레이션의 튜플을 가능한 모든 순서쌍으로 잇는 연산을 수행한 뒤, 조건에 맞는 튜플만 골라낸 것과 같다.",
+        shortDescription: "두 릴레이션 결합(⋈)",
+      },
+      {
+        id: "relational-division",
+        group: "순수 관계 연산자",
+        nameKo: "Division",
+        nameEn: "Division",
+        aliases: ["division", "Division", "디비전", "÷", "나눗셈"],
+        symbol: "÷",
+        examDescription:
+          "X⊃Y인 두 개의 릴레이션 R(X)와 S(Y)가 있을 때, R의 속성이 S의 속성값을 모두 가진 튜플에서 S가 가진 속성을 제외한 속성만을 구하는 연산이다.",
+        shortDescription: "S 속성값을 모두 갖는 튜플에서 S 속성 제외(÷)",
+      },
+      {
+        id: "set-union",
+        group: "집합 연산자",
+        nameKo: "합집합",
+        nameEn: "UNION",
+        aliases: ["합집합", "union", "UNION", "∪"],
+        symbol: "∪",
+        examDescription:
+          "두 릴레이션에 존재하는 튜플의 합집합을 구하되, 결과로 생성된 릴레이션에서 중복되는 튜플은 제거되는 연산이다.",
+        quizPrompt:
+          "두 릴레이션에 존재하는 튜플의 합을 구하되, 결과로 생성된 릴레이션에서 중복되는 튜플은 제거되는 연산이다.",
+        shortDescription: "튜플 합집합·중복 제거(∪)",
+      },
+      {
+        id: "set-intersection",
+        group: "집합 연산자",
+        nameKo: "교집합",
+        nameEn: "INTERSECTION",
+        aliases: ["교집합", "intersection", "INTERSECTION", "∩"],
+        symbol: "∩",
+        examDescription: "두 릴레이션에 존재하는 튜플의 교집합을 구하는 연산이다.",
+        quizPrompt: "두 릴레이션에 존재하는 튜플 가운데, 양쪽에 공통으로 존재하는 튜플만을 구하는 연산이다.",
+        shortDescription: "튜플 교집합(∩)",
+      },
+      {
+        id: "set-difference",
+        group: "집합 연산자",
+        nameKo: "차집합",
+        nameEn: "DIFFERENCE",
+        aliases: ["차집합", "difference", "DIFFERENCE", "-"],
+        symbol: "-",
+        examDescription: "두 릴레이션에 존재하는 튜플의 차집합을 구하는 연산이다.",
+        quizPrompt:
+          "두 릴레이션에 존재하는 튜플 가운데, 앞 릴레이션에는 있으나 뒤 릴레이션에는 없는 튜플만을 구하는 연산이다.",
+        shortDescription: "튜플 차집합(-)",
+      },
+      {
+        id: "cartesian-product",
+        group: "집합 연산자",
+        nameKo: "교차곱",
+        nameEn: "CARTESIAN PRODUCT",
+        aliases: ["교차곱", "cartesian product", "CARTESIAN PRODUCT", "카티션 프로덕트", "×"],
+        symbol: "×",
+        examDescription:
+          "두 릴레이션에 있는 튜플들의 순서쌍을 구하는 연산이다. 교차곱의 차수(Degree)는 두 릴레이션의 차수를 더한 것과 같고, 카디널리티(Cardinality)는 두 릴레이션의 카디널리티를 곱한 것과 같다.",
+        quizPrompt:
+          "두 릴레이션에 있는 튜플들의 모든 순서쌍을 구하는 연산이다. 결과 릴레이션의 차수는 두 릴레이션의 차수를 더한 것과 같고, 카디널리티는 두 릴레이션의 카디널리티를 곱한 것과 같다.",
+        shortDescription: "튜플 순서쌍·차수 합·카디널리티 곱(×)",
+      },
+      {
+        id: "anomaly-insert",
+        group: "이상",
+        nameKo: "삽입 이상",
+        nameEn: "Insertion Anomaly",
+        aliases: ["삽입 이상", "삽입이상", "insertion anomaly"],
+        examDescription:
+          "테이블에 데이터를 삽입할 때 의도와는 상관없이 원하지 않은 값들로 인해 삽입할 수 없게 되는 현상",
+        shortDescription: "원치 않는 제약으로 삽입 불가",
+      },
+      {
+        id: "anomaly-delete",
+        group: "이상",
+        nameKo: "삭제 이상",
+        nameEn: "Deletion Anomaly",
+        aliases: ["삭제 이상", "삭제이상", "deletion anomaly"],
+        examDescription:
+          "테이블에서 튜플을 삭제할 때 의도와는 상관없는 값들도 함께 삭제되는, 즉 연쇄 삭제가 발생하는 현상",
+        shortDescription: "의도치 않은 연쇄 삭제",
+      },
+      {
+        id: "anomaly-update",
+        group: "이상",
+        nameKo: "갱신 이상",
+        nameEn: "Update Anomaly",
+        aliases: ["갱신 이상", "갱신이상", "update anomaly"],
+        examDescription:
+          "테이블에서 튜플에 있는 속성 값을 갱신할 때 일부 튜플의 정보만 갱신되어 정보에 불일치성(Inconsistency)이 생기는 현상",
+        shortDescription: "부분 갱신으로 불일치",
+      },
+      {
+        id: "functional-dependency",
+        group: "함수적 종속",
+        nameKo: "함수적 종속",
+        nameEn: "Functional Dependency",
+        aliases: ["함수적 종속", "functional dependency", "Functional Dependency"],
+        examDescription:
+          "어떤 테이블 R에서 X와 Y를 각각 R의 속성 집합의 부분 집합이라 하자. 속성 X의 값 각각에 대해 시간에 관계없이 항상 속성 Y의 값이 오직 하나만 연관되어 있을 때 Y는 X에 함수적 종속 또는 X가 Y를 함수적으로 결정한다고 하고, X → Y로 표기한다.",
+        quizPrompt:
+          "테이블 R에서 속성 집합 X의 각 값에 대해, 시간에 관계없이 속성 집합 Y의 값이 항상 하나만 연관될 때, Y는 X에 대해 이러한 종속 관계가 성립한다고 하며 X → Y로 표기한다. 이 종속 관계를 무엇이라 하는가?",
+        shortDescription: "X 값에 대해 Y 값이 하나로 결정되는 종속 관계",
+      },
+      {
+        id: "full-functional-dependency",
+        group: "함수적 종속",
+        nameKo: "완전 함수적 종속",
+        nameEn: "Full Functional Dependency",
+        aliases: ["완전 함수적 종속", "완전함수적종속", "full functional dependency", "Full Functional Dependency"],
+        examDescription:
+          "어떤 테이블 R에서 속성 Y가 다른 속성 집합 X 전체에 대해 함수적 종속이면서 속성 집합 X의 어떠한 진부분 집합 Z(즉, Z ⊂ X)에도 함수적 종속이 아닐 때 속성 Y는 속성 집합 X에 완전 함수적 종속이라고 한다.",
+        quizPrompt:
+          "테이블 R에서 속성 Y가 속성 집합 X 전체에 대해 종속 관계이면서, X의 어떤 진부분 집합 Z에 대해서도 Y가 Z만으로 결정되지 않을 때, Y는 X에 대해 이러한 종속이라고 한다. 이 용어는 무엇인가?",
+        shortDescription: "X 전체에만 종속·X의 진부분 집합에는 비종속",
+      },
+      {
+        id: "partial-functional-dependency",
+        group: "함수적 종속",
+        nameKo: "부분 함수적 종속",
+        nameEn: "Partial Functional Dependency",
+        aliases: ["부분 함수적 종속", "부분함수적종속", "partial functional dependency", "Partial Functional Dependency"],
+        examDescription:
+          "어떤 테이블 R에서 속성 Y가 다른 속성 집합 X 전체에 대해 함수적 종속이면서 속성 집합 X의 임의의 진부분 집합에 대해 함수적 종속일 때, 속성 Y는 속성 집합 X에 부분 함수적 종속이라고 한다.",
+        quizPrompt:
+          "테이블 R에서 속성 Y가 속성 집합 X 전체에 대해 종속 관계이면서, X의 어떤 진부분 집합에 대해서도 종속 관계가 성립할 때, Y는 X에 대해 이러한 종속이라고 한다. 이 용어는 무엇인가?",
+        shortDescription: "X의 어떤 진부분 집합에도 종속이면 부분 종속",
+      },
+      {
+        id: "transitive-functional-dependency",
+        group: "함수적 종속",
+        nameKo: "이행적 함수적 종속",
+        nameEn: "Transitive Functional Dependency",
+        aliases: ["이행적 함수적 종속", "이행적함수적종속", "transitive functional dependency", "Transitive Functional Dependency"],
+        examDescription: "X → Y이고 Y → Z일 때 X → Z를 만족하는 관계를 의미한다.",
+        quizPrompt:
+          "종속 관계가 X → Y, Y → Z로 주어질 때 X → Z가 성립하는 관계를 가리킨다. 이와 같은 종속을 무엇이라 하는가?",
+        shortDescription: "X→Y, Y→Z로부터 X→Z",
+      },
+      {
+        id: "relational-calculus",
+        group: "관계해석",
+        nameKo: "관계해석",
+        nameEn: "Relational Calculus",
+        aliases: ["관계해석", "관계 해석", "relational calculus", "Relational Calculus"],
+        examDescription:
+          "관계해석(Relational Calculus)은 관계 데이터의 연산을 표현하는 방법이다. 관계 데이터 모델의 제안자인 코드(E. F. Codd)가 수학의 Predicate Calculus(술어 해석)에 기반을 두고 관계 데이터베이스를 위해 제안했다. 관계해석은 원하는 정보가 무엇이라는 것만 정의하는 비절차적 특성을 지닌다. 원하는 정보를 정의할 때는 계산 수식을 사용한다.",
+        quizPrompt:
+          "관계 데이터의 연산을 표현하는 방법이다. 코드(E. F. Codd)가 수학의 Predicate Calculus(술어 해석)에 기반하여 제안했으며, 원하는 정보가 무엇인지만 정의하는 비절차적 특성을 갖는다. 원하는 정보를 정의할 때는 계산 수식을 사용한다. 이 용어는 무엇인가?",
+        shortDescription: "비절차적·무엇을 원하는지만 정의(코드·술어 해석 기반)",
+      },
+    ],
+  },
+  {
+    id: "network",
+    title: "네트워크",
+    items: [
+      {
+        id: "mesh-network",
+        nameKo: "메시 네트워크",
+        nameEn: "Mesh Network",
+        aliases: ["메시 네트워크", "메시네트워크", "mesh network", "mesh", "Mesh Network"],
+        examDescription:
+          "메시 네트워크(Mesh Network)는 차세대 이동통신, 홈네트워킹, 공공 안전 등 특수 목적을 위한 새로운 방식의 네트워크 기술이다. 대규모 디바이스의 네트워크 생성에 최적화되어 있다.",
+        quizPrompt:
+          "차세대 이동통신, 홈네트워킹, 공공 안전 등 특수 목적을 위한 새로운 방식의 네트워크 기술이다. 대규모 디바이스의 네트워크 생성에 최적화되어 있다.",
+        shortDescription: "대규모 디바이스 연결에 적합한 메시 구조",
+      },
+      {
+        id: "piconet",
+        nameKo: "피코넷",
+        nameEn: "PICONET",
+        aliases: ["피코넷", "piconet", "PICONET", "Piconet"],
+        examDescription:
+          "피코넷(PICONET)은 여러 개의 독립된 통신장치가 블루투스 기술이나 UWB 통신 기술을 사용하여 통신망을 형성하는 무선 네트워크 기술이다.",
+        quizPrompt:
+          "여러 개의 독립된 통신장치가 블루투스 기술이나 UWB 통신 기술을 사용하여 통신망을 형성하는 무선 네트워크 기술이다.",
+        shortDescription: "블루투스·UWB 기반 소규모 무선망",
+      },
+      {
+        id: "ad-hoc-network",
+        nameKo: "애드 혹 네트워크",
+        nameEn: "Ad-hoc Network",
+        aliases: ["애드 혹 네트워크", "애드혹 네트워크", "애드혹", "ad-hoc", "ad hoc network", "Ad-hoc Network"],
+        examDescription:
+          "애드 혹 네트워크(Ad-hoc Network)는 재난 현장과 같이 별도의 고정된 유선망을 구축할 수 없는 장소에서 모바일 호스트(Mobile Host)만을 이용하여 구성한 네트워크이다. 망을 구성한 후 단기간 사용되는 경우나 유선망을 구성하기 어려운 경우에 적합하다.",
+        quizPrompt:
+          "재난 현장과 같이 별도의 고정된 유선망을 구축할 수 없는 장소에서 모바일 호스트(Mobile Host)만을 이용하여 구성한 네트워크이다. 망을 구성한 후 단기간 사용되는 경우나 유선망을 구성하기 어려운 경우에 적합하다.",
+        shortDescription: "유선 없이 모바일만으로 구성",
+      },
+      {
+        id: "wdm",
+        nameKo: "파장 분할 다중화",
+        nameEn: "Wavelength Division Multiplexing",
+        aliases: ["파장 분할 다중화", "WDM", "wdm", "Wavelength Division Multiplexing", "파장분할다중화"],
+        examDescription:
+          "파장 분할 다중화(WDM; Wavelength Division Multiplexing)는 광섬유를 이용한 통신기술의 하나로, 파장이 서로 다른 복수의 신호를 보냄으로써 여러 대의 단말기가 동시에 통신 회선을 사용할 수 있도록 하는 기술이다.",
+        quizPrompt:
+          "광섬유를 이용한 통신기술의 하나로, 파장이 서로 다른 복수의 신호를 보냄으로써 여러 대의 단말기가 동시에 통신 회선을 사용할 수 있도록 하는 기술이다.",
+        shortDescription: "광섬유·서로 다른 파장으로 동시 다중화",
+      },
+      {
+        id: "igp",
+        group: "라우팅 프로토콜",
+        nameKo: "IGP",
+        nameEn: "Interior Gateway Protocol",
+        aliases: ["igp", "IGP", "interior gateway protocol", "Interior Gateway Protocol", "내부 게이트웨이 프로토콜"],
+        examDescription:
+          "IGP(Interior Gateway Protocol, 내부 게이트웨이 프로토콜)는 하나의 자율 시스템(AS) 내의 라우팅에 사용되는 프로토콜이다.",
+        quizPrompt: "하나의 자율 시스템(AS) 내의 라우팅에 사용되는 프로토콜이다.",
+        shortDescription: "AS 내부 라우팅 프로토콜",
+      },
+      {
+        id: "rip",
+        group: "라우팅 프로토콜",
+        nameKo: "RIP",
+        nameEn: "Routing Information Protocol",
+        aliases: ["rip", "RIP", "routing information protocol", "Routing Information Protocol"],
+        examDescription:
+          "RIP(Routing Information Protocol)은 현재 가장 널리 사용되는 라우팅 프로토콜로 거리 벡터 라우팅 프로토콜이라고도 불린다. 최단 경로 탐색에 Bellman-Ford 알고리즘을 사용한다. 소규모 동적 네트워크(자율 시스템, AS) 내에서 효율적인 방법이다.",
+        quizPrompt:
+          "현재 가장 널리 사용되는 라우팅 프로토콜로 거리 벡터 라우팅 프로토콜이라고도 불린다. 최단 경로 탐색에 Bellman-Ford 알고리즘을 사용한다. 소규모 동적 네트워크(자율 시스템, AS) 내에서 효율적인 방법이다.",
+        shortDescription: "거리 벡터 기반 라우팅 프로토콜(Bellman-Ford)",
+      },
+      {
+        id: "ospf",
+        group: "라우팅 프로토콜",
+        nameKo: "OSPF",
+        nameEn: "Open Shortest Path First protocol",
+        aliases: ["ospf", "OSPF", "open shortest path first", "Open Shortest Path First"],
+        examDescription:
+          "OSPF(Open Shortest Path First protocol)는 RIP의 단점을 해결하여 새로운 기능을 지원하는 인터넷 프로토콜로, 대규모 네트워크에서 많이 사용된다. 최단 경로 탐색에 다익스트라(Dijkstra) 알고리즘을 사용한다.",
+        quizPrompt:
+          "RIP의 단점을 해결하여 새로운 기능을 지원하는 인터넷 프로토콜로, 대규모 네트워크에서 많이 사용된다. 최단 경로 탐색에 다익스트라(Dijkstra) 알고리즘을 사용한다.",
+        shortDescription: "링크 상태·대규모망·다익스트라",
+      },
+      {
+        id: "egp",
+        group: "라우팅 프로토콜",
+        nameKo: "EGP",
+        nameEn: "Exterior Gateway Protocol",
+        aliases: ["egp", "EGP", "exterior gateway protocol", "Exterior Gateway Protocol"],
+        examDescription:
+          "EGP(Exterior Gateway Protocol)는 자율 시스템(AS) 간의 라우팅, 즉 게이트웨이 간의 라우팅에 사용되는 프로토콜이다.",
+        quizPrompt: "자율 시스템(AS) 간의 라우팅, 즉 게이트웨이 간의 라우팅에 사용되는 프로토콜이다.",
+        shortDescription: "AS 간(게이트웨이 간) 라우팅",
+      },
+      {
+        id: "bgp",
+        group: "라우팅 프로토콜",
+        nameKo: "BGP",
+        nameEn: "Border Gateway Protocol",
+        aliases: ["bgp", "BGP", "border gateway protocol", "Border Gateway Protocol"],
+        examDescription:
+          "BGP(Border Gateway Protocol)는 자율 시스템(AS) 간의 라우팅 프로토콜로, EGP의 단점을 보완하기 위해 만들어진 프로토콜이다. 초기에 BGP 라우터들이 연결될 때는 전체 경로 제어표(라우팅 테이블)를 교환하고, 이후에는 변화된 정보만을 교환한다.",
+        quizPrompt:
+          "자율 시스템(AS) 간의 라우팅 프로토콜로, EGP의 단점을 보완하기 위해 만들어진 프로토콜이다. 초기 연결 시에는 전체 경로 제어표(라우팅 테이블)를 교환하고, 이후에는 변화된 정보만을 교환한다.",
+        shortDescription: "AS 간 라우팅·EGP 보완·증분 교환",
+      },
+      {
+        id: "nat",
+        group: "주소 변환",
+        nameKo: "NAT",
+        nameEn: "Network Address Translation",
+        aliases: ["nat", "NAT", "network address translation", "Network Address Translation", "네트워크 주소 변환"],
+        examDescription:
+          "NAT(Network Address Translation)는 네트워크 주소 변환으로, 한 개의 정식 IP 주소에 대량의 가상 사설 IP 주소를 할당 및 연결하는 기능이다. 한 개의 IP 주소를 사용해서 외부에 접속할 수 있는 노드는 어느 시점에서 한 개로 제한되는 문제가 있지만, IP 마스커레이드(Masquerade)를 이용하여 해결할 수 있다.",
+        quizPrompt:
+          "한 개의 정식 IP 주소에 대량의 가상 사설 IP 주소를 할당 및 연결하는 기능이다. 한 개의 IP 주소를 사용해서 외부에 접속할 수 있는 노드는 어느 시점에서 한 개로 제한되는 문제가 있지만, IP 마스커레이드(Masquerade)를 이용하여 해결할 수 있다.",
+        shortDescription: "공인·사설 IP 변환·마스커레이드",
+      },
+    ],
+  },
+  {
+    id: "it-platform-latest",
+    title: "IT·플랫폼·최신 기술",
+    items: [
+      {
+        id: "sddc",
+        nameKo: "소프트웨어 정의 데이터센터",
+        nameEn: "Software Defined Data Center",
+        aliases: [
+          "소프트웨어 정의 데이터센터",
+          "SDDC",
+          "sddc",
+          "Software Defined Data Center",
+          "software defined data center",
+        ],
+        examDescription:
+          "소프트웨어 정의 데이터센터(SDDC; Software Defined Data Center)는 데이터 센터의 모든 자원을 가상화하여 인력의 개입 없이 소프트웨어 조작만으로 관리 및 제어되는 데이터 센터를 의미한다. 컴퓨팅, 네트워킹, 스토리지, 관리 등을 모두 소프트웨어로 정의한다.",
+        quizPrompt:
+          "데이터 센터의 모든 자원을 가상화하여 인력의 개입 없이 소프트웨어 조작만으로 관리 및 제어되는 데이터 센터를 의미한다. 컴퓨팅, 네트워킹, 스토리지, 관리 등을 모두 소프트웨어로 정의한다.",
+        shortDescription: "데이터센터 자원 가상화·SW로만 관리",
+      },
+      {
+        id: "lod",
+        nameKo: "개방형 링크드 데이터",
+        nameEn: "Linked Open Data",
+        aliases: ["개방형 링크드 데이터", "LOD", "lod", "Linked Open Data", "linked open data", "링크드 오픈 데이터"],
+        examDescription:
+          "개방형 링크드 데이터(LOD; Linked Open Data)는 Linked Data와 Open Data의 합성어로, 누구나 사용할 수 있도록 웹상에 공개된 연계 데이터를 의미한다. 웹상에 존재하는 데이터를 개별 URI(인터넷 식별 자료)로 식별하고, 각 URI에 링크 정보를 부여함으로써 서로 상호 연결된 웹을 지향하는 모형이다.",
+        quizPrompt:
+          "Linked Data와 Open Data의 합성어로, 누구나 사용할 수 있도록 웹상에 공개된 연계 데이터를 의미한다. 웹상에 존재하는 데이터를 개별 URI(인터넷 식별 자료)로 식별하고, 각 URI에 링크 정보를 부여함으로써 서로 상호 연결된 웹을 지향하는 모형이다.",
+        shortDescription: "웹 공개 연계 데이터·URI·상호 링크",
+      },
+      {
+        id: "iot",
+        nameKo: "IoT",
+        nameEn: "Internet of Things",
+        aliases: ["IoT", "iot", "사물 인터넷", "사물인터넷", "Internet of Things", "internet of things"],
+        examDescription:
+          "IoT(Internet of Things, 사물 인터넷)는 정보 통신 기술을 기반으로 실제계(Physical World)와 가상 세계(Virtual World)의 다양한 사물들을 인터넷으로 서로 연결하여 진보된 서비스를 제공하기 위한 서비스 기반 기술이다.",
+        quizPrompt:
+          "정보 통신 기술을 기반으로 실제계(Physical World)와 가상 세계(Virtual World)의 다양한 사물들을 인터넷으로 서로 연결하여 진보된 서비스를 제공하기 위한 서비스 기반 기술이다.",
+        shortDescription: "사물·인터넷 연결 서비스 기술",
+      },
+      {
+        id: "cloud-computing",
+        nameKo: "클라우드 컴퓨팅",
+        nameEn: "Cloud Computing",
+        aliases: ["클라우드 컴퓨팅", "클라우드컴퓨팅", "cloud computing", "Cloud Computing"],
+        examDescription:
+          "클라우드 컴퓨팅(Cloud Computing)은 각종 컴퓨팅 자원을 중앙 컴퓨터에 두고 인터넷 기능을 갖는 단말기로 언제 어디서나 인터넷을 통해 컴퓨터 작업을 수행할 수 있는 가상화된 환경을 의미한다.",
+        quizPrompt:
+          "각종 컴퓨팅 자원을 중앙 컴퓨터에 두고 인터넷 기능을 갖는 단말기로 언제 어디서나 인터넷을 통해 컴퓨터 작업을 수행할 수 있는 가상화된 환경을 의미한다.",
+        shortDescription: "중앙 자원·인터넷 단말로 언제 어디서나",
+      },
+      {
+        id: "usn",
+        nameKo: "USN",
+        nameEn: "Ubiquitous Sensor Network",
+        aliases: ["USN", "usn", "Ubiquitous Sensor Network", "유비쿼터스 센서 네트워크", "유비쿼터스센서네트워크"],
+        examDescription:
+          "USN(Ubiquitous Sensor Network)은 각종 센서로 수집한 정보를 무선으로 수집할 수 있도록 구성한 네트워크이다. 필요한 모든 것에 RFID 태그를 부착하고, 이를 통하여 사물의 인식정보는 물론 주변의 환경정보까지 탐지하여 이를 네트워크에 연결하여 정보를 관리한다.",
+        quizPrompt:
+          "각종 센서로 수집한 정보를 무선으로 수집할 수 있도록 구성한 네트워크이다. 필요한 모든 것에 RFID 태그를 부착하고, 이를 통하여 사물의 인식정보는 물론 주변의 환경정보까지 탐지하여 이를 네트워크에 연결하여 정보를 관리한다.",
+        shortDescription: "센서·RFID·무선 수집 네트워크",
+      },
+      {
+        id: "sso",
+        nameKo: "SSO",
+        nameEn: "Single Sign On",
+        aliases: ["SSO", "sso", "Single Sign On", "single sign on", "싱글 사인 온", "싱글사인온"],
+        examDescription:
+          "SSO(Single Sign On)는 한 번의 로그인으로 개인이 가입한 모든 사이트를 이용할 수 있게 해주는 시스템이다. 개인정보를 각 사이트마다 일일이 기록해야 하던 불편함을 해소할 수 있다. 기업에서는 회원에 대한 통합관리가 가능해 마케팅을 극대화시킬 수 있다.",
+        quizPrompt:
+          "한 번의 로그인으로 개인이 가입한 모든 사이트를 이용할 수 있게 해주는 시스템이다. 개인정보를 각 사이트마다 일일이 기록해야 하던 불편함을 해소할 수 있다. 기업에서는 회원에 대한 통합관리가 가능해 마케팅을 극대화시킬 수 있다.",
+        shortDescription: "한 번 로그인으로 여러 사이트 이용",
+      },
+    ],
+  },
+  {
+    id: "misc",
+    title: "기타",
+    items: [
+      {
+        id: "ajax",
+        nameKo: "AJAX",
+        nameEn: "Asynchronous JavaScript and XML",
+        aliases: ["ajax", "AJAX", "asynchronous javascript and xml", "Asynchronous JavaScript and XML", "아작스"],
+        examDescription:
+          "클라이언트와 서버 간 자바스크립트 및 XML을 비동기 방식으로 처리하며, 전체 페이지를 새로 고치지 않고도 웹 페이지 일부 영역만을 업데이트할 수 있도록 하는 기술이다.",
+        quizPrompt:
+          "클라이언트와 서버 사이에서 자바스크립트와 XML 등을 비동기로 주고받으며, 브라우저에서 웹 페이지 전체를 다시 불러오지 않고 화면의 일부만 갱신할 수 있게 하는 웹 기술이다.",
+        shortDescription: "비동기 방식으로 웹 페이지 일부만 갱신하는 기술",
+      },
+      {
+        id: "raid",
+        nameKo: "RAID",
+        nameEn: "Redundant Array of Independent Disk",
+        aliases: ["raid", "RAID", "redundant array of independent disk", "Redundant Array of Independent Disk", "디스크 배열"],
+        examDescription:
+          "2개 이상의 하드디스크로 디스크 배열을 구성하고, 파일을 구성하는 데이터 블록들을 서로 다른 디스크에 분산 저장하거나 다중화하는 저장 기술로, 구현된 기술에 따라 여러 레벨(Level)로 구분된다.",
+        quizPrompt:
+          "2개 이상의 하드디스크로 디스크 배열을 구성하고, 파일을 구성하는 데이터 블록들을 서로 다른 디스크에 분산 저장하거나 다중화하는 저장 기술이며, 구현에 따라 여러 레벨로 구분된다. 이 저장 기술은 무엇인가?",
+        shortDescription: "복수 디스크 분산·다중화 저장 기술",
+        details: [
+          {
+            nameKo: "RAID 0",
+            nameEn: "Striping",
+            description:
+              "스트라이핑(Striping)이라고 불린다. 디스크를 병렬로 연결하여 디스크의 개수만큼 용량과 속도가 배로 증가한다. 하나의 디스크만 손상되어도 전체 데이터가 파손된다.",
+            aliases: ["raid 0", "RAID0", "레이드 0", "스트라이핑", "striping"],
+          },
+          {
+            nameKo: "RAID 1",
+            nameEn: "Mirroring",
+            description:
+              "미러링(Mirroring)이라고 불린다. 같은 데이터를 다른 디스크에 동일하게 복사하는 방식이다.",
+            aliases: ["raid 1", "RAID1", "레이드 1", "미러링", "mirroring"],
+          },
+          {
+            nameKo: "RAID 2~4",
+            nameEn: "RAID 2, 3, 4",
+            description:
+              "하나의 디스크에 오류 정정 부호를 비트(RAID 2)/바이트(RAID 3)/워드(RAID 4) 단위로 저장하고, 나머지 디스크는 RAID 0과 같이 활용하여 안정성을 높인 모드이다. 하나의 디스크가 손상되어도 정상 가동이 가능하며 최소 3개의 디스크가 필요하다.",
+            aliases: ["raid 2", "raid 3", "raid 4", "RAID 2~4", "레이드 2", "레이드 3", "레이드 4"],
+          },
+          {
+            nameKo: "RAID 5",
+            nameEn: "Distributed Parity",
+            description:
+              "오류 정정 부호를 블록 단위로 여러 디스크에 분산 저장한 방식이다. 하나의 디스크가 손상되어도 정상 가동이 가능하며 최소 3개의 디스크가 필요하다.",
+            aliases: ["raid 5", "RAID5", "레이드 5"],
+          },
+          {
+            nameKo: "RAID 6",
+            nameEn: "Dual Parity",
+            description:
+              "RAID 5와 원리는 같으나 오류 정정 부호 2개를 저장하는 방식이다. 두 개의 디스크가 손상되어도 정상 가동이 가능하며 최소 4개의 디스크가 필요하다.",
+            aliases: ["raid 6", "RAID6", "레이드 6"],
+          },
+        ],
+      },
+      {
+        id: "ui-types",
+        nameKo: "UI의 구분",
+        nameEn: "User Interface Types",
+        aliases: ["ui의 구분", "UI의 구분", "ui 구분", "UI 구분", "user interface types", "User Interface Types"],
+        examDescription: "사용자 인터페이스는 CLI, GUI, NUI 등으로 구분할 수 있다.",
+        quizPrompt:
+          "사용자와 시스템 간 상호작용 방식을 텍스트 기반, 그래픽 기반, 자연스러운 행동 기반 등으로 나누어 이해하기 위한 분류 개념이다. 무엇이라 부르는가?",
+        shortDescription: "CLI, GUI, NUI로 구분되는 사용자 인터페이스 개념",
+        details: [
+          {
+            nameKo: "CLI",
+            nameEn: "Command Line Interface",
+            description: "명령과 출력이 텍스트 형태로 이루어지는 인터페이스",
+            aliases: ["cli", "CLI", "command line interface", "커맨드 라인"],
+          },
+          {
+            nameKo: "GUI",
+            nameEn: "Graphical User Interface",
+            description: "아이콘이나 메뉴를 마우스로 선택하여 작업을 수행하는 그래픽 환경의 인터페이스",
+            aliases: ["gui", "GUI", "graphical user interface", "그래픽 사용자 인터페이스"],
+          },
+          {
+            nameKo: "NUI",
+            nameEn: "Natural User Interface",
+            description: "사용자의 말이나 행동 등 자연스러운 움직임을 통해 기기를 조작하는 인터페이스",
+            aliases: ["nui", "NUI", "natural user interface", "자연 사용자 인터페이스"],
+          },
+        ],
       },
     ],
   },

@@ -8,6 +8,7 @@ export const QUIZ_TYPES = {
   PURPOSE_ONLY: "purpose-only",
   PURPOSE_AND_PATTERN: "purpose-and-pattern",
   ORDERING: "ordering",
+  MATCHING: "matching",
 };
 
 export const PURPOSES = ["생성", "구조", "행위"];
@@ -62,6 +63,73 @@ export function isLinuxCommandsTopic(topic) {
 /** 화이트박스 / 블랙박스 검사 주제 */
 export function isWhiteBlackTestingTopic(topic) {
   return topic?.id === "whitebox-blackbox-testing";
+}
+
+/** 데이터베이스 주제 (순수 관계·집합·이상 등 group 필드, 객관식은 같은 group 내 보기) */
+export function isDatabaseTopic(topic) {
+  return topic?.id === "database";
+}
+
+/** 네트워크 주제 (라우팅 프로토콜·주소 변환 등 group — 객관식은 동일 group 우선, 4개 미만이면 topic 전체) */
+export function isNetworkTopic(topic) {
+  return topic?.id === "network";
+}
+
+/** 기타 주제 — details가 있으면 하위 개념을 퀴즈 풀에 펼쳐 넣음 */
+export function isMiscTopic(topic) {
+  return topic?.id === "misc";
+}
+
+/** 테스팅 / 검사 유형 — 매칭형은 별도 quizType 전용 풀 */
+export function isTestingTypesTopic(topic) {
+  return topic?.id === "testing-types";
+}
+
+function getTestingTypesQuizPool(topic, quizType) {
+  const list = topic.items || [];
+  if (quizType === QUIZ_TYPES.MATCHING) {
+    return list.filter((i) => i.interactiveType === "matching");
+  }
+  return list.filter((i) => !i.interactiveType || i.interactiveType !== "matching");
+}
+
+function getTopicQuizPool(topic, quizType) {
+  if (isMiscTopic(topic)) return expandMiscItems(topic.items);
+  if (isTestingTypesTopic(topic)) return getTestingTypesQuizPool(topic, quizType);
+  return topic.items;
+}
+
+/** V-모델 정답 매핑을 출제 목록·해설용 문자열로 */
+export function formatVmodelPairsDisplay(correctPairs) {
+  if (!correctPairs || typeof correctPairs !== "object") return "";
+  const order = ["요구사항", "분석", "설계", "구현"];
+  return order
+    .filter((k) => Object.prototype.hasOwnProperty.call(correctPairs, k))
+    .map((k) => `${k} ↔ ${correctPairs[k]}`)
+    .join("\n");
+}
+
+/**
+ * misc: 부모 항목 + details[]를 각각 독립 출제 단위로 펼침 (통계·이력은 id별)
+ */
+export function expandMiscItems(items) {
+  if (!items?.length) return [];
+  return items.flatMap((parent) => {
+    if (!parent.details?.length) return [parent];
+    const subs = parent.details.map((d, i) => ({
+      id: `${parent.id}__sub__${i}`,
+      nameKo: d.nameKo,
+      nameEn: d.nameEn ?? d.nameKo,
+      examDescription: d.description,
+      quizPrompt: d.quizPrompt ?? d.description,
+      aliases: Array.isArray(d.aliases) ? d.aliases : [d.nameKo],
+      shortDescription:
+        d.shortDescription ??
+        (d.description.length > 90 ? `${d.description.slice(0, 87)}…` : d.description),
+      _miscParentId: parent.id,
+    }));
+    return [parent, ...subs];
+  });
 }
 
 /** 결합도·응집도 그룹 목록 */
@@ -145,14 +213,214 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
   const items = topic.items;
   if (!items?.length) return null;
 
+  const quizItems = getTopicQuizPool(topic, quizType);
   const stats = loadStats();
-  const idx = selectWeightedRandom(items, topic.id, stats, lastItemId);
-  const item = items[idx];
+  const idx = selectWeightedRandom(quizItems, topic.id, stats, lastItemId);
+  const item = quizItems[idx];
   const displayName = formatDisplayName(item);
-  const description = item.examDescription || item.description;
+  /** 퀴즈 문제 문구: 있으면 사용(출제 목록·암기용은 examDescription 유지) */
+  const description = item.quizPrompt ?? item.examDescription ?? item.description ?? "";
   const isDesignPattern = isDesignPatternTopic(topic);
   const isCrypto = isCryptoTopic(topic);
   const categories = getCategoriesForTopic(topic);
+
+  if (
+    isTestingTypesTopic(topic) &&
+    quizType === QUIZ_TYPES.MATCHING &&
+    item.interactiveType === "matching"
+  ) {
+    const cp = item.correctPairs || {};
+    return {
+      item,
+      quizType: QUIZ_TYPES.MATCHING,
+      question: item.quizPrompt ?? "V-모델의 대응 관계를 올바르게 연결하세요",
+      leftItems: [...(item.leftItems || [])],
+      rightPool: shuffle([...(item.rightItems || [])]),
+      correctPairs: { ...cp },
+      answerDisplay: formatVmodelPairsDisplay(cp),
+    };
+  }
+
+  /** 테스팅/검사 유형: subcategory 우선 객관식(스텁·드라이버 등), 전체 보기 범위 분리 */
+  if (
+    isTestingTypesTopic(topic) &&
+    quizType !== QUIZ_TYPES.MATCHING &&
+    (quizType === QUIZ_TYPES.SUBJECTIVE ||
+      quizType === QUIZ_TYPES.MULTIPLE_CHOICE ||
+      quizType === QUIZ_TYPES.FULL_LIST)
+  ) {
+    const quizPool = getTestingTypesQuizPool(topic, quizType);
+    const sub = item.subcategory;
+    const answerDisplay = sub ? `${sub} - ${displayName}` : displayName;
+    if (quizType === QUIZ_TYPES.SUBJECTIVE) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        hint: "용어를 입력하세요 (한국어 또는 영어, 예: 스텁, Stub, 드라이버)",
+        options: null,
+      };
+    }
+    if (quizType === QUIZ_TYPES.MULTIPLE_CHOICE) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        options: getCryptoMcOptions(quizPool, item),
+      };
+    }
+    if (quizType === QUIZ_TYPES.FULL_LIST) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        hint: "목록에서 정답을 선택하세요",
+        options: null,
+      };
+    }
+  }
+
+  /** 데이터베이스: 순수·집합=기호, 이상=nameKo, 함수적 종속=같은 group 보기, 관계해석=topic 내 보기 */
+  if (isDatabaseTopic(topic)) {
+    const symbolItems = items.filter(
+      (i) => i.group === "순수 관계 연산자" || i.group === "집합 연산자"
+    );
+    const symbolPool = [...new Set(symbolItems.map((i) => i.symbol).filter(Boolean))];
+    const anomalyItems = items.filter((i) => i.group === "이상");
+    const g = item.group;
+    const isSymbolGroup = g === "순수 관계 연산자" || g === "집합 연산자";
+
+    if (quizType === QUIZ_TYPES.SUBJECTIVE) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay: `${g} - ${displayName}`,
+        questionGroup: g,
+        hint: isSymbolGroup
+          ? "연산명 또는 기호(σ, π, ⋈, ÷, ∪, ∩, -, × 등)를 입력하세요"
+          : g === "이상"
+          ? "이상 유형을 입력하세요 (예: 삽입 이상)"
+          : "용어를 입력하세요 (한국어 또는 영어)",
+        options: null,
+      };
+    }
+
+    if (quizType === QUIZ_TYPES.MULTIPLE_CHOICE) {
+      if (isSymbolGroup) {
+        const options = shuffle([...symbolPool]);
+        return {
+          item,
+          quizType,
+          question: description,
+          answer: item.symbol,
+          answerDisplay: `${item.symbol} (${item.nameKo})`,
+          options,
+          questionGroup: g,
+          hint: "순수 관계·집합 연산 기호 전체 목록에서 정답 기호를 선택하세요",
+        };
+      }
+      if (g === "이상") {
+        const options = shuffle(anomalyItems.map((i) => i.nameKo));
+        return {
+          item,
+          quizType,
+          question: description,
+          answer: item.nameKo,
+          answerDisplay: item.nameKo,
+          options,
+          questionGroup: g,
+          hint: "해당하는 이상 유형을 선택하세요",
+        };
+      }
+      if (g === "함수적 종속") {
+        const options = getMultipleChoiceOptions(items, item, "함수적 종속");
+        return {
+          item,
+          quizType,
+          question: description,
+          answer: displayName,
+          answerDisplay: `${g} - ${displayName}`,
+          options,
+          questionGroup: g,
+          hint: "함수적 종속 관련 용어를 선택하세요",
+        };
+      }
+      if (g === "관계해석") {
+        const others = items.filter((i) => i.id !== item.id);
+        const wrongs = shuffle(others).slice(0, 3).map((i) => formatDisplayName(i));
+        const options = shuffle([displayName, ...wrongs]);
+        return {
+          item,
+          quizType,
+          question: description,
+          answer: displayName,
+          answerDisplay: `${g} - ${displayName}`,
+          options,
+          questionGroup: g,
+          hint: "정답 용어를 선택하세요",
+        };
+      }
+    }
+
+    if (quizType === QUIZ_TYPES.FULL_LIST) {
+      if (isSymbolGroup) {
+        return {
+          item,
+          quizType,
+          question: description,
+          answer: item.symbol,
+          answerDisplay: `${item.symbol} (${item.nameKo})`,
+          questionGroup: g,
+          hint: "목록에서 정답 기호를 선택하세요",
+          options: null,
+        };
+      }
+      if (g === "이상") {
+        return {
+          item,
+          quizType,
+          question: description,
+          answer: item.nameKo,
+          answerDisplay: item.nameKo,
+          questionGroup: g,
+          hint: "목록에서 정답을 선택하세요",
+          options: null,
+        };
+      }
+      if (g === "함수적 종속" || g === "관계해석") {
+        return {
+          item,
+          quizType,
+          question: description,
+          answer: displayName,
+          answerDisplay: `${g} - ${displayName}`,
+          questionGroup: g,
+          hint: "목록에서 정답을 선택하세요",
+          options: null,
+        };
+      }
+    }
+
+    const options = shuffle([...symbolPool]);
+    return {
+      item,
+      quizType: QUIZ_TYPES.MULTIPLE_CHOICE,
+      question: description,
+      answer: item.symbol,
+      answerDisplay: `${item.symbol} (${item.nameKo})`,
+      options,
+      questionGroup: g,
+      hint: "정답을 선택하세요",
+    };
+  }
 
   if (isCrypto && quizType === QUIZ_TYPES.PURPOSE_ONLY) {
     return {
@@ -212,6 +480,8 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
   const isCouplingCohesion = isCouplingCohesionTopic(topic);
   const isLinuxCommands = isLinuxCommandsTopic(topic);
   const isWhiteBlack = isWhiteBlackTestingTopic(topic);
+  /** 주관식·객관식·전체보기에서 그룹(결합도/화이트박스) 단위로 정답 표기·보기 풀 제한 */
+  const useGroupForQuiz = isCouplingCohesion || isWhiteBlack;
 
   if (isCouplingCohesion && quizType === QUIZ_TYPES.ORDERING) {
     const virtualItems = COUPLING_COHESION_GROUPS.map((g) => ({ id: `ordering-${g}` }));
@@ -263,24 +533,169 @@ export function getNextQuestion(topic, quizType, lastItemId = null) {
     };
   }
 
+  /** 소프트웨어 보안: 주관식·객관식·전체 보기 — 동일 subcategory 우선(접근통제 DAC/MAC/RBAC 등) */
+  if (
+    isCrypto &&
+    (quizType === QUIZ_TYPES.SUBJECTIVE ||
+      quizType === QUIZ_TYPES.MULTIPLE_CHOICE ||
+      quizType === QUIZ_TYPES.FULL_LIST)
+  ) {
+    const sub = item.subcategory;
+    const cat = item.category;
+    const labelPrefix = sub || cat || "";
+    const answerDisplay = labelPrefix ? `${labelPrefix} - ${displayName}` : displayName;
+    if (quizType === QUIZ_TYPES.SUBJECTIVE) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        hint: "항목명을 입력하세요 (한국어 또는 영어, 예: DAC, 임의 접근통제)",
+        options: null,
+      };
+    }
+    if (quizType === QUIZ_TYPES.MULTIPLE_CHOICE) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        options: getCryptoMcOptions(items, item),
+      };
+    }
+    if (quizType === QUIZ_TYPES.FULL_LIST) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        hint: "목록에서 정답을 선택하세요",
+        options: null,
+      };
+    }
+  }
+
+  if (isNetworkTopic(topic)) {
+    const g = item.group;
+    const answerDisplay = g ? `${g} - ${displayName}` : displayName;
+    if (quizType === QUIZ_TYPES.SUBJECTIVE) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        questionGroup: g ?? null,
+        hint: "용어를 입력하세요 (한국어 또는 영어)",
+        options: null,
+      };
+    }
+    if (quizType === QUIZ_TYPES.MULTIPLE_CHOICE) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        questionGroup: g ?? null,
+        options: getNetworkMcOptions(items, item),
+      };
+    }
+    if (quizType === QUIZ_TYPES.FULL_LIST) {
+      return {
+        item,
+        quizType,
+        question: description,
+        answer: displayName,
+        answerDisplay,
+        questionGroup: g ?? null,
+        hint: "목록에서 정답을 선택하세요",
+        options: null,
+      };
+    }
+  }
+
+  const mcListPool = isMiscTopic(topic) || isTestingTypesTopic(topic) ? quizItems : items;
+
   return {
     item,
     quizType,
     question: description,
     answer: displayName,
-    answerDisplay: isCouplingCohesion || isWhiteBlack ? `${item.group} - ${displayName}` : displayName,
+    answerDisplay: useGroupForQuiz ? `${item.group} - ${displayName}` : displayName,
     questionGroup: isWhiteBlack ? item.group : null,
     options:
       quizType === QUIZ_TYPES.MULTIPLE_CHOICE
-        ? getMultipleChoiceOptions(items, item, isCouplingCohesion || isWhiteBlack ? item.group : null)
+        ? getMultipleChoiceOptions(mcListPool, item, useGroupForQuiz ? item.group : null)
         : quizType === QUIZ_TYPES.FULL_LIST
           ? shuffle(
-              (isWhiteBlack ? items.filter((i) => i.group === item.group) : items).map((i) =>
+              (isWhiteBlack ? items.filter((i) => i.group === item.group) : mcListPool).map((i) =>
                 formatDisplayName(i)
               )
             )
           : null,
   };
+}
+
+/** 객관식: 같은 subcategory 오답을 앞에 두고 부족하면 다른 subcategory에서 채움 */
+function getCryptoMcOptions(items, correctItem) {
+  const correct = formatDisplayName(correctItem);
+  const sub = correctItem.subcategory;
+  const others = items.filter((i) => i.id !== correctItem.id);
+  if (!sub) {
+    const wrongs = shuffle(others).slice(0, 3).map((i) => formatDisplayName(i));
+    return shuffle([correct, ...wrongs]);
+  }
+  const sameSub = others.filter((i) => i.subcategory === sub);
+  const diffSub = others.filter((i) => i.subcategory !== sub);
+  const ordered = [...shuffle(sameSub), ...shuffle(diffSub)];
+  const wrongs = ordered.slice(0, 3).map((i) => formatDisplayName(i));
+  return shuffle([correct, ...wrongs]);
+}
+
+/** 테스팅/검사 유형 전체 보기: 동일 subcategory가 2개 이상이면 그 범위만(스텁·드라이버), 아니면 매칭 제외 전체 */
+export function getTestingTypesFullListItems(topic, question) {
+  const normal = topic.items.filter((i) => i.interactiveType !== "matching");
+  const qItem = question?.item;
+  if (!qItem?.subcategory) return normal;
+  const inSub = normal.filter((i) => i.subcategory === qItem.subcategory);
+  return inSub.length >= 2 ? inSub : normal;
+}
+
+/** 전체 보기: 동일 subcategory가 2개 이상이면 그 범위만, 아니면 topic 전체 */
+export function getCryptoFullListItems(topic, question) {
+  const qItem = question?.item;
+  if (!qItem?.subcategory) return topic.items;
+  const inSub = topic.items.filter((i) => i.subcategory === qItem.subcategory);
+  return inSub.length >= 2 ? inSub : topic.items;
+}
+
+/**
+ * 네트워크 객관식: 동일 group 항목이 4개 이상이면 그 안에서만 4지 구성, 그 미만(예: NAT 단독)이면 topic 전체에서 구성
+ */
+function getNetworkMcOptions(items, correctItem) {
+  const g = correctItem.group;
+  const correct = formatDisplayName(correctItem);
+  let pool = items;
+  if (g) {
+    const inGroup = items.filter((i) => i.group === g);
+    if (inGroup.length >= 4) pool = inGroup;
+    else pool = items;
+  }
+  const others = pool.filter((i) => i.id !== correctItem.id);
+  const wrongs = shuffle(others).slice(0, 3).map((i) => formatDisplayName(i));
+  return shuffle([correct, ...wrongs]);
+}
+
+/** 전체 보기: 동일 group 항목이 2개 이상이면 그 group만, 아니면 topic 전체 */
+export function getNetworkFullListItems(topic, question) {
+  const item = question?.item;
+  if (!item?.group) return topic.items;
+  const inGroup = topic.items.filter((i) => i.group === item.group);
+  return inGroup.length >= 2 ? inGroup : topic.items;
 }
 
 function getMultipleChoiceOptions(items, correctItem, groupFilter = null) {

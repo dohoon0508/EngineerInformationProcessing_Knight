@@ -13,10 +13,13 @@ export function normalizeAnswer(input) {
 }
 
 /**
- * 항목 표시 형식: "한국어 (영문)"
+ * 항목 표시 형식: "한국어 (영문)" 또는 SOLID 등 "한국어 (약어)"
  */
 export function formatDisplayName(item) {
   if (!item) return "";
+  if (item.shortLabel) {
+    return `${item.nameKo} (${item.shortLabel})`;
+  }
   if (item.nameEn) {
     return `${item.nameKo} (${item.nameEn})`;
   }
@@ -34,6 +37,7 @@ export function checkNameAnswer(userInput, item) {
   const candidates = [
     item.nameKo,
     item.nameEn,
+    item.shortLabel,
     ...(item.aliases || []),
   ].filter(Boolean);
 
@@ -73,4 +77,19 @@ export function checkOrderAnswer(userInput, correctOrderArray) {
   const userOrder = parseOrderInput(userInput);
   if (!correctOrderArray?.length || userOrder.length !== correctOrderArray.length) return false;
   return userOrder.every((n, i) => n === correctOrderArray[i]);
+}
+
+/**
+ * V-모델 매칭: 왼쪽(개발 단계) → 오른쪽(테스트 단계) 전부 일치해야 정답
+ */
+export function checkVModelMatching(userMap, correctPairs) {
+  if (!userMap || !correctPairs || typeof userMap !== "object" || typeof correctPairs !== "object") {
+    return false;
+  }
+  const keys = Object.keys(correctPairs);
+  if (keys.length === 0) return false;
+  for (const k of keys) {
+    if (userMap[k] !== correctPairs[k]) return false;
+  }
+  return true;
 }

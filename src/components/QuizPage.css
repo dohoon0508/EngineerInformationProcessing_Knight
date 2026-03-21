@@ -41,6 +41,18 @@
   margin-bottom: 1.5rem;
 }
 
+.quiz-db-single-hint {
+  flex: 1 1 220px;
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.quiz-db-single-hint strong {
+  color: #334155;
+}
+
 .quiz-type-tabs {
   display: flex;
   gap: 0.25rem;
@@ -122,6 +134,7 @@
   border-radius: 8px;
   margin-bottom: 1rem;
   text-align: left;
+  white-space: pre-line;
 }
 
 .correct-answer {
@@ -130,6 +143,7 @@
   border-radius: 8px;
   margin-bottom: 1rem;
   text-align: left;
+  white-space: pre-line;
 }
 
 .correct-answer-explanation {
@@ -139,6 +153,7 @@
   margin-bottom: 1rem;
   text-align: left;
   font-size: 0.95rem;
+  white-space: pre-line;
 }
 
 .next-btn {

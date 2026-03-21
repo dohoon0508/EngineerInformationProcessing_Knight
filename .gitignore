@@ -9,6 +9,9 @@ lerna-debug.log*
 
 node_modules
 dist
+
+# 로컬·개인용 문서 (원격 저장소에 올리지 않음)
+docs/
 dist-ssr
 *.local
 
