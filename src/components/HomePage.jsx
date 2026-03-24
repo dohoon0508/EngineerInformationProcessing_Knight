@@ -1,10 +1,10 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { topics } from "../data/topics";
 import { searchItems, resolveListRowItemId } from "../utils/searchIndex";
 import { useFavorites } from "../context/FavoritesContext";
 import { ALL_FAVORITES_TOPIC_ID, itemIdsForTopicFavorites } from "../utils/favoritesTopic";
 import TopicListModal from "./TopicListModal";
+import QuizModeModal from "./QuizModeModal";
 import "./HomePage.css";
 
 export default function HomePage() {
@@ -15,6 +15,8 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const searchWrapRef = useRef(null);
+  /** @type {null | { type: 'topic' | 'allFavorites', topicId?: string, favoritesOnly: boolean }} */
+  const [quizModeModal, setQuizModeModal] = useState(null);
   const listTopic = topics.find((t) => t.id === listTopicId);
 
   function closeListModal() {
@@ -101,9 +103,13 @@ export default function HomePage() {
       </header>
       <div className="home-favorites-bar">
         {allFavCount > 0 ? (
-          <Link className="home-all-favorites-link" to={`/quiz/${ALL_FAVORITES_TOPIC_ID}`}>
+          <button
+            type="button"
+            className="home-all-favorites-link"
+            onClick={() => setQuizModeModal({ type: "allFavorites", favoritesOnly: true })}
+          >
             ★ 전체 즐겨찾기 풀기 <span className="home-all-favorites-count">({allFavCount})</span>
-          </Link>
+          </button>
         ) : (
           <span className="home-all-favorites-link home-all-favorites-link--disabled" title="출제 목록 등에서 ★를 눌러 추가하세요">
             ★ 전체 즐겨찾기 풀기 (0)
@@ -129,13 +135,25 @@ export default function HomePage() {
                 >
                   출제 목록
                 </button>
-                <Link to={`/quiz/${topic.id}`} className="topic-quiz-link">
+                <button
+                  type="button"
+                  className="topic-quiz-link"
+                  onClick={() =>
+                    setQuizModeModal({ type: "topic", topicId: topic.id, favoritesOnly: false })
+                  }
+                >
                   퀴즈 시작
-                </Link>
+                </button>
                 {topicFavCount > 0 && (
-                  <Link to={`/quiz/${topic.id}?favorites=1`} className="topic-favorites-quiz-link">
+                  <button
+                    type="button"
+                    className="topic-favorites-quiz-link"
+                    onClick={() =>
+                      setQuizModeModal({ type: "topic", topicId: topic.id, favoritesOnly: true })
+                    }
+                  >
                     즐겨찾기만
-                  </Link>
+                  </button>
                 )}
               </div>
             </div>
@@ -149,6 +167,7 @@ export default function HomePage() {
           onClose={closeListModal}
         />
       )}
+      <QuizModeModal modal={quizModeModal} onClose={() => setQuizModeModal(null)} />
       <footer className="home-footer">
         <p className="home-footer-made">만든이 (HWANG DOHOON)</p>
         <p className="home-footer-links">

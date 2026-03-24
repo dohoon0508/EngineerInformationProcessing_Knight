@@ -18,7 +18,11 @@
 
 .stat-card.highlight {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: white;
+  color: #fff;
+}
+
+.stat-card.highlight .stat-label {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .stat-value {
@@ -30,10 +34,6 @@
 .stat-label {
   font-size: 0.75rem;
   color: var(--color-text-muted);
-}
-
-.stat-card.highlight .stat-label {
-  color: rgba(255, 255, 255, 0.9);
 }
 
 .recent-history {

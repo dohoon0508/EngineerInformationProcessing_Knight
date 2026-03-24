@@ -164,11 +164,12 @@ export function getFinalWeight(itemId, itemStats, recentHistory) {
  * @param {(item: object) => string} [options.getStatsTopicId] — 통계를 읽을 topic id (전체 즐겨찾기 등)
  */
 export function selectWeightedRandom(items, topicId, stats, previousItemId = null, options = {}) {
-  const { getStatsTopicId } = options;
+  const { getStatsTopicId, uniformRandom } = options;
   const resolveTid = (item) => (typeof getStatsTopicId === "function" ? getStatsTopicId(item) : topicId);
 
   const weights = items.map((item) => {
     if (previousItemId && item.id === previousItemId) return 0; // 직전 문제 제외
+    if (uniformRandom) return 1;
     const tid = resolveTid(item);
     const topic = stats[tid];
     const recentHistory = [...(topic?.history || [])].reverse();
@@ -192,7 +193,7 @@ export function selectWeightedRandom(items, topicId, stats, previousItemId = nul
 /**
  * 배열 셔플
  */
-function shuffle(array) {
+export function shuffle(array) {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -210,9 +211,10 @@ function shuffle(array) {
  * @param {object} [nextQuestionOptions]
  * @param {Set<string>} [nextQuestionOptions.allowedItemIds] — 현재 주제 풀에서 이 item id 만 출제
  * @param {(item: object) => string} [nextQuestionOptions.getItemStatsTopicId] — 가중치용 stats 키 (기본 topic.id)
+ * @param {boolean} [nextQuestionOptions.uniformRandom] — true면 정답률·최근 출제 가중치 없이 직전 문항만 제외하고 균등 랜덤
  */
 export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapshot = null, nextQuestionOptions = {}) {
-  const { allowedItemIds = null, getItemStatsTopicId = null } = nextQuestionOptions;
+  const { allowedItemIds = null, getItemStatsTopicId = null, uniformRandom = false } = nextQuestionOptions;
   const items = topic.items;
   if (!items?.length) return null;
 
@@ -226,6 +228,7 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
   const stats = statsSnapshot ?? loadStats();
   const idx = selectWeightedRandom(quizItems, topic.id, stats, lastItemId, {
     getStatsTopicId: getItemStatsTopicId ?? undefined,
+    uniformRandom: uniformRandom === true,
   });
   const item = quizItems[idx];
   const displayName = formatDisplayName(item);
@@ -519,7 +522,9 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
 
   if (isCouplingCohesion && quizType === QUIZ_TYPES.ORDERING) {
     const virtualItems = COUPLING_COHESION_GROUPS.map((g) => ({ id: `ordering-${g}` }));
-    const vIdx = selectWeightedRandom(virtualItems, topic.id, stats, lastItemId);
+    const vIdx = selectWeightedRandom(virtualItems, topic.id, stats, lastItemId, {
+      uniformRandom: uniformRandom === true,
+    });
     const group = COUPLING_COHESION_GROUPS[vIdx];
     const itemsInGroup = items.filter((i) => i.group === group).sort((a, b) => a.orderRank - b.orderRank);
     const shuffled = shuffle([...itemsInGroup]);
