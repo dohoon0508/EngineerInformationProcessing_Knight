@@ -550,6 +550,19 @@ export const topics = [
           "정보 자산을 안전하게 보호하기 위한 보호 절차와 대책을 의미하며, 조직에 맞는 정보보호 정책 수립과 위험 대응을 위해 여러 보안 대책을 통합 관리·운용하는 체계이다. 국내에서는 평가·인증 사업을 한국인터넷진흥원(KISA)에서 운영한다.",
         shortDescription: "정보보호 정책과 대책을 통합 관리·운용하는 체계",
       },
+      {
+        id: "relational-calculus",
+        category: "데이터베이스",
+        subcategory: "관계 데이터 모델",
+        nameKo: "관계해석",
+        nameEn: "Relational Calculus",
+        aliases: ["관계해석", "관계 해석", "relational calculus", "Relational Calculus"],
+        examDescription:
+          "관계해석(Relational Calculus)은 관계 데이터의 연산을 표현하는 방법이다. 관계 데이터 모델의 제안자인 코드(E. F. Codd)가 수학의 Predicate Calculus(술어 해석)에 기반을 두고 관계 데이터베이스를 위해 제안했다. 관계해석은 원하는 정보가 무엇이라는 것만 정의하는 비절차적 특성을 지닌다. 원하는 정보를 정의할 때는 계산 수식을 사용한다.",
+        quizPrompt:
+          "관계 데이터의 연산을 표현하는 방법이다. 코드(E. F. Codd)가 수학의 Predicate Calculus(술어 해석)에 기반하여 제안했으며, 원하는 정보가 무엇인지만 정의하는 비절차적 특성을 갖는다. 원하는 정보를 정의할 때는 계산 수식을 사용한다. 이 용어는 무엇인가?",
+        shortDescription: "비절차적·무엇을 원하는지만 정의(코드·술어 해석 기반)",
+      },
       { id: "dark-data", category: "기타 보안 개념", subcategory: "기타 보안 개념", nameKo: "다크 데이터", nameEn: "Dark Data", aliases: ["다크 데이터", "dark data", "다크데이터"], examDescription: "특정 목적으로 수집했으나 이후 활용되지 않고 저장만 되어 있는 대량의 데이터를 뜻한다.", shortDescription: "수집만 하고 미활용 데이터" },
     ],
   },
@@ -963,18 +976,6 @@ export const topics = [
         quizPrompt:
           "종속 관계가 X → Y, Y → Z로 주어질 때 X → Z가 성립하는 관계를 가리킨다. 이와 같은 종속을 무엇이라 하는가?",
         shortDescription: "X→Y, Y→Z로부터 X→Z",
-      },
-      {
-        id: "relational-calculus",
-        group: "관계해석",
-        nameKo: "관계해석",
-        nameEn: "Relational Calculus",
-        aliases: ["관계해석", "관계 해석", "relational calculus", "Relational Calculus"],
-        examDescription:
-          "관계해석(Relational Calculus)은 관계 데이터의 연산을 표현하는 방법이다. 관계 데이터 모델의 제안자인 코드(E. F. Codd)가 수학의 Predicate Calculus(술어 해석)에 기반을 두고 관계 데이터베이스를 위해 제안했다. 관계해석은 원하는 정보가 무엇이라는 것만 정의하는 비절차적 특성을 지닌다. 원하는 정보를 정의할 때는 계산 수식을 사용한다.",
-        quizPrompt:
-          "관계 데이터의 연산을 표현하는 방법이다. 코드(E. F. Codd)가 수학의 Predicate Calculus(술어 해석)에 기반하여 제안했으며, 원하는 정보가 무엇인지만 정의하는 비절차적 특성을 갖는다. 원하는 정보를 정의할 때는 계산 수식을 사용한다. 이 용어는 무엇인가?",
-        shortDescription: "비절차적·무엇을 원하는지만 정의(코드·술어 해석 기반)",
       },
       {
         id: "entity-integrity",

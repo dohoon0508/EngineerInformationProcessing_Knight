@@ -217,6 +217,7 @@ export default function QuizPage() {
   const wrongDrillIsCouplingMode = Boolean(
     isWrongDrillMode && topic && isCouplingCohesionTopic(topic)
   );
+  const wrongDrillIsDatabaseMode = Boolean(isWrongDrillMode && topic && isDatabaseTopic(topic));
 
   const recomputeWrongDrillMiniBuckets = useCallback(() => {
     const st = wrongDrillStateRef.current;
@@ -281,7 +282,7 @@ export default function QuizPage() {
       return;
     }
     if (isWrongDrillMode) {
-      if (topic && isCouplingCohesionTopic(topic)) {
+      if (topic && (isCouplingCohesionTopic(topic) || isDatabaseTopic(topic))) {
         setQuizType(QUIZ_TYPES.MULTIPLE_CHOICE);
       } else {
         setQuizType(QUIZ_TYPES.SUBJECTIVE);
@@ -325,11 +326,21 @@ export default function QuizPage() {
       (i) => !topicFavoriteIds || topicFavoriteIds.has(i.id)
     );
     const entryPool = (() => {
-      if (!isCouplingCohesionTopic(topic)) {
+      if (!isCouplingCohesionTopic(topic) && !isDatabaseTopic(topic)) {
         return subjectivePool.map((i) => ({
           key: i.id,
           itemId: i.id,
           quizType: QUIZ_TYPES.SUBJECTIVE,
+        }));
+      }
+      if (isDatabaseTopic(topic)) {
+        const mcPool = getTopicQuizPool(topic, QUIZ_TYPES.MULTIPLE_CHOICE).filter(
+          (i) => !topicFavoriteIds || topicFavoriteIds.has(i.id)
+        );
+        return mcPool.map((i) => ({
+          key: i.id,
+          itemId: i.id,
+          quizType: QUIZ_TYPES.MULTIPLE_CHOICE,
         }));
       }
       const mcPool = getTopicQuizPool(topic, QUIZ_TYPES.MULTIPLE_CHOICE).filter(
@@ -621,6 +632,18 @@ export default function QuizPage() {
     loadWrongDrillQuestionAtPtr();
   };
 
+  useEffect(() => {
+    if (!result) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key !== "Enter" || e.isComposing || e.repeat) return;
+      // 결과 화면에서 Enter로 다음 문제로 이동
+      e.preventDefault();
+      handleNext();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [result, handleNext]);
+
   if (!topic && !isAllFavoritesRoute) {
     return (
       <div className="quiz-page">
@@ -670,6 +693,8 @@ export default function QuizPage() {
         <p className="quiz-favorites-mode-hint">
           {wrongDrillIsCouplingMode
             ? "틀린 것만 모드 · 객관식+순서 맞추기 · 최대 15문항 · 한 바퀴씩 풀고 오답만 반복합니다."
+            : wrongDrillIsDatabaseMode
+            ? "틀린 것만 모드 · 객관식만 · 카테고리별 전체 보기 · 한 바퀴씩 풀고 오답만 반복합니다."
             : "틀린 것만 모드 · 주관식만 · 한 바퀴씩 풀고 오답만 반복합니다."}
         </p>
       )}

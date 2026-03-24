@@ -313,12 +313,8 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
     }
   }
 
-  /** 데이터베이스: 순수·집합=기호, 이상=nameKo, 함수적 종속=같은 group 보기, 관계해석=topic 내 보기 */
+  /** 데이터베이스: 객관식은 카테고리(group)별 전체 보기를 사용 */
   if (isDatabaseTopic(topic)) {
-    const symbolItems = items.filter(
-      (i) => i.group === "순수 관계 연산자" || i.group === "집합 연산자"
-    );
-    const symbolPool = [...new Set(symbolItems.map((i) => i.symbol).filter(Boolean))];
     const anomalyItems = items.filter((i) => i.group === "이상");
     const g = item.group;
     const isSymbolGroup = g === "순수 관계 연산자" || g === "집합 연산자";
@@ -344,7 +340,15 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
 
     if (quizType === QUIZ_TYPES.MULTIPLE_CHOICE) {
       if (isSymbolGroup) {
-        const options = shuffle([...symbolPool]);
+        const symbolPoolInGroup = [
+          ...new Set(
+            items
+              .filter((i) => i.group === g)
+              .map((i) => i.symbol)
+              .filter(Boolean)
+          ),
+        ];
+        const options = shuffle([...symbolPoolInGroup]);
         return {
           item,
           quizType,
@@ -353,7 +357,7 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
           answerDisplay: `${item.symbol} (${item.nameKo})`,
           options,
           questionGroup: g,
-          hint: "순수 관계·집합 연산 기호 전체 목록에서 정답 기호를 선택하세요",
+          hint: `${g} 기호 전체 목록에서 정답을 선택하세요`,
         };
       }
       if (g === "이상") {
@@ -370,7 +374,7 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
         };
       }
       if (g === "함수적 종속") {
-        const options = getMultipleChoiceOptions(items, item, "함수적 종속");
+        const options = getMultipleChoiceOptions(items, item, g);
         return {
           item,
           quizType,
@@ -382,23 +386,8 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
           hint: "함수적 종속 관련 용어를 선택하세요",
         };
       }
-      if (g === "관계해석") {
-        const others = items.filter((i) => i.id !== item.id);
-        const wrongs = shuffle(others).slice(0, 3).map((i) => formatDisplayName(i));
-        const options = shuffle([displayName, ...wrongs]);
-        return {
-          item,
-          quizType,
-          question: description,
-          answer: displayName,
-          answerDisplay: `${g} - ${displayName}`,
-          options,
-          questionGroup: g,
-          hint: "정답 용어를 선택하세요",
-        };
-      }
       if (g === "무결성") {
-        const options = getMultipleChoiceOptions(items, item, "무결성");
+        const options = getMultipleChoiceOptions(items, item, g);
         return {
           item,
           quizType,
