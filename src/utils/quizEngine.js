@@ -217,11 +217,15 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
   const { allowedItemIds = null, getItemStatsTopicId = null, uniformRandom = false } = nextQuestionOptions;
   const items = topic.items;
   if (!items?.length) return null;
+  const isCouplingCohesion = isCouplingCohesionTopic(topic);
 
   let quizItems = getTopicQuizPool(topic, quizType);
   if (allowedItemIds instanceof Set) {
     if (allowedItemIds.size === 0) return null;
-    quizItems = quizItems.filter((i) => allowedItemIds.has(i.id));
+    // ORDERING은 가상 id(ordering-*)를 사용하므로 공통 item.id 필터를 건너뛴다.
+    if (!(isCouplingCohesion && quizType === QUIZ_TYPES.ORDERING)) {
+      quizItems = quizItems.filter((i) => allowedItemIds.has(i.id));
+    }
   }
   if (!quizItems.length) return null;
 
@@ -515,13 +519,16 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
     };
   }
 
-  const isCouplingCohesion = isCouplingCohesionTopic(topic);
   const isLinuxCommands = isLinuxCommandsTopic(topic);
   /** 주관식·객관식·전체보기에서 그룹(결합도) 단위로 정답 표기·보기 풀 제한 */
   const useGroupForQuiz = isCouplingCohesion;
 
   if (isCouplingCohesion && quizType === QUIZ_TYPES.ORDERING) {
-    const virtualItems = COUPLING_COHESION_GROUPS.map((g) => ({ id: `ordering-${g}` }));
+    let virtualItems = COUPLING_COHESION_GROUPS.map((g) => ({ id: `ordering-${g}` }));
+    if (allowedItemIds instanceof Set) {
+      virtualItems = virtualItems.filter((v) => allowedItemIds.has(v.id));
+      if (!virtualItems.length) return null;
+    }
     const vIdx = selectWeightedRandom(virtualItems, topic.id, stats, lastItemId, {
       uniformRandom: uniformRandom === true,
     });
