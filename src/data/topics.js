@@ -1064,7 +1064,7 @@ export const topics = [
         id: "ad-hoc-network",
         nameKo: "애드 혹 네트워크",
         nameEn: "Ad-hoc Network",
-        aliases: ["애드 혹 네트워크", "애드혹 네트워크", "애드혹", "ad-hoc", "ad hoc network", "Ad-hoc Network"],
+        aliases: ["애드 혹 네트워크", "애드혹 네트워크", "애드혹", "애드훅", "에드훅", "에드 혹 네트워크", "에드혹 네트워크", "ad-hoc", "ad hoc network", "Ad-hoc Network"],
         examDescription:
           "애드 혹 네트워크(Ad-hoc Network)는 재난 현장과 같이 별도의 고정된 유선망을 구축할 수 없는 장소에서 모바일 호스트(Mobile Host)만을 이용하여 구성한 네트워크이다. 망을 구성한 후 단기간 사용되는 경우나 유선망을 구성하기 어려운 경우에 적합하다.",
         quizPrompt:

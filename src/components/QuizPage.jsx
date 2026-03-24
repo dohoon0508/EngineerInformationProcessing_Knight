@@ -183,21 +183,8 @@ export default function QuizPage() {
   const [wrongDrillRoundReview, setWrongDrillRoundReview] = useState(null);
   /** 미니 통계 박스용 — 렌더 중 ref 읽기 금지 대신 핸들러에서 동기화 */
   const [wrongDrillMiniBuckets, setWrongDrillMiniBuckets] = useState(null);
-  /** 무한 모드: 한 바퀴 출제/오답 복습 */
-  const infiniteRemainingIdsRef = useRef(new Set());
-  const infiniteWrongReviewQueueRef = useRef([]);
-  const [infiniteReviewQueue, setInfiniteReviewQueue] = useState([]);
-  const [infiniteReviewIndex, setInfiniteReviewIndex] = useState(-1);
   const wrongDrillStateRef = useRef(null);
   const wrongDrillSessionKeyRef = useRef("");
-
-  /** 무한 모드에서 이번 바퀴에 한 번씩 출제할 id 목록 */
-  const infinitePoolItemIds = useMemo(() => {
-    if (!topic || isWrongDrillMode) return [];
-    let pool = getTopicQuizPool(topic, quizType);
-    if (topicFavoriteIds) pool = pool.filter((i) => topicFavoriteIds.has(i.id));
-    return [...new Set(pool.map((i) => i.id))];
-  }, [topic, isWrongDrillMode, quizType, topicFavoriteIds]);
 
   const recomputeWrongDrillMiniBuckets = useCallback(() => {
     const st = wrongDrillStateRef.current;
@@ -264,10 +251,6 @@ export default function QuizPage() {
 
   useEffect(() => {
     if (!isWrongDrillMode) return;
-    infiniteRemainingIdsRef.current = new Set();
-    infiniteWrongReviewQueueRef.current = [];
-    setInfiniteReviewQueue([]);
-    setInfiniteReviewIndex(-1);
     setWrongDrillRoundReview(null);
   }, [isWrongDrillMode]);
 
@@ -321,86 +304,25 @@ export default function QuizPage() {
   const loadNextQuestion = useCallback(() => {
     if (!topic) return;
     if (isWrongDrillMode) return;
-    if (infiniteReviewIndex >= 0) return;
     const latest = loadStats(kakaoUserId);
-
-    if (infiniteRemainingIdsRef.current.size === 0) {
-      if (infiniteWrongReviewQueueRef.current.length > 0) {
-        const reviewQueue = [...infiniteWrongReviewQueueRef.current];
-        setInfiniteReviewQueue(reviewQueue);
-        setInfiniteReviewIndex(0);
-        const first = reviewQueue[0];
-        setQuestion({ item: { id: first.itemId, _statsTopicId: first.statsTopicId } });
-        setResult({
-          isCorrect: false,
-          isReview: true,
-          questionText: first.questionText,
-          userAnswer: null,
-          correctAnswer: first.correctAnswer,
-          ...(first.correctAnswerExplanation
-            ? { correctAnswerExplanation: first.correctAnswerExplanation }
-            : {}),
-        });
-        setStats(latest);
-        return;
-      }
-      infiniteRemainingIdsRef.current = new Set(infinitePoolItemIds);
-      setLastItemId(null);
-    }
-
-    if (infiniteRemainingIdsRef.current.size === 0) {
-      setQuestion(null);
-      setResult(null);
-      setStats(latest);
-      return;
-    }
-
-    const q = getNextQuestion(topic, quizType, lastItemId, latest, {
-      ...nextQuestionOpts,
-      allowedItemIds: new Set(infiniteRemainingIdsRef.current),
-    });
+    const q = getNextQuestion(topic, quizType, lastItemId, latest, nextQuestionOpts);
     setQuestion(q);
     setResult(null);
     if (q) setLastItemId(q.item.id);
     setStats(latest);
-  }, [
-    topic,
-    isWrongDrillMode,
-    infiniteReviewIndex,
-    kakaoUserId,
-    infinitePoolItemIds,
-    quizType,
-    lastItemId,
-    nextQuestionOpts,
-  ]);
+  }, [topic, isWrongDrillMode, kakaoUserId, quizType, lastItemId, nextQuestionOpts]);
 
   /** 주제·유형·로그인·출제 옵션·즐겨찾기 변경 시 새로 출제 (해설 화면에서는 동일 문항 유지) — 무한 모드만 */
   useEffect(() => {
     if (!topic || isWrongDrillMode) return;
     if (viewingResultRef.current) return;
-    infiniteRemainingIdsRef.current = new Set(infinitePoolItemIds);
-    infiniteWrongReviewQueueRef.current = [];
-    setInfiniteReviewQueue([]);
-    setInfiniteReviewIndex(-1);
-    setLastItemId(null);
     const latest = loadStats(kakaoUserId);
-    const q = getNextQuestion(topic, quizType, null, latest, {
-      ...nextQuestionOpts,
-      allowedItemIds: new Set(infiniteRemainingIdsRef.current),
-    });
+    const q = getNextQuestion(topic, quizType, null, latest, nextQuestionOpts);
     setQuestion(q);
     setResult(null);
     if (q) setLastItemId(q.item.id);
     setStats(latest);
-  }, [
-    topic,
-    quizType,
-    kakaoUserId,
-    nextQuestionOpts,
-    favoriteKeys,
-    isWrongDrillMode,
-    infinitePoolItemIds,
-  ]);
+  }, [topic, quizType, kakaoUserId, nextQuestionOpts, favoriteKeys, isWrongDrillMode]);
 
   /** 틀린 것만 모드: 라우트 location.key 마다 새 세션 */
   useEffect(() => {
@@ -543,28 +465,6 @@ export default function QuizPage() {
         !isCorrect &&
         question.answerDisplay && { correctAnswerExplanation: question.answerDisplay }),
     });
-    if (!isWrongDrillMode && !isCorrect) {
-      const exists = infiniteWrongReviewQueueRef.current.some(
-        (e) => e.itemId === question.item.id
-      );
-      if (!exists) {
-        infiniteWrongReviewQueueRef.current.push({
-          itemId: question.item.id,
-          statsTopicId: question.item._statsTopicId ?? topicId,
-          questionText: question.question,
-          correctAnswer,
-          correctAnswerExplanation:
-            ((isLinuxCommandsTopic(sourceTopic) ||
-              isDatabaseTopic(sourceTopic) ||
-              sourceTopic?.id === "network" ||
-              isMiscTopic(sourceTopic) ||
-              isCryptoTopic(sourceTopic) ||
-              isTestingTypesTopic(sourceTopic)) &&
-              question.item?.shortDescription) ||
-            (quizType === QUIZ_TYPES.MATCHING ? question.answerDisplay : null),
-        });
-      }
-    }
     setSolveCount((c) => c + 1);
   };
 
@@ -610,37 +510,6 @@ export default function QuizPage() {
       return;
     }
     if (!isWrongDrillMode) {
-      if (result?.isReview) {
-        const nextIdx = infiniteReviewIndex + 1;
-        if (nextIdx < infiniteReviewQueue.length) {
-          const nextEntry = infiniteReviewQueue[nextIdx];
-          setInfiniteReviewIndex(nextIdx);
-          setQuestion({
-            item: { id: nextEntry.itemId, _statsTopicId: nextEntry.statsTopicId },
-          });
-          setResult({
-            isCorrect: false,
-            isReview: true,
-            questionText: nextEntry.questionText,
-            userAnswer: null,
-            correctAnswer: nextEntry.correctAnswer,
-            ...(nextEntry.correctAnswerExplanation
-              ? { correctAnswerExplanation: nextEntry.correctAnswerExplanation }
-              : {}),
-          });
-          return;
-        }
-        setInfiniteReviewQueue([]);
-        setInfiniteReviewIndex(-1);
-        infiniteWrongReviewQueueRef.current = [];
-        infiniteRemainingIdsRef.current = new Set(infinitePoolItemIds);
-        setLastItemId(null);
-        loadNextQuestion();
-        return;
-      }
-
-      const curId = question?.item?.id;
-      if (curId) infiniteRemainingIdsRef.current.delete(curId);
       loadNextQuestion();
       return;
     }
@@ -1027,7 +896,7 @@ export default function QuizPage() {
               <div className={`result-feedback ${result.isCorrect ? "correct" : "wrong"}`}>
                 <div className="result-feedback-heading-row">
                   <span className="result-feedback-heading-spacer" aria-hidden="true" />
-                  <h3>{result.isReview ? "오답 복습" : result.isCorrect ? "정답!" : "오답"}</h3>
+                  <h3>{result.isCorrect ? "정답!" : "오답"}</h3>
                   <div className="result-feedback-favorite">
                     <FavoriteStarButton
                       topicId={question.item._statsTopicId ?? topicId}
