@@ -109,12 +109,18 @@ function wrongDrillMiniStatBuckets(st, fallbackProgress) {
 function buildWrongDrillReviewRow(topic, itemMap, entryId) {
   if (typeof entryId === "string" && entryId.startsWith("ordering-")) {
     const group = entryId.replace("ordering-", "");
+    const orderItems = (topic?.items ?? [])
+      .filter((i) => i.group === group)
+      .sort((a, b) => (a.orderRank ?? 0) - (b.orderRank ?? 0))
+      .map((i) => formatDisplayName(i));
     return {
       id: entryId,
       _statsTopicId: topic?.id,
       purpose: null,
       name: `${group} 순서 맞추기`,
-      description: `${group} 항목을 순서대로 맞히는 문제`,
+      description: orderItems.length
+        ? `정답 순서: ${orderItems.join(" > ")}`
+        : `${group} 항목을 순서대로 맞히는 문제`,
     };
   }
   const item = itemMap.get(entryId);
@@ -207,6 +213,7 @@ export default function QuizPage() {
   const [wrongDrillMiniBuckets, setWrongDrillMiniBuckets] = useState(null);
   const wrongDrillStateRef = useRef(null);
   const wrongDrillSessionKeyRef = useRef("");
+  const wrongDrillCurrentEntryKeyRef = useRef(null);
   const wrongDrillIsCouplingMode = Boolean(
     isWrongDrillMode && topic && isCouplingCohesionTopic(topic)
   );
@@ -296,6 +303,7 @@ export default function QuizPage() {
     const entry = st.waveEntries[st.ptr];
     if (!entry) {
       setQuestion(null);
+      wrongDrillCurrentEntryKeyRef.current = null;
       return;
     }
     const latest = loadStats(kakaoUserId);
@@ -304,6 +312,7 @@ export default function QuizPage() {
       allowedItemIds: new Set([entry.itemId]),
     });
     setQuizType(entry.quizType);
+    wrongDrillCurrentEntryKeyRef.current = entry.key;
     setQuestion(q);
     setResult(null);
     if (q) setLastItemId(q.item.id);
@@ -344,6 +353,7 @@ export default function QuizPage() {
     })();
     if (!entryPool.length) {
       wrongDrillStateRef.current = null;
+      wrongDrillCurrentEntryKeyRef.current = null;
       setWrongDrillProgress(null);
       setWrongDrillRoundReview(null);
       setWrongDrillMiniBuckets(null);
@@ -393,6 +403,7 @@ export default function QuizPage() {
   useEffect(() => {
     if (!isWrongDrillMode || !topic || favoritesPoolEmpty) {
       wrongDrillStateRef.current = null;
+      wrongDrillCurrentEntryKeyRef.current = null;
       setWrongDrillProgress(null);
       setWrongDrillRoundReview(null);
       setWrongDrillMiniBuckets(null);
@@ -491,7 +502,8 @@ export default function QuizPage() {
     updateItemStats(statsTopicIdForItem, question.item.id, isCorrect, kakaoUserId);
     if (isWrongDrillMode && wrongDrillStateRef.current && !wrongDrillStateRef.current.done) {
       if (!isCorrect) {
-        wrongDrillStateRef.current.wrongOnceIds.add(question.item.id);
+        const wrongKey = wrongDrillCurrentEntryKeyRef.current ?? question.item.id;
+        wrongDrillStateRef.current.wrongOnceIds.add(wrongKey);
         setWrongDrillMiniBuckets(recomputeWrongDrillMiniBuckets());
       }
     }

@@ -532,7 +532,9 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
     const vIdx = selectWeightedRandom(virtualItems, topic.id, stats, lastItemId, {
       uniformRandom: uniformRandom === true,
     });
-    const group = COUPLING_COHESION_GROUPS[vIdx];
+    const selectedVirtualId = virtualItems[vIdx]?.id;
+    const group = selectedVirtualId?.replace("ordering-", "");
+    if (!group) return null;
     const itemsInGroup = items.filter((i) => i.group === group).sort((a, b) => a.orderRank - b.orderRank);
     const shuffled = shuffle([...itemsInGroup]);
     const listWithNum = shuffled.map((it, i) => ({ ...it, displayNum: i + 1 }));
