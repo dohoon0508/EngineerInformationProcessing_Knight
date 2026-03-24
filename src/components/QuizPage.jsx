@@ -179,6 +179,8 @@ export default function QuizPage() {
   const [solveCount, setSolveCount] = useState(0);
   /** 틀린 것만 모드: { cleared, total, done } */
   const [wrongDrillProgress, setWrongDrillProgress] = useState(null);
+  /** 틀린 것만 모드: 라운드 종료 시 오답 출제목록 요약 */
+  const [wrongDrillRoundReview, setWrongDrillRoundReview] = useState(null);
   /** 미니 통계 박스용 — 렌더 중 ref 읽기 금지 대신 핸들러에서 동기화 */
   const [wrongDrillMiniBuckets, setWrongDrillMiniBuckets] = useState(null);
   /** 무한 모드: 한 바퀴 출제/오답 복습 */
@@ -206,6 +208,14 @@ export default function QuizPage() {
       done: false,
     });
   }, []);
+
+  const wrongDrillItemMap = useMemo(() => {
+    if (!topic) return new Map();
+    const pool = getTopicQuizPool(topic, QUIZ_TYPES.SUBJECTIVE).filter(
+      (i) => !topicFavoriteIds || topicFavoriteIds.has(i.id)
+    );
+    return new Map(pool.map((i) => [i.id, i]));
+  }, [topic, topicFavoriteIds]);
 
   /** 해설(정답/오답) 표시 중 — 즐겨찾기 토글 시 출제 effect가 돌면 안 됨 */
   const viewingResultRef = useRef(false);
@@ -258,6 +268,7 @@ export default function QuizPage() {
     infiniteWrongReviewQueueRef.current = [];
     setInfiniteReviewQueue([]);
     setInfiniteReviewIndex(-1);
+    setWrongDrillRoundReview(null);
   }, [isWrongDrillMode]);
 
   const loadWrongDrillQuestionAtPtr = useCallback(() => {
@@ -286,6 +297,7 @@ export default function QuizPage() {
     if (!pool.length) {
       wrongDrillStateRef.current = null;
       setWrongDrillProgress(null);
+      setWrongDrillRoundReview(null);
       setWrongDrillMiniBuckets(null);
       setQuestion(null);
       return;
@@ -297,6 +309,7 @@ export default function QuizPage() {
       eliminated: new Set(),
       wrongOnceIds: new Set(),
       roundWrongs: [],
+      round: 1,
       total: ids.length,
       done: false,
     };
@@ -394,6 +407,7 @@ export default function QuizPage() {
     if (!isWrongDrillMode || !topic || favoritesPoolEmpty) {
       wrongDrillStateRef.current = null;
       setWrongDrillProgress(null);
+      setWrongDrillRoundReview(null);
       setWrongDrillMiniBuckets(null);
       wrongDrillSessionKeyRef.current = "";
       return;
@@ -570,12 +584,21 @@ export default function QuizPage() {
           setWrongDrillProgress((p) =>
             p ? { cleared: st.eliminated.size, total: st.total, done: true } : null
           );
+          setWrongDrillRoundReview(null);
           setWrongDrillMiniBuckets(null);
           setQuestion(null);
           setResult(null);
           return;
         }
+        setWrongDrillRoundReview({
+          round: Number.isFinite(st.round) ? st.round : 1,
+          wrongIds: uniqueWrong,
+        });
         st.waveIds = shuffle(uniqueWrong);
+        st.round += 1;
+        setQuestion(null);
+        setResult(null);
+        return;
       }
       setWrongDrillProgress({
         cleared: st.eliminated.size,
@@ -632,6 +655,18 @@ export default function QuizPage() {
       setSolveCount(0);
       loadNextQuestion();
     }
+  };
+
+  const handleWrongDrillContinueRound = () => {
+    const st = wrongDrillStateRef.current;
+    if (st && !st.done) {
+      // 오답 라운드 시작 시 기존 오답 스택은 남은 문제로 되돌림.
+      // 이후 이 라운드에서 다시 틀린 문항만 wrongOnceIds에 누적된다.
+      st.wrongOnceIds = new Set();
+      setWrongDrillMiniBuckets(recomputeWrongDrillMiniBuckets());
+    }
+    setWrongDrillRoundReview(null);
+    loadWrongDrillQuestionAtPtr();
   };
 
   if (!topic && !isAllFavoritesRoute) {
@@ -800,6 +835,62 @@ export default function QuizPage() {
             </Link>
           </div>
         )}
+        {!favoritesPoolEmpty &&
+          isWrongDrillMode &&
+          wrongDrillRoundReview &&
+          !wrongDrillProgress?.done && (
+            <div className="quiz-wrong-drill-round-review">
+              {(() => {
+                const reviewItems = wrongDrillRoundReview.wrongIds
+                  .map((id) => wrongDrillItemMap.get(id))
+                  .filter(Boolean);
+                const reviewIsDesign = Boolean(topic && isDesignPatternTopic(topic));
+                return (
+                  <>
+              <h3>{wrongDrillRoundReview.round}라운드 오답 출제목록</h3>
+              <p>
+                이번 라운드 오답 {wrongDrillRoundReview.wrongIds.length}개를 다시 풉니다.
+              </p>
+              <table className="quiz-wrong-drill-review-table">
+                <thead>
+                  <tr>
+                    <th aria-label="즐겨찾기" />
+                    <th>번호</th>
+                    {reviewIsDesign && <th>목적</th>}
+                    <th>{reviewIsDesign ? "패턴명" : "이름"}</th>
+                    <th>설명</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reviewItems.map((item, i) => (
+                    <tr key={item.id}>
+                      <td className="quiz-wrong-drill-review-fav-cell">
+                        <FavoriteStarButton
+                          topicId={item._statsTopicId ?? topicId}
+                          itemId={item.id}
+                          variant="compact"
+                        />
+                      </td>
+                      <td>{i + 1}</td>
+                      {reviewIsDesign && <td>{item.purpose ?? "—"}</td>}
+                      <td>{formatDisplayName(item)}</td>
+                      <td>{item.examDescription ?? item.description ?? ""}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button
+                type="button"
+                className="next-btn"
+                onClick={handleWrongDrillContinueRound}
+              >
+                오답 라운드 시작
+              </button>
+                  </>
+                );
+              })()}
+            </div>
+          )}
         {!favoritesPoolEmpty && question && (
           <>
             {isWrongDrillMode ? (

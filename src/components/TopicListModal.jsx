@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { formatDisplayName } from "../utils/normalize";
+import { topics } from "../data/topics";
+import { ALL_FAVORITES_TOPIC_ID } from "../utils/favoritesTopic";
 import FavoriteStarButton from "./FavoriteStarButton";
 import "./TopicListModal.css";
 
@@ -51,8 +53,39 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
   const isNetwork = topic.id === "network";
   const isMisc = topic.id === "misc";
   const isTestingTypes = topic.id === "testing-types";
+  const isAllFavorites = topic.id === ALL_FAVORITES_TOPIC_ID;
+
+  const topicTitleById = new Map(topics.map((t) => [t.id, t.title]));
 
   const renderTable = () => {
+    if (isAllFavorites) {
+      return (
+        <table className="topic-list-table">
+          <thead>
+            <tr>
+              <FavTh />
+              <th>목차</th>
+              <th>이름</th>
+              <th>설명</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(topic.items || []).map((item) => {
+              const tid = item._statsTopicId ?? "";
+              return (
+                <tr key={`${tid}-${item.id}`} {...trListRowProps(item.id, highlightRowItemId)}>
+                  <FavTd topicId={tid} itemId={item.id} />
+                  <td>{topicTitleById.get(tid) ?? tid ?? "—"}</td>
+                  <td>{formatDisplayName(item)}</td>
+                  <td className="topic-list-desc">{item.examDescription}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      );
+    }
+
     if (isTestingTypes) {
       const normal = topic.items.filter((i) => i.interactiveType !== "matching");
       const matching = topic.items.filter((i) => i.interactiveType === "matching");

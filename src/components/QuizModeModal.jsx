@@ -22,7 +22,7 @@ export default function QuizModeModal({ modal, onClose }) {
       const pool = virtual.items || [];
       const total = pool.length;
       return {
-        title: "전체 즐겨찾기",
+        title: "즐겨찾기",
         total,
         basePath: `/quiz/${ALL_FAVORITES_TOPIC_ID}`,
       };

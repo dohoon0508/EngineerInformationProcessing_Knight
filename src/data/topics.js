@@ -324,7 +324,7 @@ export const topics = [
       { id: "composite", purpose: "구조", nameKo: "컴포지트", nameEn: "Composite", aliases: ["컴포지트", "composite"], examDescription: "개별 객체와 복합 객체를 클라이언트에서 동일하게 사용하는 패턴" },
       { id: "adapter", purpose: "구조", nameKo: "어댑터", nameEn: "Adapter", aliases: ["어댑터", "adapter"], examDescription: "인터페이스 차이 때문에 함께 사용할 수 없는 클래스를 연결해 사용하는 패턴" },
       { id: "interpreter", purpose: "행위", nameKo: "인터프리터", nameEn: "Interpreter", aliases: ["인터프리터", "interpreter"], examDescription: "언어 규칙 클래스를 이용하는 패턴" },
-      { id: "template-method", purpose: "행위", nameKo: "템플릿 메서드", nameEn: "Template Method", aliases: ["템플릿 메서드", "템플릿메서드", "template method", "templatemethod"], examDescription: "알고리즘 골격의 구조를 정의하는 패턴" },
+      { id: "template-method", purpose: "행위", nameKo: "템플릿 메서드", nameEn: "Template Method", aliases: ["템플릿 메서드", "템플릿메서드", "탬플릿 메서드", "탬플릿메서드", "템플릿 매서드", "템플릿매서드", "탬플릿 매서드", "탬플릿매서드", "template method", "templatemethod"], examDescription: "알고리즘 골격의 구조를 정의하는 패턴" },
       { id: "chain-of-responsibility", purpose: "행위", nameKo: "책임의 고리", nameEn: "Chain of Responsibility", aliases: ["책임의 고리", "책임의연쇄", "chain of responsibility", "chainofresponsibility"], examDescription: "객체끼리 연결 고리를 만들어 내부적으로 전달하는 패턴" },
       { id: "command", purpose: "행위", nameKo: "커맨드", nameEn: "Command", aliases: ["커맨드", "command"], examDescription: "요청 자체를 캡슐화하여 파라미터로 넘기는 패턴" },
       { id: "iterator", purpose: "행위", nameKo: "이터레이터", nameEn: "Iterator", aliases: ["이터레이터", "iterator"], examDescription: "내부 표현을 보여주지 않고 순회하는 패턴. 자료 구조와 같이 접근이 잦은 객체에 대해 동일한 인터페이스를 사용하도록 하는 패턴. 내부 표현 방식의 노출 없이 순차적인 접근이 가능하다." },

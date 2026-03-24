@@ -67,6 +67,51 @@
   font-weight: 600;
 }
 
+.quiz-wrong-drill-round-review {
+  background: var(--color-card);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.quiz-wrong-drill-round-review h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.quiz-wrong-drill-round-review p {
+  margin: 0 0 0.8rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.quiz-wrong-drill-review-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+}
+
+.quiz-wrong-drill-review-table th,
+.quiz-wrong-drill-review-table td {
+  border: 1px solid #e2e8f0;
+  padding: 0.6rem 0.7rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.quiz-wrong-drill-review-table thead th {
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+.quiz-wrong-drill-review-fav-cell {
+  text-align: center !important;
+  width: 2.6rem;
+  padding: 0.35rem 0.25rem !important;
+}
+
 .quiz-controls {
   display: flex;
   flex-wrap: wrap;

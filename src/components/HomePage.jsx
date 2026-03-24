@@ -2,7 +2,11 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { topics } from "../data/topics";
 import { searchItems, resolveListRowItemId } from "../utils/searchIndex";
 import { useFavorites } from "../context/FavoritesContext";
-import { ALL_FAVORITES_TOPIC_ID, itemIdsForTopicFavorites } from "../utils/favoritesTopic";
+import {
+  ALL_FAVORITES_TOPIC_ID,
+  buildAllFavoritesTopic,
+  itemIdsForTopicFavorites,
+} from "../utils/favoritesTopic";
 import TopicListModal from "./TopicListModal";
 import QuizModeModal from "./QuizModeModal";
 import "./HomePage.css";
@@ -17,7 +21,10 @@ export default function HomePage() {
   const searchWrapRef = useRef(null);
   /** @type {null | { type: 'topic' | 'allFavorites', topicId?: string, favoritesOnly: boolean }} */
   const [quizModeModal, setQuizModeModal] = useState(null);
-  const listTopic = topics.find((t) => t.id === listTopicId);
+  const listTopic = useMemo(() => {
+    if (listTopicId === ALL_FAVORITES_TOPIC_ID) return buildAllFavoritesTopic(favoriteKeys);
+    return topics.find((t) => t.id === listTopicId);
+  }, [listTopicId, favoriteKeys]);
 
   function closeListModal() {
     setListTopicId(null);
@@ -103,19 +110,35 @@ export default function HomePage() {
       </header>
       <div className="home-favorites-bar">
         {allFavCount > 0 ? (
-          <button
-            type="button"
-            className="home-all-favorites-link"
-            onClick={() => setQuizModeModal({ type: "allFavorites", favoritesOnly: true })}
-          >
-            ★ 전체 즐겨찾기 풀기 <span className="home-all-favorites-count">({allFavCount})</span>
-          </button>
+          <div className="home-all-favorites-panel">
+            <button
+              type="button"
+              className="home-all-favorites-link"
+              onClick={() => {
+                setHighlightRowItemId(null);
+                setListTopicId(ALL_FAVORITES_TOPIC_ID);
+              }}
+            >
+              ★ 즐겨찾기 <span className="home-all-favorites-count">({allFavCount})</span>
+            </button>
+            <button
+              type="button"
+              className="home-all-favorites-quiz-btn"
+              onClick={() => setQuizModeModal({ type: "allFavorites", favoritesOnly: true })}
+            >
+              즐겨찾기만 풀기
+            </button>
+          </div>
         ) : (
-          <span className="home-all-favorites-link home-all-favorites-link--disabled" title="출제 목록 등에서 ★를 눌러 추가하세요">
-            ★ 전체 즐겨찾기 풀기 (0)
-          </span>
+          <div className="home-all-favorites-panel">
+            <span className="home-all-favorites-link home-all-favorites-link--disabled" title="출제 목록 등에서 ★를 눌러 추가하세요">
+              ★ 즐겨찾기 (0)
+            </span>
+            <span className="home-all-favorites-quiz-btn home-all-favorites-quiz-btn--disabled">
+              즐겨찾기만 풀기
+            </span>
+          </div>
         )}
-        <span className="home-favorites-hint">주관식만 · 여러 목차 혼합</span>
       </div>
       <div className="topic-grid">
         {topics.map((topic) => {
