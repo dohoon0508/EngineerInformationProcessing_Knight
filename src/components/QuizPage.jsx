@@ -106,6 +106,28 @@ function wrongDrillMiniStatBuckets(st, fallbackProgress) {
   };
 }
 
+function buildWrongDrillReviewRow(topic, itemMap, entryId) {
+  if (typeof entryId === "string" && entryId.startsWith("ordering-")) {
+    const group = entryId.replace("ordering-", "");
+    return {
+      id: entryId,
+      _statsTopicId: topic?.id,
+      purpose: null,
+      name: `${group} 순서 맞추기`,
+      description: `${group} 항목을 순서대로 맞히는 문제`,
+    };
+  }
+  const item = itemMap.get(entryId);
+  if (!item) return null;
+  return {
+    id: item.id,
+    _statsTopicId: item._statsTopicId,
+    purpose: item.purpose ?? null,
+    name: formatDisplayName(item),
+    description: item.examDescription ?? item.description ?? "",
+  };
+}
+
 const LEAVE_QUIZ_SESSION_MSG =
   "이 화면을 나가면 이번 세션에서 푼 진행(맞힌 문항 수·웨이브 등)이 초기화됩니다. 정말 나가시겠습니까?";
 
@@ -185,6 +207,9 @@ export default function QuizPage() {
   const [wrongDrillMiniBuckets, setWrongDrillMiniBuckets] = useState(null);
   const wrongDrillStateRef = useRef(null);
   const wrongDrillSessionKeyRef = useRef("");
+  const wrongDrillIsCouplingMode = Boolean(
+    isWrongDrillMode && topic && isCouplingCohesionTopic(topic)
+  );
 
   const recomputeWrongDrillMiniBuckets = useCallback(() => {
     const st = wrongDrillStateRef.current;
@@ -242,12 +267,20 @@ export default function QuizPage() {
     return topics.find((t) => t.id === question.item._statsTopicId) ?? topic;
   }, [isAllFavoritesRoute, question, topic]);
 
-  /** 전체 즐겨찾기·틀린 것만 모드는 주관식만 */
+  /** 전체 즐겨찾기는 주관식만, 틀린 것만은 주제 규칙에 따름 */
   useEffect(() => {
-    if (isAllFavoritesRoute || isWrongDrillMode) {
+    if (isAllFavoritesRoute) {
       setQuizType(QUIZ_TYPES.SUBJECTIVE);
+      return;
     }
-  }, [isAllFavoritesRoute, isWrongDrillMode]);
+    if (isWrongDrillMode) {
+      if (topic && isCouplingCohesionTopic(topic)) {
+        setQuizType(QUIZ_TYPES.MULTIPLE_CHOICE);
+      } else {
+        setQuizType(QUIZ_TYPES.SUBJECTIVE);
+      }
+    }
+  }, [isAllFavoritesRoute, isWrongDrillMode, topic]);
 
   useEffect(() => {
     if (!isWrongDrillMode) return;
@@ -260,12 +293,17 @@ export default function QuizPage() {
       setQuestion(null);
       return;
     }
-    const id = st.waveIds[st.ptr];
+    const entry = st.waveEntries[st.ptr];
+    if (!entry) {
+      setQuestion(null);
+      return;
+    }
     const latest = loadStats(kakaoUserId);
-    const q = getNextQuestion(topic, QUIZ_TYPES.SUBJECTIVE, null, latest, {
+    const q = getNextQuestion(topic, entry.quizType, null, latest, {
       ...nextQuestionOpts,
-      allowedItemIds: new Set([id]),
+      allowedItemIds: new Set([entry.itemId]),
     });
+    setQuizType(entry.quizType);
     setQuestion(q);
     setResult(null);
     if (q) setLastItemId(q.item.id);
@@ -274,10 +312,37 @@ export default function QuizPage() {
 
   const initWrongDrillSession = useCallback(() => {
     if (!topic) return;
-    const pool = getTopicQuizPool(topic, QUIZ_TYPES.SUBJECTIVE).filter(
+    const subjectivePool = getTopicQuizPool(topic, QUIZ_TYPES.SUBJECTIVE).filter(
       (i) => !topicFavoriteIds || topicFavoriteIds.has(i.id)
     );
-    if (!pool.length) {
+    const entryPool = (() => {
+      if (!isCouplingCohesionTopic(topic)) {
+        return subjectivePool.map((i) => ({
+          key: i.id,
+          itemId: i.id,
+          quizType: QUIZ_TYPES.SUBJECTIVE,
+        }));
+      }
+      const mcPool = getTopicQuizPool(topic, QUIZ_TYPES.MULTIPLE_CHOICE).filter(
+        (i) => !topicFavoriteIds || topicFavoriteIds.has(i.id)
+      );
+      const orderingEntries = ["결합도", "응집도"]
+        .filter((g) => topic.items.some((i) => i.group === g))
+        .map((g) => ({
+          key: `ordering-${g}`,
+          itemId: `ordering-${g}`,
+          quizType: QUIZ_TYPES.ORDERING,
+        }));
+      return [
+        ...mcPool.map((i) => ({
+          key: i.id,
+          itemId: i.id,
+          quizType: QUIZ_TYPES.MULTIPLE_CHOICE,
+        })),
+        ...orderingEntries,
+      ].slice(0, 15);
+    })();
+    if (!entryPool.length) {
       wrongDrillStateRef.current = null;
       setWrongDrillProgress(null);
       setWrongDrillRoundReview(null);
@@ -285,18 +350,18 @@ export default function QuizPage() {
       setQuestion(null);
       return;
     }
-    const ids = shuffle(pool.map((p) => p.id));
+    const entries = shuffle(entryPool);
     wrongDrillStateRef.current = {
-      waveIds: ids,
+      waveEntries: entries,
       ptr: 0,
       eliminated: new Set(),
       wrongOnceIds: new Set(),
       roundWrongs: [],
       round: 1,
-      total: ids.length,
+      total: entries.length,
       done: false,
     };
-    setWrongDrillProgress({ cleared: 0, total: ids.length, done: false });
+    setWrongDrillProgress({ cleared: 0, total: entries.length, done: false });
     setWrongDrillMiniBuckets(recomputeWrongDrillMiniBuckets());
     loadWrongDrillQuestionAtPtr();
   }, [topic, topicFavoriteIds, loadWrongDrillQuestionAtPtr, recomputeWrongDrillMiniBuckets]);
@@ -471,11 +536,13 @@ export default function QuizPage() {
   const handleNext = () => {
     if (isWrongDrillMode && wrongDrillStateRef.current && !wrongDrillStateRef.current.done) {
       const st = wrongDrillStateRef.current;
-      const id = st.waveIds[st.ptr];
-      if (result?.isCorrect) st.eliminated.add(id);
-      else st.roundWrongs.push(id);
+      const entry = st.waveEntries[st.ptr];
+      if (!entry) return;
+      const entryKey = entry.key;
+      if (result?.isCorrect) st.eliminated.add(entryKey);
+      else st.roundWrongs.push(entryKey);
       st.ptr += 1;
-      if (st.ptr >= st.waveIds.length) {
+      if (st.ptr >= st.waveEntries.length) {
         const uniqueWrong = [...new Set(st.roundWrongs)];
         st.roundWrongs = [];
         st.ptr = 0;
@@ -494,7 +561,11 @@ export default function QuizPage() {
           round: Number.isFinite(st.round) ? st.round : 1,
           wrongIds: uniqueWrong,
         });
-        st.waveIds = shuffle(uniqueWrong);
+        st.waveEntries = shuffle(
+          uniqueWrong
+            .map((key) => st.waveEntries.find((e) => e.key === key))
+            .filter(Boolean)
+        );
         st.round += 1;
         setQuestion(null);
         setResult(null);
@@ -585,7 +656,9 @@ export default function QuizPage() {
       )}
       {isWrongDrillMode && (
         <p className="quiz-favorites-mode-hint">
-          틀린 것만 모드 · 주관식만 · 한 바퀴씩 풀고 오답만 반복합니다.
+          {wrongDrillIsCouplingMode
+            ? "틀린 것만 모드 · 객관식+순서 맞추기 · 최대 15문항 · 한 바퀴씩 풀고 오답만 반복합니다."
+            : "틀린 것만 모드 · 주관식만 · 한 바퀴씩 풀고 오답만 반복합니다."}
         </p>
       )}
 
@@ -711,9 +784,11 @@ export default function QuizPage() {
             <div className="quiz-wrong-drill-round-review">
               {(() => {
                 const reviewItems = wrongDrillRoundReview.wrongIds
-                  .map((id) => wrongDrillItemMap.get(id))
+                  .map((id) => buildWrongDrillReviewRow(topic, wrongDrillItemMap, id))
                   .filter(Boolean);
-                const reviewIsDesign = Boolean(topic && isDesignPatternTopic(topic));
+                const reviewIsDesign = Boolean(
+                  topic && isDesignPatternTopic(topic) && reviewItems.every((item) => item.purpose)
+                );
                 return (
                   <>
               <h3>{wrongDrillRoundReview.round}라운드 오답 출제목록</h3>
@@ -741,9 +816,9 @@ export default function QuizPage() {
                         />
                       </td>
                       <td>{i + 1}</td>
-                      {reviewIsDesign && <td>{item.purpose ?? "—"}</td>}
-                      <td>{formatDisplayName(item)}</td>
-                      <td>{item.examDescription ?? item.description ?? ""}</td>
+                      {reviewIsDesign && <td>{item.purpose}</td>}
+                      <td>{item.name}</td>
+                      <td>{item.description}</td>
                     </tr>
                   ))}
                 </tbody>

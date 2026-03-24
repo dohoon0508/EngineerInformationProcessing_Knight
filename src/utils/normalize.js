@@ -63,8 +63,16 @@ export function checkPurposeAnswer(userInput, correctPurpose) {
  */
 export function parseOrderInput(input) {
   if (!input || typeof input !== "string") return [];
-  return input
-    .trim()
+  const trimmed = input.trim();
+  if (!trimmed) return [];
+  // "123456"처럼 구분자 없이 연속 입력한 경우 각 자리 숫자로 해석
+  if (/^\d+$/.test(trimmed) && !/[-,\s]/.test(trimmed)) {
+    return trimmed
+      .split("")
+      .map((s) => parseInt(s, 10))
+      .filter((n) => Number.isInteger(n) && n > 0);
+  }
+  return trimmed
     .split(/[-,\s]+/)
     .map((s) => parseInt(s, 10))
     .filter((n) => Number.isInteger(n) && n > 0);
