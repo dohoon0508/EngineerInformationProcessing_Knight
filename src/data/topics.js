@@ -696,8 +696,8 @@ export const topics = [
         nameKo: "결정 커버리지",
         nameEn: "Decision Coverage",
         aliases: ["결정 커버리지", "결정커버리지", "decision coverage"],
-        examDescription: "각 분기의 결정 포인트에서 전체 조건식을 최소 한 번은 T/F 모두 수행하는 커버리지",
-        shortDescription: "전체 조건식 T/F 모두 수행",
+        examDescription: "각 분기의 결과(True/False)가 최소 한 번씩 수행되는 커버리지",
+        shortDescription: "분기 결과 T/F 모두 수행",
       },
       {
         id: "condition-coverage",
@@ -705,8 +705,8 @@ export const topics = [
         nameKo: "조건 커버리지",
         nameEn: "Condition Coverage",
         aliases: ["조건 커버리지", "조건커버리지", "condition coverage"],
-        examDescription: "각 분기의 결정 포인트 내 개별 조건식을 최소 한 번은 T/F 모두 수행하는 커버리지",
-        shortDescription: "개별 조건식 T/F 모두 수행",
+        examDescription: "조건식 내 각 개별 조건이 True/False를 모두 갖도록 수행하는 커버리지",
+        shortDescription: "개별 조건 T/F 모두 수행",
       },
       {
         id: "multiple-condition-coverage",
