@@ -159,6 +159,41 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
           {wbKeys.map((wbGroup) => {
             const groupItems = normal.filter((i) => i.group === wbGroup);
             if (!groupItems.length) return null;
+
+            if (wbGroup === "화이트박스 검사") {
+              const validationKey = "검증 기준";
+              const structureKey = "구조 기반 테스트 기법";
+              const validationItems = groupItems.filter((i) => i.subcategory === validationKey);
+              const structureItems = groupItems.filter((i) => i.subcategory === structureKey);
+              const ordered = [...validationItems, ...structureItems];
+
+              return (
+                <section key={wbGroup} className="topic-list-group-section">
+                  <h3 className="topic-list-group-title">{wbGroup}</h3>
+                  <table className="topic-list-table">
+                    <thead>
+                      <tr>
+                        <FavTh />
+                        <th>구분</th>
+                        <th>기법명</th>
+                        <th>설명</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ordered.map((item) => (
+                        <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
+                          <FavTd topicId={topic.id} itemId={item.id} />
+                          <td>{item.subcategory}</td>
+                          <td>{formatDisplayName(item)}</td>
+                          <td className="topic-list-desc">{item.examDescription}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </section>
+              );
+            }
+
             return (
               <section key={wbGroup} className="topic-list-group-section">
                 <h3 className="topic-list-group-title">{wbGroup}</h3>

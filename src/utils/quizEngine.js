@@ -289,7 +289,7 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
     }
     if (quizType === QUIZ_TYPES.MULTIPLE_CHOICE) {
       const options = wbBb
-        ? getMultipleChoiceOptions(quizPool, item, item.group)
+        ? getMultipleChoiceOptions(quizPool, item, item.group, item.subcategory)
         : getCryptoMcOptions(quizPool, item);
       return {
         item,
@@ -789,10 +789,18 @@ export function getNetworkFullListItems(topic, question) {
   return inGroup.length >= 2 ? inGroup : topic.items;
 }
 
-function getMultipleChoiceOptions(items, correctItem, groupFilter = null) {
-  // 결합도·응집도: 해당 그룹 전체를 보기로 사용
+function getMultipleChoiceOptions(items, correctItem, groupFilter = null, subcategoryFilter = null) {
+  // 결합도·응집도 / 테스트 유형(화이트/블랙박스): 해당 group 기준 전체를 보기로 사용
+  // 단, 화이트박스(검증 기준 / 구조 기반 기법)는 가능하면 subcategory 안에서 우선 보기 구성.
   if (groupFilter != null) {
     const inGroup = items.filter((i) => i.group === groupFilter);
+    if (subcategoryFilter != null) {
+      const inSub = inGroup.filter((i) => i.subcategory === subcategoryFilter);
+      // 구조 기반은 항목 수가 적을 수 있으니, 너무 작으면 group 전체로 폴백
+      if (inSub.length >= 2) {
+        return shuffle(inSub.map((i) => formatDisplayName(i)));
+      }
+    }
     return shuffle(inGroup.map((i) => formatDisplayName(i)));
   }
   // 그 외: 4지선다 (정답 + 오답 3개)
