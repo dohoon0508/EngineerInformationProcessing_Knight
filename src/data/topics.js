@@ -1043,7 +1043,7 @@ export const topics = [
         id: "mesh-network",
         nameKo: "메시 네트워크",
         nameEn: "Mesh Network",
-        aliases: ["메시 네트워크", "메시네트워크", "mesh network", "mesh", "Mesh Network"],
+        aliases: ["메시 네트워크", "메시네트워크", "매시 네트워크", "매시네트워크", "mesh network", "mesh", "Mesh Network"],
         examDescription:
           "메시 네트워크(Mesh Network)는 차세대 이동통신, 홈네트워킹, 공공 안전 등 특수 목적을 위한 새로운 방식의 네트워크 기술이다. 대규모 디바이스의 네트워크 생성에 최적화되어 있다.",
         quizPrompt:
