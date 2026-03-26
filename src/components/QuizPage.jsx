@@ -284,6 +284,8 @@ export default function QuizPage() {
     if (isWrongDrillMode) {
       if (topic && (isCouplingCohesionTopic(topic) || isDatabaseTopic(topic))) {
         setQuizType(QUIZ_TYPES.MULTIPLE_CHOICE);
+      } else if (topic && isTestingTypesTopic(topic)) {
+        /* 화이트/블랙박스=객관식·그 외=주관식 혼합 — loadWrongDrillQuestionAtPtr가 entry.quizType으로 설정 */
       } else {
         setQuizType(QUIZ_TYPES.SUBJECTIVE);
       }
@@ -326,6 +328,16 @@ export default function QuizPage() {
       (i) => !topicFavoriteIds || topicFavoriteIds.has(i.id)
     );
     const entryPool = (() => {
+      if (isTestingTypesTopic(topic)) {
+        return subjectivePool.map((i) => ({
+          key: i.id,
+          itemId: i.id,
+          quizType:
+            i.group === "화이트박스 검사" || i.group === "블랙박스 검사"
+              ? QUIZ_TYPES.MULTIPLE_CHOICE
+              : QUIZ_TYPES.SUBJECTIVE,
+        }));
+      }
       if (!isCouplingCohesionTopic(topic) && !isDatabaseTopic(topic)) {
         return subjectivePool.map((i) => ({
           key: i.id,
@@ -695,6 +707,8 @@ export default function QuizPage() {
             ? "틀린 것만 모드 · 객관식+순서 맞추기 · 최대 15문항 · 한 바퀴씩 풀고 오답만 반복합니다."
             : wrongDrillIsDatabaseMode
             ? "틀린 것만 모드 · 객관식만 · 카테고리별 전체 보기 · 한 바퀴씩 풀고 오답만 반복합니다."
+            : topic && isTestingTypesTopic(topic)
+            ? "틀린 것만 모드 · 화이트/블랙박스는 객관식(그룹·하위분류 전체 보기) · 그 외 주관식 · 한 바퀴씩 풀고 오답만 반복합니다."
             : "틀린 것만 모드 · 주관식만 · 한 바퀴씩 풀고 오답만 반복합니다."}
         </p>
       )}
