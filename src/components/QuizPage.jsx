@@ -148,6 +148,7 @@ function getDatabaseFullListItems(topic, question) {
   }
   if (g === "이상") return topic.items.filter((i) => i.group === "이상");
   if (g === "함수적 종속") return topic.items.filter((i) => i.group === "함수적 종속");
+  if (g === "조인 종류") return topic.items.filter((i) => i.group === "조인 종류");
   return topic.items;
 }
 

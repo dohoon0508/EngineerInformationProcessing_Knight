@@ -399,6 +399,19 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
           hint: "해당 무결성 유형을 선택하세요",
         };
       }
+      if (g === "조인 종류" || g === "관계해석") {
+        const options = getMultipleChoiceOptions(items, item, g);
+        return {
+          item,
+          quizType,
+          question: description,
+          answer: displayName,
+          answerDisplay: `${g} - ${displayName}`,
+          options,
+          questionGroup: g,
+          hint: g === "조인 종류" ? "조인 종류를 선택하세요" : "관계해석 용어를 선택하세요",
+        };
+      }
     }
 
     if (quizType === QUIZ_TYPES.FULL_LIST) {
@@ -426,7 +439,7 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
           options: null,
         };
       }
-      if (g === "함수적 종속" || g === "관계해석" || g === "무결성") {
+      if (g === "함수적 종속" || g === "관계해석" || g === "무결성" || g === "조인 종류") {
         return {
           item,
           quizType,
@@ -440,13 +453,13 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
       }
     }
 
-    const options = shuffle([...symbolPool]);
+    const options = getMultipleChoiceOptions(items, item, g);
     return {
       item,
       quizType: QUIZ_TYPES.MULTIPLE_CHOICE,
       question: description,
-      answer: item.symbol,
-      answerDisplay: `${item.symbol} (${item.nameKo})`,
+      answer: displayName,
+      answerDisplay: `${g} - ${displayName}`,
       options,
       questionGroup: g,
       hint: "정답을 선택하세요",

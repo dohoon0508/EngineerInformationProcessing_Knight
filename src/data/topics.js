@@ -907,6 +907,64 @@ export const topics = [
         shortDescription: "튜플 순서쌍·차수 합·카디널리티 곱(×)",
       },
       {
+        id: "theta-join",
+        group: "조인 종류",
+        nameKo: "세타 조인",
+        nameEn: "Theta Join",
+        aliases: ["세타 조인", "세타조인", "theta join", "Theta Join"],
+        examDescription:
+          "JOIN에 참여하는 두 릴레이션의 속성 값을 비교하여 조건을 만족하는 튜플만 반환하는 조인이다. 조인 조건에는 =, !=, <, <=, >, >= 와 같은 비교 연산자를 사용할 수 있다.",
+        quizPrompt:
+          "두 릴레이션의 속성 값을 비교해 조건을 만족하는 튜플만 반환하는 조인이다. 조인 조건에 =, !=, <, <=, >, >= 등 비교 연산자를 쓸 수 있다. 이 조인은 무엇인가?",
+        shortDescription: "비교 연산자로 조건을 만족하는 튜플만 반환하는 조인",
+      },
+      {
+        id: "equi-join",
+        group: "조인 종류",
+        nameKo: "동등 조인",
+        nameEn: "Equi Join",
+        aliases: ["동등 조인", "동등조인", "equi join", "Equi Join"],
+        examDescription:
+          "세타 조인 중에서 = 연산자를 사용하여 같은 값을 가지는 행을 연결하여 결과를 생성하는 조인이다. 일반적으로 조인이라고 하면 동등 조인을 의미하는 경우가 많다.",
+        quizPrompt:
+          "세타 조인 가운데 = 연산자만 사용해 같은 값을 가진 행을 연결하는 조인이다. 흔히 조인이라고 하면 이것을 가리키는 경우가 많다. 이 조인은 무엇인가?",
+        shortDescription: "= 로 같은 값 행을 연결하는 조인(일반적 의미의 조인)",
+      },
+      {
+        id: "natural-join",
+        group: "조인 종류",
+        nameKo: "자연 조인",
+        nameEn: "Natural Join",
+        aliases: ["자연 조인", "자연조인", "natural join", "Natural Join"],
+        examDescription:
+          "동등 조인에서 조인에 참여한 동일한 속성이 두 번 나타나는 경우, 이 중 중복된 속성을 제거하여 같은 속성을 한 번만 표시하는 조인이다.",
+        quizPrompt:
+          "동등 조인 결과에서 조인에 쓰인 동일 속성이 두 번 나올 때, 중복 속성을 제거해 한 번만 나타나게 하는 조인이다. 이 조인은 무엇인가?",
+        shortDescription: "동등 조인 후 동일 속성 중복 제거",
+      },
+      {
+        id: "outer-join",
+        group: "조인 종류",
+        nameKo: "외부 조인",
+        nameEn: "Outer Join",
+        aliases: ["외부 조인", "외부조인", "outer join", "Outer Join"],
+        examDescription:
+          "조인 조건에 맞지 않는 튜플도 결과에 포함하고, 대응되는 값이 없으면 NULL로 채워서 반환하는 조인이다.",
+        quizPrompt:
+          "조인 조건에 맞지 않는 튜플도 결과에 넣고, 짝이 없는 쪽은 NULL로 채워 반환하는 조인이다. 이 조인은 무엇인가?",
+        shortDescription: "불일치 튜플 포함·없는 값은 NULL",
+      },
+      {
+        id: "cross-join",
+        group: "조인 종류",
+        nameKo: "교차 조인",
+        nameEn: "Cross Join",
+        aliases: ["교차 조인", "교차조인", "cross join", "Cross Join"],
+        examDescription: "두 릴레이션의 모든 튜플 조합을 반환하는 조인이다.",
+        quizPrompt: "두 릴레이션의 튜플을 가능한 모든 조합으로 곱해 반환하는 조인이다. 이 조인은 무엇인가?",
+        shortDescription: "두 릴레이션의 모든 튜플 조합(곱)",
+      },
+      {
         id: "anomaly-insert",
         group: "이상",
         nameKo: "삽입 이상",

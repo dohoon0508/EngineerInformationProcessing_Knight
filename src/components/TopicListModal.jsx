@@ -537,7 +537,15 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
     }
 
     if (isDatabase) {
-      const groups = ["순수 관계 연산자", "집합 연산자", "이상", "함수적 종속", "관계해석", "무결성"];
+      const groups = [
+        "순수 관계 연산자",
+        "집합 연산자",
+        "조인 종류",
+        "이상",
+        "함수적 종속",
+        "관계해석",
+        "무결성",
+      ];
       return (
         <div className="topic-list-coupling-cohesion">
           {groups.map((groupKey) => {
