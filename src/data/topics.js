@@ -634,28 +634,6 @@ export const topics = [
     title: "테스팅 / 검사 유형",
     items: [
       {
-        id: "test-level",
-        nameKo: "테스트 레벨",
-        nameEn: "Test Level",
-        aliases: ["테스트 레벨", "테스트레벨", "test level", "Test Level"],
-        examDescription:
-          "소프트웨어의 개발 단계에 따라 단위 테스트, 통합 테스트, 시스템 테스트, 인수 테스트로 분류되는 테스트 단계를 말한다. 이렇게 분류된 것을 테스트 레벨이라고 한다.",
-        quizPrompt:
-          "소프트웨어 개발 단계에 따라 단위·통합·시스템·인수 테스트로 나누어 부르는 테스트 단계의 분류 개념은 무엇인가?",
-        shortDescription: "단위/통합/시스템/인수 테스트로 구분되는 테스트 단계",
-      },
-      {
-        id: "v-model",
-        nameKo: "V-모델",
-        nameEn: "V-Model",
-        aliases: ["v모델", "V-모델", "v-model", "V모델", "software life cycle v-model", "V-Model"],
-        examDescription:
-          "애플리케이션 테스트와 소프트웨어 개발 단계를 연결하여 표현한 모델이다. 요구사항↔인수 테스트, 분석↔시스템 테스트, 설계↔통합 테스트, 구현↔단위 테스트 등이 대응된다.",
-        quizPrompt:
-          "애플리케이션 테스트와 소프트웨어 개발 단계를 연결하여 표현한 모델이다. 개발 단계와 검증 단계가 좌우 대응 형태로 나타난다. 이 모델은 무엇인가?",
-        shortDescription: "개발 단계와 테스트 단계를 대응시켜 표현한 모델",
-      },
-      {
         id: "stub",
         category: "테스팅 / 검사 유형",
         subcategory: "통합 테스트 보조 도구",
@@ -1220,6 +1198,25 @@ export const topics = [
         quizPrompt:
           "한 개의 정식 IP 주소에 대량의 가상 사설 IP 주소를 할당 및 연결하는 기능이다. 한 개의 IP 주소를 사용해서 외부에 접속할 수 있는 노드는 어느 시점에서 한 개로 제한되는 문제가 있지만, IP 마스커레이드(Masquerade)를 이용하여 해결할 수 있다.",
         shortDescription: "공인·사설 IP 변환·마스커레이드",
+      },
+      {
+        id: "ipsec",
+        group: "암호 / 보안 프로토콜",
+        nameKo: "IPsec",
+        nameEn: "Internet Protocol Security",
+        aliases: [
+          "ipsec",
+          "IPsec",
+          "IPSec",
+          "internet protocol security",
+          "Internet Protocol Security",
+          "아이피섹",
+        ],
+        examDescription:
+          "IPsec(Internet Protocol Security)은 네트워크 계층에서 IP 패킷 단위의 데이터 변조 방지와 은닉 기능을 제공하는 프로토콜이다. 주요 구성 요소로 AH(Authentication Header), ESP(Encapsulation Security Payload), SA(Security Association), IKE(Internet Key Exchange)가 있으며, 암호화·무결성·인증·재전송 방지 기능을 제공한다.",
+        quizPrompt:
+          "네트워크 계층에서 IP 패킷 단위로 데이터의 변조 방지와 은닉을 제공하는 보안 프로토콜이다. AH, ESP, SA, IKE를 주요 구성 요소로 가지며 암호화·무결성·인증·재전송 방지 기능을 수행한다. 이 프로토콜은 무엇인가?",
+        shortDescription: "IP 계층 보안(AH/ESP/SA/IKE)",
       },
     ],
   },

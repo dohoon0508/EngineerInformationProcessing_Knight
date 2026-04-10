@@ -329,14 +329,24 @@ export default function QuizPage() {
     );
     const entryPool = (() => {
       if (isTestingTypesTopic(topic)) {
-        return subjectivePool.map((i) => ({
-          key: i.id,
-          itemId: i.id,
-          quizType:
-            i.group === "화이트박스 검사" || i.group === "블랙박스 검사"
-              ? QUIZ_TYPES.MULTIPLE_CHOICE
-              : QUIZ_TYPES.SUBJECTIVE,
-        }));
+        const matchingPool = getTopicQuizPool(topic, QUIZ_TYPES.MATCHING).filter(
+          (i) => !topicFavoriteIds || topicFavoriteIds.has(i.id)
+        );
+        return [
+          ...subjectivePool.map((i) => ({
+            key: i.id,
+            itemId: i.id,
+            quizType:
+              i.group === "화이트박스 검사" || i.group === "블랙박스 검사"
+                ? QUIZ_TYPES.MULTIPLE_CHOICE
+                : QUIZ_TYPES.SUBJECTIVE,
+          })),
+          ...matchingPool.map((i) => ({
+            key: i.id,
+            itemId: i.id,
+            quizType: QUIZ_TYPES.MATCHING,
+          })),
+        ];
       }
       if (!isCouplingCohesionTopic(topic) && !isDatabaseTopic(topic)) {
         return subjectivePool.map((i) => ({
