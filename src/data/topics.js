@@ -387,46 +387,6 @@ export const topics = [
         shortDescription: "비밀번호 없이 권한 위임(표준)",
       },
       {
-        id: "l2tp",
-        category: "터널링 / 네트워크 방식",
-        subcategory: "터널링 / 네트워크 방식",
-        nameKo: "L2TP",
-        nameEn: "L2TP",
-        aliases: ["L2TP", "l2tp", "Layer 2 Tunneling Protocol"],
-        examDescription:
-          "Layer 2 Tunneling Protocol. PPTP와 L2F의 장점을 결합한 터널링 프로토콜로, 데이터 링크 계층에서 동작한다. 자체 암호화·인증은 약해 IPSec 등과 함께 쓰는 경우가 많다. PPTP는 PPP를 IP에 캡슐화하는 터널링, L2F는 VPN 연결용 터널링 프로토콜이다.",
-        quizPrompt:
-          "데이터 링크 계층에서 동작하는 터널링 프로토콜로, PPTP와 L2F의 장점을 합쳐 만들었다. 단독으로는 암호화·인증이 약해 IPSec 등과 함께 쓰는 경우가 많다. PPTP는 PPP를 IP에 싣는 터널링, L2F는 가상 사설망 연결용 터널링 프로토콜이다.",
-        shortDescription: "L2 터널링(PPTP+L2F 계열)",
-      },
-      {
-        id: "virtual-circuit",
-        category: "터널링 / 네트워크 방식",
-        subcategory: "터널링 / 네트워크 방식",
-        nameKo: "가상 회선 방식",
-        nameEn: "Virtual Circuit",
-        aliases: ["가상 회선 방식", "가상회선방식", "가상 회선", "virtual circuit"],
-        examDescription:
-          "단말 간 논리적 가상 회선을 먼저 설정한 뒤, 그 경로를 따라 패킷을 발생 순서대로 운반하는 방식이다. 제어 패킷으로 경로가 설정되며 송·수신 순서가 같다.",
-        quizPrompt:
-          "단말 간에 논리적 통신 경로를 먼저 잡아 둔 다음, 그 경로를 따라 패킷을 낸 순서대로 보내는 전송 방식이다. 제어 패킷으로 경로가 설정되며 송·수신 순서가 같다.",
-        shortDescription: "사전 경로 설정·순서 유지 전송",
-      },
-      { id: "datagram", category: "터널링 / 네트워크 방식", subcategory: "터널링 / 네트워크 방식", nameKo: "데이터그램 방식", nameEn: "Datagram", aliases: ["데이터그램 방식", "데이터그램방식", "데이터그램", "datagram"], examDescription: "연결 경로를 미리 두지 않고, 노드 트래픽을 감안해 패킷을 독립적으로 운반하는 방식이다. 패킷마다 목적지 전체 주소를 갖고, 도착 순서가 다를 수 있어 수신 측에서 순서를 재정리한다.", shortDescription: "비연결·패킷 독립 전송·수신에서 정렬" },
-      {
-        id: "vpn",
-        category: "터널링 / 네트워크 방식",
-        subcategory: "터널링 / 네트워크 방식",
-        nameKo: "VPN",
-        nameEn: "Virtual Private Network",
-        aliases: ["VPN", "vpn", "가상 사설 통신망", "가상 사설망", "virtual private network"],
-        examDescription:
-          "Virtual Private Network(가상 사설 통신망). 공중망과 암호화로 전용 회선처럼 안전하게 통신하게 하는 보안 솔루션이다. SSL VPN은 웹 브라우저·SSL/TLS로 원격 접속하는 방식, IPSec VPN은 IPSec으로 터널·암호화해 사설망을 구성하는 방식이 대표적이다.",
-        quizPrompt:
-          "공중 네트워크와 암호화를 이용해 마치 전용 회선처럼 안전하게 통신하도록 하는 보안 솔루션이다. 웹 브라우저와 SSL/TLS를 이용한 원격 접속 방식과, IPSec으로 터널을 만들어 사설망을 구성하는 방식 등이 대표적이다.",
-        shortDescription: "공중망+암호화 가상 사설망(SSL/IPSec)",
-      },
-      {
         id: "hash-concept",
         category: "암호 / 보안 프로토콜",
         subcategory: "암호 / 보안 프로토콜",
@@ -1128,6 +1088,52 @@ export const topics = [
         quizPrompt:
           "광섬유를 이용한 통신기술의 하나로, 파장이 서로 다른 복수의 신호를 보냄으로써 여러 대의 단말기가 동시에 통신 회선을 사용할 수 있도록 하는 기술이다.",
         shortDescription: "광섬유·서로 다른 파장으로 동시 다중화",
+      },
+      {
+        id: "l2tp",
+        group: "터널링 / 네트워크 방식",
+        nameKo: "L2TP",
+        nameEn: "L2TP",
+        aliases: ["L2TP", "l2tp", "Layer 2 Tunneling Protocol"],
+        examDescription:
+          "Layer 2 Tunneling Protocol. PPTP와 L2F의 장점을 결합한 터널링 프로토콜로, 데이터 링크 계층에서 동작한다. 자체 암호화·인증은 약해 IPSec 등과 함께 쓰는 경우가 많다. PPTP는 PPP를 IP에 캡슐화하는 터널링, L2F는 VPN 연결용 터널링 프로토콜이다.",
+        quizPrompt:
+          "데이터 링크 계층에서 동작하는 터널링 프로토콜로, PPTP와 L2F의 장점을 합쳐 만들었다. 단독으로는 암호화·인증이 약해 IPSec 등과 함께 쓰는 경우가 많다. PPTP는 PPP를 IP에 싣는 터널링, L2F는 가상 사설망 연결용 터널링 프로토콜이다.",
+        shortDescription: "L2 터널링(PPTP+L2F 계열)",
+      },
+      {
+        id: "virtual-circuit",
+        group: "터널링 / 네트워크 방식",
+        nameKo: "가상 회선 방식",
+        nameEn: "Virtual Circuit",
+        aliases: ["가상 회선 방식", "가상회선방식", "가상 회선", "virtual circuit"],
+        examDescription:
+          "단말 간 논리적 가상 회선을 먼저 설정한 뒤, 그 경로를 따라 패킷을 발생 순서대로 운반하는 방식이다. 제어 패킷으로 경로가 설정되며 송·수신 순서가 같다.",
+        quizPrompt:
+          "단말 간에 논리적 통신 경로를 먼저 잡아 둔 다음, 그 경로를 따라 패킷을 낸 순서대로 보내는 전송 방식이다. 제어 패킷으로 경로가 설정되며 송·수신 순서가 같다.",
+        shortDescription: "사전 경로 설정·순서 유지 전송",
+      },
+      {
+        id: "datagram",
+        group: "터널링 / 네트워크 방식",
+        nameKo: "데이터그램 방식",
+        nameEn: "Datagram",
+        aliases: ["데이터그램 방식", "데이터그램방식", "데이터그램", "datagram"],
+        examDescription:
+          "연결 경로를 미리 두지 않고, 노드 트래픽을 감안해 패킷을 독립적으로 운반하는 방식이다. 패킷마다 목적지 전체 주소를 갖고, 도착 순서가 다를 수 있어 수신 측에서 순서를 재정리한다.",
+        shortDescription: "비연결·패킷 독립 전송·수신에서 정렬",
+      },
+      {
+        id: "vpn",
+        group: "터널링 / 네트워크 방식",
+        nameKo: "VPN",
+        nameEn: "Virtual Private Network",
+        aliases: ["VPN", "vpn", "가상 사설 통신망", "가상 사설망", "virtual private network"],
+        examDescription:
+          "Virtual Private Network(가상 사설 통신망). 공중망과 암호화로 전용 회선처럼 안전하게 통신하게 하는 보안 솔루션이다. SSL VPN은 웹 브라우저·SSL/TLS로 원격 접속하는 방식, IPSec VPN은 IPSec으로 터널·암호화해 사설망을 구성하는 방식이 대표적이다.",
+        quizPrompt:
+          "공중 네트워크와 암호화를 이용해 마치 전용 회선처럼 안전하게 통신하도록 하는 보안 솔루션이다. 웹 브라우저와 SSL/TLS를 이용한 원격 접속 방식과, IPSec으로 터널을 만들어 사설망을 구성하는 방식 등이 대표적이다.",
+        shortDescription: "공중망+암호화 가상 사설망(SSL/IPSec)",
       },
       {
         id: "igp",
