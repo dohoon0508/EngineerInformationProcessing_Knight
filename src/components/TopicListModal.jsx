@@ -277,6 +277,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
         "라우팅 프로토콜",
         "주소 변환",
         "오류 제어",
+        "데이터 링크 계층 프로토콜",
         "터널링 / 네트워크 방식",
         "암호 / 보안 프로토콜",
       ];
