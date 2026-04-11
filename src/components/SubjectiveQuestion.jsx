@@ -19,6 +19,9 @@ export default function SubjectiveQuestion({ question, onSubmit, hint }) {
       <div className="question-prompt">
         {questionGroup && <p className="question-group-badge">{questionGroup}</p>}
         <p className="question-text">{question.question}</p>
+        {question.supplementText ? (
+          <p className="question-supplement">{question.supplementText}</p>
+        ) : null}
         <p className="question-hint">{hint ?? defaultHint}</p>
       </div>
       <form onSubmit={handleSubmit} className="answer-form">

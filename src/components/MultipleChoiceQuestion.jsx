@@ -8,6 +8,9 @@ export default function MultipleChoiceQuestion({ question, onSubmit }) {
           <p className="question-group-badge">{question.questionGroup}</p>
         )}
         <p className="question-text">{question.question}</p>
+        {question.supplementText ? (
+          <p className="question-supplement">{question.supplementText}</p>
+        ) : null}
         <p className="question-hint">{question.hint ?? "정답을 선택하세요"}</p>
       </div>
       <div className="options-grid">

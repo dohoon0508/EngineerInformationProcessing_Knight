@@ -23,6 +23,14 @@
   margin: 0 0 0.5rem;
 }
 
+.question-supplement {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0 0 0.65rem;
+  color: var(--color-text-muted, #64748b);
+  opacity: 0.88;
+}
+
 .question-hint {
   font-size: 0.875rem;
   color: var(--color-text-muted);

@@ -431,7 +431,12 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <td>{i + 1}</td>
                 <td>{item.nameKo}</td>
                 <td>{item.nameEn ?? "-"}</td>
-                <td className="topic-list-desc">{item.examDescription}</td>
+                <td className="topic-list-desc">
+                  {item.examDescription}
+                  {item.examSupplement ? (
+                    <p className="topic-list-exam-supplement">{item.examSupplement}</p>
+                  ) : null}
+                </td>
               </tr>
             ))}
           </tbody>

@@ -721,6 +721,7 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
     answer: displayName,
     answerDisplay: useGroupForQuiz ? `${item.group} - ${displayName}` : displayName,
     questionGroup: null,
+    ...(item.examSupplement ? { supplementText: item.examSupplement } : {}),
     options:
       quizType === QUIZ_TYPES.MULTIPLE_CHOICE
         ? getMultipleChoiceOptions(mcListPool, item, useGroupForQuiz ? item.group : null)

@@ -16,6 +16,9 @@ export default function FullListQuestion({ question, items, onSubmit, getOptionL
     <div className="question-card full-list">
       <div className="question-prompt">
         <p className="question-text">{question.question}</p>
+        {question.supplementText ? (
+          <p className="question-supplement">{question.supplementText}</p>
+        ) : null}
         <p className="question-hint">목록에서 정답을 선택하세요</p>
       </div>
       <div className="full-list-controls">

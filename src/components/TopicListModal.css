@@ -119,6 +119,14 @@
   word-break: keep-all;
 }
 
+.topic-list-exam-supplement {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text-muted, #64748b);
+  opacity: 0.9;
+}
+
 .topic-list-placeholder {
   color: var(--color-text-muted);
   text-align: center;
