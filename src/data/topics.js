@@ -353,7 +353,17 @@ export const topics = [
       { id: "observer", purpose: "행위", nameKo: "옵저버", nameEn: "Observer", aliases: ["옵저버", "observer"], examDescription: "상태 변화 시 의존 객체들에게 알리고 자동 업데이트하는 패턴" },
       { id: "state", purpose: "행위", nameKo: "스테이트", nameEn: "State", aliases: ["스테이트", "state"], examDescription: "객체 내부 상태에 따라 행위를 변경하는 패턴" },
       { id: "strategy", purpose: "행위", nameKo: "스트래티지", nameEn: "Strategy", aliases: ["스트래티지", "strategy"], examDescription: "여러 알고리즘을 캡슐화하여 대체 가능하게 하는 패턴" },
-      { id: "visitor", purpose: "행위", nameKo: "비지터", nameEn: "Visitor", aliases: ["비지터", "visitor"], examDescription: "오퍼레이션을 별도의 클래스에 새롭게 정의하는 패턴" },
+      {
+        id: "visitor",
+        purpose: "행위",
+        nameKo: "비지터",
+        nameEn: "Visitor",
+        aliases: ["비지터", "visitor"],
+        examDescription:
+          "각 클래스들의 데이터 구조에서 처리 기능을 분리하여 별도로 구성함으로써, 클래스를 수정하지 않고도 새로운 연산의 추가가 가능하다.",
+        quizPrompt:
+          "각 클래스들의 데이터 구조에서 처리 기능을 분리하여 별도로 구성함으로써, 클래스를 수정하지 않고도 새로운 연산의 추가가 가능하다. 이 패턴은?",
+      },
     ],
   },
   {
