@@ -273,7 +273,13 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
     }
 
     if (isNetwork) {
-      const groupOrder = ["라우팅 프로토콜", "주소 변환"];
+      const groupOrder = [
+        "라우팅 프로토콜",
+        "주소 변환",
+        "오류 제어",
+        "터널링 / 네트워크 방식",
+        "암호 / 보안 프로토콜",
+      ];
       const groupKeys = [...new Set(topic.items.map((i) => i.group).filter(Boolean))];
       const orderedGroups = [
         ...groupOrder.filter((k) => groupKeys.includes(k)),
@@ -291,7 +297,6 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                   <thead>
                     <tr>
                       <FavTh />
-                      <th>group</th>
                       <th>이름</th>
                       <th>설명</th>
                     </tr>
@@ -300,7 +305,6 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                     {groupItems.map((item) => (
                       <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                         <FavTd topicId={topic.id} itemId={item.id} />
-                        <td>{item.group}</td>
                         <td>{formatDisplayName(item)}</td>
                         <td className="topic-list-desc">{item.examDescription}</td>
                       </tr>
@@ -317,7 +321,6 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                 <thead>
                   <tr>
                     <FavTh />
-                    <th>group</th>
                     <th>이름</th>
                     <th>설명</th>
                   </tr>
@@ -326,7 +329,6 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
                   {noGroup.map((item) => (
                     <tr key={item.id} {...trListRowProps(item.id, highlightRowItemId)}>
                       <FavTd topicId={topic.id} itemId={item.id} />
-                      <td>—</td>
                       <td>{formatDisplayName(item)}</td>
                       <td className="topic-list-desc">{item.examDescription}</td>
                     </tr>

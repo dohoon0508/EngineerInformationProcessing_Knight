@@ -1312,6 +1312,65 @@ export const topics = [
           "네트워크 계층에서 IP 패킷 단위로 데이터의 변조 방지와 은닉을 제공하는 보안 프로토콜이다. AH, ESP, SA, IKE를 주요 구성 요소로 가지며 암호화·무결성·인증·재전송 방지 기능을 수행한다. 이 프로토콜은 무엇인가?",
         shortDescription: "IP 계층 보안(AH/ESP/SA/IKE)",
       },
+      {
+        id: "hamming-code",
+        group: "오류 제어",
+        nameKo: "해밍 코드",
+        nameEn: "Hamming Code",
+        aliases: ["해밍 코드", "해밍코드", "hamming code", "Hamming Code"],
+        examDescription:
+          "데이터 전송 과정에서 발생한 1비트 오류를 정정하고, 2비트 오류를 검출할 수 있도록 중복 비트를 추가하는 오류 정정 코드이다.",
+        quizPrompt:
+          "데이터 전송 과정에서 발생한 1비트 오류를 정정하고, 2비트 오류를 검출할 수 있도록 중복 비트를 추가하는 오류 정정 코드이다.",
+        shortDescription: "1비트 오류 정정, 2비트 오류 검출이 가능한 코드",
+      },
+      {
+        id: "fec",
+        group: "오류 제어",
+        nameKo: "FEC",
+        nameEn: "Forward Error Correction",
+        aliases: ["FEC", "fec", "Forward Error Correction", "forward error correction", "전진 오류 수정"],
+        examDescription:
+          "FEC(Forward Error Correction, 전진 오류 수정)는 송신 측에서 오류 정정에 필요한 여분의 정보를 함께 보내고, 수신 측에서 재전송 요청 없이 스스로 오류를 검출·정정하는 방식이다.",
+        quizPrompt:
+          "송신 측에서 오류 정정에 필요한 여분의 정보를 함께 보내고, 수신 측에서 재전송 요청 없이 스스로 오류를 검출·정정하는 방식이다.",
+        shortDescription: "재전송 없이 수신 측이 오류를 정정하는 방식",
+      },
+      {
+        id: "bec",
+        group: "오류 제어",
+        nameKo: "BEC",
+        nameEn: "Backward Error Correction",
+        aliases: ["BEC", "bec", "Backward Error Correction", "backward error correction", "후진 오류 수정"],
+        examDescription:
+          "BEC(Backward Error Correction, 후진 오류 수정)는 수신 측이 오류를 검출하면 송신 측에 재전송을 요청하여 오류를 수정하는 방식이다.",
+        quizPrompt: "수신 측이 오류를 검출하면 송신 측에 재전송을 요청하여 오류를 수정하는 방식이다.",
+        shortDescription: "오류 발생 시 재전송을 요청하는 방식",
+      },
+      {
+        id: "parity-check",
+        group: "오류 제어",
+        nameKo: "패리티 검사",
+        nameEn: "Parity Check",
+        aliases: ["패리티 검사", "패리티검사", "parity check", "Parity Check"],
+        examDescription:
+          "패리티 검사(Parity Check)는 데이터에 1비트의 패리티 비트를 추가하여 전체 1의 개수가 짝수 또는 홀수가 되도록 맞춘 뒤 오류를 검출하는 방식이다.",
+        quizPrompt:
+          "데이터에 1비트의 패리티 비트를 추가하여 전체 1의 개수가 짝수 또는 홀수가 되도록 맞춘 뒤 오류를 검출하는 방식이다.",
+        shortDescription: "패리티 비트를 이용해 오류를 검출하는 방식",
+      },
+      {
+        id: "crc",
+        group: "오류 제어",
+        nameKo: "CRC",
+        nameEn: "Cyclic Redundancy Check",
+        aliases: ["CRC", "crc", "Cyclic Redundancy Check", "cyclic redundancy check", "순환 중복 검사"],
+        examDescription:
+          "CRC(Cyclic Redundancy Check, 순환 중복 검사)는 데이터의 비트열을 생성 다항식으로 나누어 나온 나머지를 검사 비트로 붙여 전송하고, 수신 측에서 같은 방식으로 계산해 오류를 검출하는 방식이다.",
+        quizPrompt:
+          "데이터의 비트열을 생성 다항식으로 나누어 나온 나머지를 검사 비트로 붙여 전송하고, 수신 측에서 같은 방식으로 계산해 오류를 검출하는 방식이다.",
+        shortDescription: "다항식 연산을 이용해 오류를 검출하는 방식",
+      },
     ],
   },
   {
