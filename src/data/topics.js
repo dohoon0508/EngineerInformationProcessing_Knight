@@ -958,6 +958,121 @@ export const topics = [
     title: "데이터베이스",
     items: [
       {
+        id: "relational-attribute",
+        group: "관계 데이터 모델",
+        nameKo: "속성",
+        nameEn: "Attribute",
+        aliases: ["속성", "attribute", "Attribute", "애트리뷰트"],
+        examDescription:
+          "속성(Attribute)은 릴레이션의 각 열에 해당하며, 파일 구조의 관점에서는 데이터 필드에 대응한다.",
+        quizPrompt:
+          "릴레이션의 각 열에 해당하고, 파일 구조로 보면 데이터 필드에 해당하는 관계 데이터 모델의 구성 요소는?",
+        shortDescription: "릴레이션의 열·데이터 필드",
+      },
+      {
+        id: "relational-tuple",
+        group: "관계 데이터 모델",
+        nameKo: "튜플",
+        nameEn: "Tuple",
+        aliases: ["튜플", "tuple", "Tuple", "레코드", "record", "Record"],
+        examDescription:
+          "튜플(Tuple)은 릴레이션의 각 행에 해당하며 레코드라고도 부른다. 튜플 내·튜플 간에 동일한 값이 나타날 수 있다.",
+        quizPrompt:
+          "릴레이션의 각 행에 해당하며 레코드라고도 부르는 관계 데이터 모델의 구성 요소는?",
+        shortDescription: "릴레이션의 행·레코드",
+      },
+      {
+        id: "relational-cardinality",
+        group: "관계 데이터 모델",
+        nameKo: "카디널리티",
+        nameEn: "Cardinality",
+        aliases: ["카디널리티", "cardinality", "Cardinality", "기수"],
+        examDescription:
+          "카디널리티(Cardinality)는 릴레이션에 포함된 튜플의 개수를 뜻하며, 데이터 집합에서 고유 값의 개수 등으로도 쓰인다.",
+        quizPrompt:
+          "릴레이션에 포함된 튜플의 개수를 나타내는 용어로, 데이터 집합의 고유 값 개수 등에도 쓰이는 관계 데이터 모델 개념은?",
+        shortDescription: "튜플 개수·(또는) 고유 값 개수",
+      },
+      {
+        id: "relational-degree",
+        group: "관계 데이터 모델",
+        nameKo: "차수",
+        nameEn: "Degree",
+        aliases: ["차수", "degree", "Degree", "디그리"],
+        examDescription:
+          "차수(Degree)는 하나의 릴레이션에 포함된 속성(열)의 개수이다.",
+        quizPrompt: "하나의 릴레이션에 포함된 속성(열)의 개수를 나타내는 관계 데이터 모델 용어는?",
+        shortDescription: "릴레이션의 속성(열) 개수",
+      },
+      {
+        id: "relational-domain",
+        group: "관계 데이터 모델",
+        nameKo: "도메인",
+        nameEn: "Domain",
+        aliases: ["도메인", "domain", "Domain"],
+        examDescription:
+          "도메인(Domain)은 하나의 속성이 취할 수 있는 값들의 집합이다.",
+        quizPrompt: "하나의 속성이 가질 수 있는 값들의 집합을 정의하는 관계 데이터 모델 개념은?",
+        shortDescription: "속성 값의 허용 집합",
+      },
+      {
+        id: "relation-instance",
+        group: "관계 데이터 모델",
+        nameKo: "릴레이션 인스턴스",
+        nameEn: "Relation Instance",
+        aliases: [
+          "릴레이션 인스턴스",
+          "릴레이션인스턴스",
+          "relation instance",
+          "Relation Instance",
+          "릴레이션 외연",
+          "릴레이션외연",
+          "relation extension",
+          "Relation Extension",
+        ],
+        examDescription:
+          "릴레이션 인스턴스(Relation Instance)는 특정 시점에 릴레이션에 실제로 저장된 튜플들의 집합이며, 릴레이션 외연(Relation Extension)이라고도 한다.",
+        quizPrompt:
+          "특정 시점에 릴레이션에 실제로 들어 있는 튜플들의 집합을 가리키며, 릴레이션 외연으로도 불리는 개념은?",
+        shortDescription: "특정 시점의 실제 튜플 집합(외연)",
+      },
+      {
+        id: "relation-table",
+        group: "관계 데이터 모델",
+        nameKo: "릴레이션",
+        nameEn: "Relation",
+        aliases: ["릴레이션", "relation", "Relation", "테이블", "table", "Table"],
+        examDescription:
+          "릴레이션(Relation)은 행(튜플)과 열(속성)으로 구성된 이차원 표 형태의 구조이며 테이블이라고도 한다.",
+        quizPrompt:
+          "행과 열로 이루어진 이차원 표 형태의 구조로, 관계 데이터베이스에서 테이블에 대응하는 개념은?",
+        shortDescription: "행·열(튜플·속성)의 2차원 표·테이블",
+      },
+      {
+        id: "relation-schema",
+        group: "관계 데이터 모델",
+        nameKo: "릴레이션 스키마",
+        nameEn: "Relation Schema",
+        aliases: ["릴레이션 스키마", "릴레이션스키마", "relation schema", "Relation Schema"],
+        examDescription:
+          "릴레이션 스키마(Relation Schema)는 릴레이션의 이름, 속성, 각 속성의 도메인, 제약조건 등 구조를 정의한 것이다.",
+        quizPrompt:
+          "릴레이션의 이름·속성·도메인·제약조건 등 구조를 기술한 정의를 무엇이라 하는가?",
+        shortDescription: "이름·속성·도메인·제약의 구조 정의",
+      },
+      {
+        id: "relational-identifier",
+        group: "관계 데이터 모델",
+        nameKo: "식별자",
+        nameEn: "Identifier",
+        aliases: ["식별자", "identifier", "Identifier"],
+        examDescription:
+          "식별자(Identifier)는 각 튜플을 유일하게 구분할 수 있는 속성 또는 속성 집합을 말하며, 후보키 등이 이에 해당한다.",
+        quizPrompt:
+          "각 튜플을 유일하게 구분할 수 있는 속성(또는 속성 집합)을 가리키며, 후보키 등이 여기에 해당하는 개념은?",
+        shortDescription: "튜플을 유일하게 구분하는 속성(후보키 등)",
+      },
+      {
         id: "relational-select",
         group: "순수 관계 연산자",
         nameKo: "Select",

@@ -546,6 +546,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
 
     if (isDatabase) {
       const groups = [
+        "관계 데이터 모델",
         "순수 관계 연산자",
         "집합 연산자",
         "조인 종류",
