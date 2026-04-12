@@ -1884,6 +1884,18 @@ export const topics = [
         shortDescription: "한 번 로그인으로 여러 사이트 이용",
       },
       {
+        id: "solid",
+        subcategory: "SOLID (객체지향 설계 원칙)",
+        nameKo: "SOLID",
+        nameEn: "Object-Oriented Design Principles",
+        aliases: ["SOLID", "solid", "솔리드", "SOLID 원칙", "객체지향 설계 원칙", "solid 원칙"],
+        examDescription:
+          "SOLID는 객체지향 설계를 위한 다섯 가지 원칙의 약어로, 소프트웨어의 유지보수성과 확장성을 높이기 위해 제시된다. SRP(단일 책임), OCP(개방-폐쇄), LSP(리스코프 치환), ISP(인터페이스 분리), DIP(의존 역전)의 머리글자를 따 만든다.",
+        quizPrompt:
+          "객체지향 설계에서 유지보수성과 확장성을 높이기 위해 제시된 다섯 가지 원칙을 통칭하는 약어로, SRP·OCP·LSP·ISP·DIP로 구성되는 것은?",
+        shortDescription: "객체지향 5원칙 통칭 약어(SRP~DIP)",
+      },
+      {
         id: "srp",
         subcategory: "SOLID (객체지향 설계 원칙)",
         nameKo: "단일 책임 원칙",
@@ -1896,8 +1908,11 @@ export const topics = [
           "single responsibility principle",
           "Single Responsibility Principle",
         ],
-        examDescription: "객체는 단 하나의 책임만 가져야 한다는 원칙",
-        shortDescription: "하나의 객체는 하나의 책임만 가져야 한다",
+        examDescription:
+          "단일 책임 원칙(SRP)은 하나의 클래스는 하나의 책임만 가져야 한다는 원칙이다. 객체는 단 하나의 변경 이유만 갖도록 책임을 분리한다.",
+        quizPrompt:
+          "하나의 클래스는 하나의 책임만 가져야 하며, 객체는 단 하나의 책임을 갖도록 하는 SOLID 원칙은?",
+        shortDescription: "클래스당 하나의 책임(SRP)",
       },
       {
         id: "ocp",
@@ -1906,8 +1921,11 @@ export const topics = [
         nameEn: "Open-Closed Principle",
         shortLabel: "OCP",
         aliases: ["개방-폐쇄 원칙", "개방 폐쇄 원칙", "ocp", "OCP", "open-closed principle", "Open-Closed Principle"],
-        examDescription: "기존의 코드를 변경하지 않고 기능을 추가할 수 있도록 설계해야 한다는 원칙",
-        shortDescription: "변경 없이 확장(열림·닫힘)",
+        examDescription:
+          "개방-폐쇄 원칙(OCP)은 기존 코드를 변경하지 않고도 기능을 확장할 수 있도록 설계해야 한다는 원칙이다. 확장에는 열려 있고, 변경에는 닫혀 있어야 한다.",
+        quizPrompt:
+          "확장에는 열려 있으나 기존 코드의 변경에는 닫혀 있어야 하며, 변경 없이 기능을 추가할 수 있도록 설계해야 하는 SOLID 원칙은?",
+        shortDescription: "확장 개방·변경 폐쇄(OCP)",
       },
       {
         id: "lsp",
@@ -1923,8 +1941,11 @@ export const topics = [
           "liskov substitution principle",
           "Liskov Substitution Principle",
         ],
-        examDescription: "자식 클래스는 최소한 부모 클래스의 기능은 수행할 수 있어야 한다는 원칙",
-        shortDescription: "자식은 부모를 대체 가능해야 함",
+        examDescription:
+          "리스코프 치환 원칙(LSP)은 자식 클래스(서브타입)의 인스턴스는 부모 클래스(기반 타입)를 대체해도 프로그램의 올바른 동작이 보장되어야 한다는 원칙이다.",
+        quizPrompt:
+          "서브타입은 기반 타입을 대체해도 프로그램이 올바르게 동작해야 한다는 SOLID 원칙은?",
+        shortDescription: "서브타입이 기반 타입과 교체 가능(LSP)",
       },
       {
         id: "isp",
@@ -1940,8 +1961,11 @@ export const topics = [
           "interface segregation principle",
           "Interface Segregation Principle",
         ],
-        examDescription: "자신이 사용하지 않는 인터페이스와 의존 관계를 맺거나 영향을 받지 않아야 한다는 원칙",
-        shortDescription: "쓰지 않는 인터페이스에 의존하지 않기",
+        examDescription:
+          "인터페이스 분리 원칙(ISP)은 사용하지 않는 메서드에 의존하지 않도록 인터페이스를 적절히 분리해야 한다는 원칙이다. 클라이언트는 자신이 쓰지 않는 인터페이스와 의존 관계를 맺지 않아야 한다.",
+        quizPrompt:
+          "사용하지 않는 메서드와 불필요한 의존 관계를 피하기 위해 인터페이스를 분리해야 한다는 SOLID 원칙은?",
+        shortDescription: "안 쓰는 인터페이스에 의존하지 않기(ISP)",
       },
       {
         id: "dip",
@@ -1957,8 +1981,11 @@ export const topics = [
           "dependency inversion principle",
           "Dependency Inversion Principle",
         ],
-        examDescription: "의존 관계 성립 시 추상성이 높은 클래스와 의존 관계를 맺어야 한다는 원칙",
-        shortDescription: "구체가 아닌 추상(인터페이스 등)에 의존",
+        examDescription:
+          "의존 역전 원칙(DIP)은 고수준 모듈은 저수준 모듈에 직접 의존하지 않고, 추상화(인터페이스·추상 클래스 등)에 의존해야 한다는 원칙이다. 의존 관계를 맺을 때 구체 클래스보다 추상성이 높은 쪽을 향해야 한다.",
+        quizPrompt:
+          "고수준 모듈이 저수준 모듈의 구체 구현에 직접 의존하지 않고 추상에 의존해야 한다는 SOLID 원칙은?",
+        shortDescription: "추상에 의존·구체에 비의존(DIP)",
       },
     ],
   },
