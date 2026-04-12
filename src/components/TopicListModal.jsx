@@ -275,7 +275,7 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
     if (isNetwork) {
       const groupOrder = [
         "라우팅 프로토콜",
-        "주소 변환",
+        "네트워크 계층 프로토콜",
         "오류 제어",
         "데이터 링크 계층 프로토콜",
         "터널링 / 네트워크 방식",

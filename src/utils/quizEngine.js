@@ -13,6 +13,9 @@ export const QUIZ_TYPES = {
 
 export const PURPOSES = ["생성", "구조", "행위"];
 
+/** 암호 알고리즘 출제: 해시 / 대칭키 / 비대칭키(공개키 암호) — cryptoClass 필드와 대응 */
+export const CRYPTO_CLASSES = ["해시", "대칭키", "비대칭키"];
+
 // ----- 출제 가중치 상수 (조정 용이) -----
 /** score(-3~3) → 출제 가중치. 맞은 문제(1,2,3)는 최소 1로 더 덜 나오게 */
 const SCORE_TO_WEIGHT = {
@@ -38,9 +41,12 @@ export function isCryptoTopic(topic) {
   return topic?.items?.[0]?.category != null;
 }
 
-/** 주제별 분류 옵션 (암호: 단방향/양방향) */
+/** 주제별 분류 옵션 (암호: cryptoClass 사용 시 해시/대칭키/비대칭키, 아니면 기존 category) */
 export function getCategoriesForTopic(topic) {
   if (!topic?.items?.length) return [];
+  if (topic.id === "software-security-crypto" && topic.items.some((i) => i.cryptoClass)) {
+    return [...CRYPTO_CLASSES];
+  }
   const cats = [...new Set(topic.items.map((i) => i.category).filter(Boolean))];
   return cats.length ? cats : [];
 }
@@ -60,7 +66,7 @@ export function isDatabaseTopic(topic) {
   return topic?.id === "database";
 }
 
-/** 네트워크 주제 (라우팅 프로토콜·주소 변환 등 group — 객관식은 동일 group 우선, 4개 미만이면 topic 전체) */
+/** 네트워크 주제 (라우팅 프로토콜·네트워크 계층 프로토콜 등 group — 객관식은 동일 group 우선, 4개 미만이면 topic 전체) */
 export function isNetworkTopic(topic) {
   return topic?.id === "network";
 }
@@ -220,6 +226,12 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
   const isCouplingCohesion = isCouplingCohesionTopic(topic);
 
   let quizItems = getTopicQuizPool(topic, quizType);
+  if (
+    isCryptoTopic(topic) &&
+    (quizType === QUIZ_TYPES.PURPOSE_ONLY || quizType === QUIZ_TYPES.PURPOSE_AND_PATTERN)
+  ) {
+    quizItems = quizItems.filter((i) => i.cryptoClass);
+  }
   if (allowedItemIds instanceof Set) {
     if (allowedItemIds.size === 0) return null;
     // ORDERING은 가상 id(ordering-*)를 사용하므로 공통 item.id 필터를 건너뛴다.
@@ -467,27 +479,32 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
   }
 
   if (isCrypto && quizType === QUIZ_TYPES.PURPOSE_ONLY) {
+    const cls = item.cryptoClass ?? item.category;
     return {
       item,
       quizType,
       question: description,
-      answer: item.category,
-      answerDisplay: `${item.category} - ${displayName}`,
+      answer: cls,
+      answerDisplay: `${cls} - ${displayName}`,
       options: shuffle([...categories]),
-      hint: "분류(단방향 / 양방향)를 선택하세요",
+      hint: item.cryptoClass
+        ? "분류(해시 / 대칭키 / 비대칭키)를 선택하세요"
+        : "분류(단방향 / 양방향)를 선택하세요",
     };
   }
 
   if (isCrypto && quizType === QUIZ_TYPES.PURPOSE_AND_PATTERN) {
-    const others = items.filter((i) => i.id !== item.id);
+    const algoPool = items.filter((i) => i.cryptoClass);
+    const others = (item.cryptoClass ? algoPool : items).filter((i) => i.id !== item.id);
     const wrongNames = shuffle(others).slice(0, 3).map((i) => formatDisplayName(i));
     const patternOptions = shuffle([displayName, ...wrongNames]);
+    const purpose = item.cryptoClass ?? item.category;
     return {
       item,
       quizType,
       question: description,
-      answer: { purpose: item.category, pattern: displayName },
-      answerDisplay: `${item.category} - ${displayName}`,
+      answer: { purpose, pattern: displayName },
+      answerDisplay: `${purpose} - ${displayName}`,
       purposeOptions: shuffle([...categories]),
       patternOptions,
       firstLabel: "분류",
@@ -595,6 +612,20 @@ export function getNextQuestion(topic, quizType, lastItemId = null, statsSnapsho
     const labelPrefix = sub || cat || "";
     const answerDisplay = labelPrefix ? `${labelPrefix} - ${displayName}` : displayName;
     if (quizType === QUIZ_TYPES.SUBJECTIVE) {
+      if (item.cryptoClass) {
+        return {
+          item,
+          quizType,
+          question: description,
+          answer: displayName,
+          answerDisplay: `${item.cryptoClass} - ${displayName}`,
+          purposeOptions: [...CRYPTO_CLASSES],
+          firstPurposeLabel: "분류",
+          patternInputLabel: "알고리즘명",
+          hint: "분류를 선택한 뒤 알고리즘명을 입력하세요 (한국어 또는 영어)",
+          options: null,
+        };
+      }
       return {
         item,
         quizType,

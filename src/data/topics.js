@@ -1398,8 +1398,68 @@ export const topics = [
         shortDescription: "AS 간 라우팅·EGP 보완·증분 교환",
       },
       {
+        id: "ip",
+        group: "네트워크 계층 프로토콜",
+        nameKo: "IP",
+        nameEn: "Internet Protocol",
+        aliases: ["IP", "ip", "Internet Protocol", "internet protocol", "인터넷 프로토콜"],
+        examDescription:
+          "IP(Internet Protocol)는 네트워크 계층의 핵심 프로토콜로, 데이터를 데이터그램 단위로 캡슐화하여 논리 주소(IP 주소)를 기준으로 경로를 설정하고 최적의 경로로 전달하는 역할을 한다.",
+        quizPrompt:
+          "네트워크 계층에서 데이터를 데이터그램 단위로 다루며, 논리 주소를 이용해 경로를 설정하고 패킷을 목적지까지 전달하는 핵심 프로토콜이다. 이 프로토콜은?",
+        shortDescription: "데이터그램·논리 주소·경로 설정(라우팅)",
+      },
+      {
+        id: "arp",
+        group: "네트워크 계층 프로토콜",
+        nameKo: "ARP",
+        nameEn: "Address Resolution Protocol",
+        aliases: ["ARP", "arp", "Address Resolution Protocol", "address resolution protocol", "주소 결정 프로토콜"],
+        examDescription:
+          "ARP(Address Resolution Protocol)는 IP 주소(논리 주소)에 대응하는 MAC 주소(물리 주소)를 알아내기 위해 사용하는 프로토콜이다.",
+        quizPrompt:
+          "논리 주소(IP)에 대응하는 물리 주소(MAC)를 찾기 위해 사용하는 네트워크 계층 프로토콜이다. 이 프로토콜은?",
+        shortDescription: "IP → MAC 주소 변환",
+      },
+      {
+        id: "rarp",
+        group: "네트워크 계층 프로토콜",
+        nameKo: "RARP",
+        nameEn: "Reverse Address Resolution Protocol",
+        aliases: ["RARP", "rarp", "Reverse Address Resolution Protocol", "reverse address resolution protocol"],
+        examDescription:
+          "RARP(Reverse Address Resolution Protocol)는 MAC 주소(물리 주소)만 알고 있을 때 IP 주소(논리 주소)를 알아내기 위해 사용하는 프로토콜이다.",
+        quizPrompt:
+          "물리 주소(MAC)는 알지만 논리 주소(IP)를 알아내야 할 때 사용하는 네트워크 계층 프로토콜이다. 이 프로토콜은?",
+        shortDescription: "MAC → IP 주소 변환(역 ARP)",
+      },
+      {
+        id: "icmp",
+        group: "네트워크 계층 프로토콜",
+        nameKo: "ICMP",
+        nameEn: "Internet Control Message Protocol",
+        aliases: ["ICMP", "icmp", "Internet Control Message Protocol", "internet control message protocol"],
+        examDescription:
+          "ICMP(Internet Control Message Protocol)는 IP 데이터그램 처리 중 오류가 발생했을 때 오류 정보를 전달하거나, 네트워크 상태를 진단·제어하는 메시지를 주고받는 프로토콜이다. Ping 등에서 활용된다.",
+        quizPrompt:
+          "IP 처리 과정에서 오류 정보를 전달하거나 진단·제어에 쓰이며, Ping 등에서도 활용되는 네트워크 계층 프로토콜이다. 이 프로토콜은?",
+        shortDescription: "오류·진단 메시지(Ping 등)",
+      },
+      {
+        id: "igmp",
+        group: "네트워크 계층 프로토콜",
+        nameKo: "IGMP",
+        nameEn: "Internet Group Management Protocol",
+        aliases: ["IGMP", "igmp", "Internet Group Management Protocol", "internet group management protocol"],
+        examDescription:
+          "IGMP(Internet Group Management Protocol)는 호스트가 멀티캐스트 그룹에 가입하거나 탈퇴할 때 라우터에 알리는 등, 멀티캐스트 그룹 멤버십을 관리하는 프로토콜이다.",
+        quizPrompt:
+          "멀티캐스트 그룹에 대한 참여 여부를 라우터에 통지하고 그룹을 관리하는 데 쓰이는 네트워크 계층 프로토콜이다. 이 프로토콜은?",
+        shortDescription: "멀티캐스트 그룹 관리",
+      },
+      {
         id: "nat",
-        group: "주소 변환",
+        group: "네트워크 계층 프로토콜",
         nameKo: "NAT",
         nameEn: "Network Address Translation",
         aliases: ["nat", "NAT", "network address translation", "Network Address Translation", "네트워크 주소 변환"],
