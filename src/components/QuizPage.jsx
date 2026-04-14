@@ -164,7 +164,10 @@ export default function QuizPage() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const favoritesOnly = searchParams.get("favorites") === "1";
-  const isWrongDrillMode = searchParams.get("mode") === "wrongDrill";
+  const drillMode = searchParams.get("mode");
+  const isWrongDrillClassicMode = drillMode === "wrongDrill";
+  const isWrongDrillChoiceMode = drillMode === "wrongDrillChoice";
+  const isWrongDrillMode = isWrongDrillClassicMode || isWrongDrillChoiceMode;
   const { favoriteKeys } = useFavorites();
   const isAllFavoritesRoute = topicId === ALL_FAVORITES_TOPIC_ID;
 
@@ -219,6 +222,22 @@ export default function QuizPage() {
     isWrongDrillMode && topic && isCouplingCohesionTopic(topic)
   );
   const wrongDrillIsDatabaseMode = Boolean(isWrongDrillMode && topic && isDatabaseTopic(topic));
+
+  const normalizeChoiceOptions = useCallback((rawOptions, correctAnswer) => {
+    if (!Array.isArray(rawOptions) || !rawOptions.length) return rawOptions;
+    if (typeof correctAnswer !== "string" || !correctAnswer) return rawOptions;
+    const uniq = [...new Set(rawOptions.map((v) => String(v)))];
+    const withCorrect = uniq.includes(correctAnswer) ? uniq : [correctAnswer, ...uniq];
+    const minCount = Math.min(4, withCorrect.length);
+    const maxCount = Math.min(8, withCorrect.length);
+    if (withCorrect.length <= maxCount) return withCorrect;
+    const targetCount =
+      minCount === maxCount
+        ? minCount
+        : minCount + Math.floor(Math.random() * (maxCount - minCount + 1));
+    const others = shuffle(withCorrect.filter((v) => v !== correctAnswer));
+    return shuffle([correctAnswer, ...others.slice(0, Math.max(0, targetCount - 1))]);
+  }, []);
 
   const recomputeWrongDrillMiniBuckets = useCallback(() => {
     const st = wrongDrillStateRef.current;
@@ -283,6 +302,10 @@ export default function QuizPage() {
       return;
     }
     if (isWrongDrillMode) {
+      if (isWrongDrillChoiceMode) {
+        setQuizType(QUIZ_TYPES.MULTIPLE_CHOICE);
+        return;
+      }
       if (topic && (isCouplingCohesionTopic(topic) || isDatabaseTopic(topic))) {
         setQuizType(QUIZ_TYPES.MULTIPLE_CHOICE);
       } else if (topic && isTestingTypesTopic(topic)) {
@@ -291,7 +314,7 @@ export default function QuizPage() {
         setQuizType(QUIZ_TYPES.SUBJECTIVE);
       }
     }
-  }, [isAllFavoritesRoute, isWrongDrillMode, topic]);
+  }, [isAllFavoritesRoute, isWrongDrillMode, isWrongDrillChoiceMode, topic]);
 
   useEffect(() => {
     if (!isWrongDrillMode) return;
@@ -315,16 +338,61 @@ export default function QuizPage() {
       ...nextQuestionOpts,
       allowedItemIds: new Set([entry.itemId]),
     });
+    const patchedQuestion =
+      isWrongDrillChoiceMode &&
+      q &&
+      entry.quizType === QUIZ_TYPES.MULTIPLE_CHOICE &&
+      Array.isArray(q.options)
+        ? {
+            ...q,
+            options: normalizeChoiceOptions(q.options, q.answer),
+          }
+        : q;
     setQuizType(entry.quizType);
     wrongDrillCurrentEntryKeyRef.current = entry.key;
-    setQuestion(q);
+    setQuestion(patchedQuestion);
     setResult(null);
-    if (q) setLastItemId(q.item.id);
+    if (patchedQuestion) setLastItemId(patchedQuestion.item.id);
     setStats(latest);
-  }, [topic, kakaoUserId, nextQuestionOpts]);
+  }, [topic, kakaoUserId, nextQuestionOpts, isWrongDrillChoiceMode, normalizeChoiceOptions]);
 
   const initWrongDrillSession = useCallback(() => {
     if (!topic) return;
+    if (isWrongDrillChoiceMode) {
+      const mcPool = getTopicQuizPool(topic, QUIZ_TYPES.MULTIPLE_CHOICE).filter(
+        (i) => !topicFavoriteIds || topicFavoriteIds.has(i.id)
+      );
+      const mcEntries = mcPool.map((i) => ({
+        key: i.id,
+        itemId: i.id,
+        quizType: QUIZ_TYPES.MULTIPLE_CHOICE,
+      }));
+      if (!mcEntries.length) {
+        wrongDrillStateRef.current = null;
+        wrongDrillCurrentEntryKeyRef.current = null;
+        setWrongDrillProgress(null);
+        setWrongDrillRoundReview(null);
+        setWrongDrillMiniBuckets(null);
+        setQuestion(null);
+        return;
+      }
+      const entries = shuffle(mcEntries);
+      wrongDrillStateRef.current = {
+        waveEntries: entries,
+        ptr: 0,
+        eliminated: new Set(),
+        wrongOnceIds: new Set(),
+        roundWrongs: [],
+        round: 1,
+        total: entries.length,
+        done: false,
+      };
+      setWrongDrillProgress({ cleared: 0, total: entries.length, done: false });
+      setWrongDrillMiniBuckets(recomputeWrongDrillMiniBuckets());
+      loadWrongDrillQuestionAtPtr();
+      return;
+    }
+
     const subjectivePool = getTopicQuizPool(topic, QUIZ_TYPES.SUBJECTIVE).filter(
       (i) => !topicFavoriteIds || topicFavoriteIds.has(i.id)
     );
@@ -408,7 +476,13 @@ export default function QuizPage() {
     setWrongDrillProgress({ cleared: 0, total: entries.length, done: false });
     setWrongDrillMiniBuckets(recomputeWrongDrillMiniBuckets());
     loadWrongDrillQuestionAtPtr();
-  }, [topic, topicFavoriteIds, loadWrongDrillQuestionAtPtr, recomputeWrongDrillMiniBuckets]);
+  }, [
+    topic,
+    topicFavoriteIds,
+    loadWrongDrillQuestionAtPtr,
+    recomputeWrongDrillMiniBuckets,
+    isWrongDrillChoiceMode,
+  ]);
 
   const loadNextQuestion = useCallback(() => {
     if (!topic) return;
@@ -523,6 +597,15 @@ export default function QuizPage() {
       isCorrect =
         checkPurposeAnswer(purpose, question.item.purpose) &&
         checkNameAnswer(pattern, question.item);
+    } else if (
+      quizType === QUIZ_TYPES.SUBJECTIVE &&
+      isCryptoTopic(sourceTopic) &&
+      question.item.cryptoClass
+    ) {
+      const { purpose, pattern } = userAnswer;
+      isCorrect =
+        checkPurposeAnswer(purpose, question.item.cryptoClass) &&
+        checkNameAnswer(pattern, question.item);
     } else if (quizType === QUIZ_TYPES.SUBJECTIVE) {
       isCorrect = checkNameAnswer(userAnswer, question.item);
     } else if (quizType === QUIZ_TYPES.MATCHING) {
@@ -545,7 +628,11 @@ export default function QuizPage() {
     const correctAnswer =
       quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(sourceTopic)
         ? `${question.item.purpose} - ${formatDisplayName(question.item)}`
-        : question.answerDisplay;
+        : quizType === QUIZ_TYPES.SUBJECTIVE &&
+            isCryptoTopic(sourceTopic) &&
+            question.item.cryptoClass
+          ? `${question.item.cryptoClass} - ${formatDisplayName(question.item)}`
+          : question.answerDisplay;
 
     const userAnswerDisplay = (() => {
       if (quizType === QUIZ_TYPES.MATCHING && userAnswer && typeof userAnswer === "object") {
@@ -714,7 +801,9 @@ export default function QuizPage() {
       )}
       {isWrongDrillMode && (
         <p className="quiz-favorites-mode-hint">
-          {wrongDrillIsCouplingMode
+          {isWrongDrillChoiceMode
+            ? "틀린 것만(보기형) · 객관식 중심 · 보기 4~8개 · 한 바퀴씩 풀고 오답만 반복합니다."
+            : wrongDrillIsCouplingMode
             ? "틀린 것만 모드 · 객관식+순서 맞추기 · 최대 15문항 · 한 바퀴씩 풀고 오답만 반복합니다."
             : wrongDrillIsDatabaseMode
             ? "틀린 것만 모드 · 객관식만 · 카테고리별 전체 보기 · 한 바퀴씩 풀고 오답만 반복합니다."
@@ -954,32 +1043,36 @@ export default function QuizPage() {
                   </>
                 ) : (
                   <>
-                    {quizType === QUIZ_TYPES.SUBJECTIVE && isDesignPatternTopic(quizRenderTopic) && (
-                      <PurposeAndSubjectiveQuestion
-                        question={question}
-                        onSubmit={handleSubmit}
-                      />
-                    )}
-                    {quizType === QUIZ_TYPES.SUBJECTIVE && !isDesignPatternTopic(quizRenderTopic) && (
-                      <SubjectiveQuestion
-                        question={question}
-                        onSubmit={handleSubmit}
-                        hint={
-                          question.hint ??
-                          (isLinuxCommandsTopic(quizRenderTopic)
-                            ? "명령어를 입력하세요 (대소문자 무관)"
-                            : isCryptoTopic(quizRenderTopic)
-                            ? "알고리즘·보안 용어를 입력하세요 (한국어 또는 영어)"
-                            : isCouplingCohesionTopic(quizRenderTopic)
-                            ? "항목명을 입력하세요 (한국어 또는 영어)"
-                            : isNetworkTopic(quizRenderTopic)
-                            ? "네트워크 용어를 입력하세요 (한국어 또는 영어)"
-                            : isMiscTopic(quizRenderTopic)
-                            ? "용어·약어를 입력하세요 (한국어 또는 영어, 예: RAID 5, SRP, SSO)"
-                            : "공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)")
-                        }
-                      />
-                    )}
+                    {quizType === QUIZ_TYPES.SUBJECTIVE &&
+                      (isDesignPatternTopic(quizRenderTopic) ||
+                        (isCryptoTopic(quizRenderTopic) && question?.item?.cryptoClass)) && (
+                        <PurposeAndSubjectiveQuestion
+                          question={question}
+                          onSubmit={handleSubmit}
+                        />
+                      )}
+                    {quizType === QUIZ_TYPES.SUBJECTIVE &&
+                      !isDesignPatternTopic(quizRenderTopic) &&
+                      !(isCryptoTopic(quizRenderTopic) && question?.item?.cryptoClass) && (
+                        <SubjectiveQuestion
+                          question={question}
+                          onSubmit={handleSubmit}
+                          hint={
+                            question.hint ??
+                            (isLinuxCommandsTopic(quizRenderTopic)
+                              ? "명령어를 입력하세요 (대소문자 무관)"
+                              : isCryptoTopic(quizRenderTopic)
+                              ? "알고리즘·보안 용어를 입력하세요 (한국어 또는 영어)"
+                              : isCouplingCohesionTopic(quizRenderTopic)
+                              ? "항목명을 입력하세요 (한국어 또는 영어)"
+                              : isNetworkTopic(quizRenderTopic)
+                              ? "네트워크 용어를 입력하세요 (한국어 또는 영어)"
+                              : isMiscTopic(quizRenderTopic)
+                              ? "용어·약어를 입력하세요 (한국어 또는 영어, 예: RAID 5, SRP, SSO)"
+                              : "공격 유형 이름을 입력하세요 (한국어 또는 영어 모두 가능)")
+                          }
+                        />
+                      )}
                     {quizType === QUIZ_TYPES.MULTIPLE_CHOICE && (
                       <MultipleChoiceQuestion
                         question={question}

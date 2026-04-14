@@ -48,6 +48,9 @@ export default function QuizModeModal({ modal, onClose }) {
 
   const { title, total, basePath } = meta;
   const suffixWrong = basePath.includes("?") ? "&mode=wrongDrill" : "?mode=wrongDrill";
+  const suffixWrongChoice = basePath.includes("?")
+    ? "&mode=wrongDrillChoice"
+    : "?mode=wrongDrillChoice";
 
   return (
     <div
@@ -87,10 +90,22 @@ export default function QuizModeModal({ modal, onClose }) {
                 </span>
               </Link>
             </li>
+            <li>
+              <Link
+                className="quiz-mode-option quiz-mode-option--secondary"
+                to={`${basePath}${suffixWrongChoice}`}
+                onClick={onClose}
+              >
+                <span className="quiz-mode-option-title">틀린 것만 풀기 (보기형)</span>
+                <span className="quiz-mode-option-desc">
+                  (객관식 중심 · 보기 4~8개 · 한 바퀴 후 오답만 반복 · 나가면 세션 초기화)
+                </span>
+              </Link>
+            </li>
           </ul>
         )}
         <p className="quiz-mode-footnote">
-          「무한」은 누적 풀이 통계를 반영해 오답·미숙련 문항이 더 자주 나오며, 기록은 그대로 유지됩니다. 「틀린 것만」은 주제별로 주관식·객관식 등이 정해져 한 바퀴 돌린 뒤 틀린 문항만 다시 출제하며, 화면을 나갔다 들어오면 진행이 처음부터입니다.
+          「무한」은 누적 풀이 통계를 반영해 오답·미숙련 문항이 더 자주 나오며, 기록은 그대로 유지됩니다. 「틀린 것만」은 주제별로 주관식·객관식 등이 정해져 한 바퀴 돌린 뒤 틀린 문항만 다시 출제하며, 「틀린 것만(보기형)」은 객관식 중심으로 보기 4~8개를 제공합니다. 두 모드 모두 화면을 나갔다 들어오면 진행이 처음부터입니다.
         </p>
       </div>
     </div>

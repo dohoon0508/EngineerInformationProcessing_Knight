@@ -5,6 +5,13 @@ import "./QuestionCard.css";
 export default function PurposeAndSubjectiveQuestion({ question, onSubmit }) {
   const [purpose, setPurpose] = useState("");
   const [patternInput, setPatternInput] = useState("");
+  const purposeOptions = question.purposeOptions ?? PURPOSES;
+  const firstLabel = question.firstPurposeLabel ?? "목적";
+  const secondLabel = question.patternInputLabel ?? "패턴명";
+  const hintText =
+    question.purposeOptions != null
+      ? "분류를 선택하고 알고리즘명을 입력하세요"
+      : "목적을 선택하고 패턴명을 입력하세요";
 
   const handleSubmit = (e) => {
     e?.preventDefault();
@@ -17,13 +24,13 @@ export default function PurposeAndSubjectiveQuestion({ question, onSubmit }) {
     <div className="question-card">
       <div className="question-prompt">
         <p className="question-text">{question.question}</p>
-        <p className="question-hint">목적과 패턴명을 모두 입력하세요</p>
+        <p className="question-hint">{hintText}</p>
       </div>
       <div className="purpose-pattern-form">
         <div className="purpose-section">
-          <strong>1. 목적:</strong>
+          <strong>1. {firstLabel}:</strong>
           <div className="options-grid purpose-options">
-            {PURPOSES.map((opt) => (
+            {purposeOptions.map((opt) => (
               <button
                 key={opt}
                 type="button"
@@ -36,13 +43,17 @@ export default function PurposeAndSubjectiveQuestion({ question, onSubmit }) {
           </div>
         </div>
         <div className="pattern-section">
-          <strong>2. 패턴명:</strong>
+          <strong>2. {secondLabel}:</strong>
           <form onSubmit={handleSubmit} className="answer-form">
             <input
               type="text"
               value={patternInput}
               onChange={(e) => setPatternInput(e.target.value)}
-              placeholder="패턴명 입력 (한국어 또는 영어)"
+              placeholder={
+                question.purposeOptions != null
+                  ? "알고리즘명 입력 (한국어 또는 영어)"
+                  : "패턴명 입력 (한국어 또는 영어)"
+              }
               autoFocus
             />
             <button
