@@ -31,6 +31,14 @@ export default function TopicListModal({ topic, onClose, highlightRowItemId = nu
   const bodyRef = useRef(null);
 
   useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  useEffect(() => {
     if (!highlightRowItemId || !bodyRef.current) return;
     const id = String(highlightRowItemId);
     const safe = typeof CSS !== "undefined" && CSS.escape ? CSS.escape(id) : id.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
