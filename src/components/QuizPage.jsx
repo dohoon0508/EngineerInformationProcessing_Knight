@@ -754,6 +754,17 @@ export default function QuizPage() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [result, handleNext]);
 
+  useEffect(() => {
+    if (!isWrongDrillMode || !wrongDrillRoundReview || wrongDrillProgress?.done) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key !== "Enter" || e.isComposing || e.repeat) return;
+      e.preventDefault();
+      handleWrongDrillContinueRound();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isWrongDrillMode, wrongDrillRoundReview, wrongDrillProgress, handleWrongDrillContinueRound]);
+
   if (!topic && !isAllFavoritesRoute) {
     return (
       <div className="quiz-page">
